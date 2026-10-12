@@ -1,0 +1,846 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Unofficial trainer for Hungary's cultural knowledge exam (magyar kulturális ismereti vizsga): flashcards, timed mock exams and a readiness estimate.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 3 3'%3E%3Crect width='3' height='1' fill='%23cd2a3e'/%3E%3Crect y='1' width='3' height='1' fill='%23ffffff'/%3E%3Crect y='2' width='3' height='1' fill='%23436f4d'/%3E%3C/svg%3E">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.4 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<link rel="stylesheet" href="fonts/fonts.css">
+<title>Hungarian Culture Exam Trainer</title>
+<style>
+/* Layout: one study column (max 680px) under a tricolour band and a sticky tab bar.
+   Panels only where a block is a separate object (the flashcard, the exam sheet).
+   Signature graphic: the official 0–30 point scale with the 16-point pass line. */
+:root{
+  --paper:#f2f5f1; --surface:#ffffff; --ink:#16201a; --muted:#56635a; --line:#d4dcd3; --soft:#e7ede6;
+  --green:#2b6a42; --on-green:#ffffff; --green-tint:#dfede3;
+  --red:#ad3539; --red-tint:#f6e1df; --amber:#94600c; --amber-tint:#f4e8d2;
+  --flag-red:#cd2a3e; --flag-white:#ffffff; --flag-green:#436f4d;
+  --f-display:"Bricolage Grotesque","Atkinson Hyperlegible Next",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible Next","Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"Atkinson Hyperlegible Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0e1310; --surface:#151c17; --ink:#e5ebe6; --muted:#9aa79e; --line:#29332c; --soft:#1d2620;
+    --green:#74c08f; --on-green:#0c1810; --green-tint:#1a2c20;
+    --red:#e6827c; --red-tint:#3a201f; --amber:#e1b25e; --amber-tint:#33291a;
+    --flag-white:#eceeea; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0e1310; --surface:#151c17; --ink:#e5ebe6; --muted:#9aa79e; --line:#29332c; --soft:#1d2620;
+  --green:#74c08f; --on-green:#0c1810; --green-tint:#1a2c20;
+  --red:#e6827c; --red-tint:#3a201f; --amber:#e1b25e; --amber-tint:#33291a;
+  --flag-white:#eceeea; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font:400 16px/1.5 var(--f-body)}
+a{color:var(--green);text-underline-offset:3px}
+.flag{display:grid;grid-template-rows:repeat(3,4px)}
+.flag i:nth-child(1){background:var(--flag-red)}
+.flag i:nth-child(2){background:var(--flag-white);border-block:1px solid var(--line)}
+.flag i:nth-child(3){background:var(--flag-green)}
+.wrap{max-width:680px;margin-inline:auto;padding-inline:16px}
+.top{padding-block:16px 0}
+.top h1{font:800 clamp(30px,8vw,44px)/1.02 var(--f-display);letter-spacing:-.015em;margin:0;text-wrap:balance}
+.top .sub{margin:6px 0 0;color:var(--muted);font-size:15px}
+.sync{display:inline-block;margin-top:8px;font:400 13px/1.3 var(--f-mono);color:var(--muted)}
+.sync[data-mode="account"]::before{content:"● ";color:var(--green)}
+.sync[data-mode="device"]::before{content:"○ ";color:var(--muted)}
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-bottom:1px solid var(--line);margin-top:14px}
+nav.tabs .wrap{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+nav.tabs .wrap::-webkit-scrollbar{display:none}
+.tab{appearance:none;border:0;background:none;color:var(--muted);font:700 15px/1 var(--f-body);padding:14px 10px 11px;border-bottom:3px solid transparent;white-space:nowrap;cursor:pointer}
+.tab[aria-current="page"]{color:var(--ink);border-bottom-color:var(--green)}
+main.wrap{padding-block:22px 56px}
+body.running main.wrap{padding-block-end:120px}
+h2{font:800 22px/1.15 var(--f-display);margin:0;text-wrap:balance;letter-spacing:-.005em}
+h3{font:700 17px/1.3 var(--f-body);margin:0}
+p{margin:0}
+section{display:grid;gap:12px;margin-top:28px}
+section:first-child{margin-top:0}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.eyebrow{font:700 12px/1.2 var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 16px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:700 15px/1.2 var(--f-body);cursor:pointer;text-align:center}
+.btn.primary{background:var(--green);border-color:var(--green);color:var(--on-green)}
+.btn.warn{background:var(--red-tint);border-color:transparent;color:var(--red)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--green);padding-inline:6px;min-height:36px}
+.btn.sm{min-height:36px;padding:6px 12px;font-size:14px}
+.btn:focus-visible,.tab:focus-visible,.chip:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:12px}
+
+/* Readiness */
+.verdict{display:grid;gap:8px;padding-block-end:20px;border-bottom:1px solid var(--line)}
+.verdict .word{font:800 clamp(44px,13vw,68px)/.95 var(--f-display);letter-spacing:-.025em}
+.verdict .hu{font:600 18px/1.2 var(--f-display);color:var(--muted)}
+.word.ready{color:var(--green)} .word.almost{color:var(--amber)} .word.notyet{color:var(--red)} .word.none{color:var(--ink)}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.kpi{display:grid;gap:4px;min-width:0}
+.kpi .num{font:700 clamp(22px,6vw,30px)/1 var(--f-mono);font-variant-numeric:tabular-nums}
+.chart svg{display:block;width:100%;max-width:560px;height:auto}
+svg text{fill:var(--muted);font:700 10px var(--f-mono)}
+svg text.lbl{fill:var(--ink)}
+.b-pass{fill:var(--green)} .b-fail{fill:var(--red);opacity:.6}
+.axis{stroke:var(--muted);stroke-width:1}
+.passline{stroke:var(--ink);stroke-width:1.2;stroke-dasharray:3 3}
+.zone{fill:var(--green-tint)}
+.mark{stroke:var(--ink);stroke-width:2.5}
+.markdot{fill:var(--ink)}
+.gates{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.gate{display:grid;grid-template-columns:26px minmax(0,1fr);gap:10px;align-items:start}
+.dot{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font:700 13px/1 var(--f-mono)}
+.dot.ok{background:var(--green);color:var(--on-green)}
+.dot.no{background:var(--soft);color:var(--muted);border:1px solid var(--line)}
+.topics{display:grid;gap:14px}
+.trow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center}
+.trow .name{min-width:0}
+.trow .name b{display:block}
+.trow .val{font:700 15px var(--f-mono);font-variant-numeric:tabular-nums;text-align:right}
+.bar{grid-column:1/-1;height:8px;border-radius:4px;background:var(--soft);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--green);border-radius:4px}
+.trow.weak .bar i{background:var(--amber)}
+.hist{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.hist li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:10px 0;border-top:1px solid var(--line)}
+.hist li:first-child{border-top:0}
+.pill{display:inline-block;font:700 12px/1 var(--f-body);letter-spacing:.04em;text-transform:uppercase;padding:5px 8px;border-radius:999px}
+.pill.pass{background:var(--green-tint);color:var(--green)}
+.pill.fail{background:var(--red-tint);color:var(--red)}
+.pill.drill{background:var(--soft);color:var(--muted)}
+details{border-top:1px solid var(--line);padding-top:14px}
+summary{cursor:pointer;font-weight:700}
+details .body{display:grid;gap:10px;margin-top:10px;color:var(--muted);font-size:15px}
+
+/* Cards */
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.chip{flex:none;appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 12px;font:700 14px/1 var(--f-body);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 18px;display:grid;gap:14px;min-height:280px;align-content:start}
+.card .q{font:700 clamp(20px,5.4vw,24px)/1.3 var(--f-body);text-wrap:pretty}
+.card .qe{color:var(--muted);font-style:italic}
+.card .ans{border-top:1px dashed var(--line);padding-top:14px;display:grid;gap:6px}
+.card .ans .a{font:700 19px/1.4 var(--f-body);color:var(--green)}
+.card .note{font-size:14px;color:var(--muted)}
+.src{font:400 12px/1.3 var(--f-mono);color:var(--muted)}
+.rate{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.rate .btn{flex-direction:column;gap:2px}
+.rate .btn span{font:400 12px/1 var(--f-mono);opacity:.85}
+.progress{height:4px;border-radius:2px;background:var(--soft);overflow:hidden}
+.progress i{display:block;height:100%;background:var(--green)}
+
+/* Mock exam sheet */
+.sheet{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.qb{padding:18px 16px;border-top:1px dashed var(--line);display:grid;gap:10px}
+.qb:first-child{border-top:0}
+.qhead{display:flex;gap:10px;align-items:baseline}
+.qnum{font:700 16px var(--f-mono)}
+.qtop{flex:1;min-width:0;font-size:13px;color:var(--muted)}
+.qpts{font:700 13px var(--f-mono);color:var(--muted);white-space:nowrap}
+.qtext{font:700 18px/1.4 var(--f-body);text-wrap:pretty}
+.en{display:none;color:var(--muted);font-style:italic;font-size:15px}
+.qb.hinted .en,.review .en{display:block}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:8px;cursor:pointer;background:var(--paper)}
+.opt input{margin:3px 0 0;accent-color:var(--green);width:18px;height:18px;flex:none}
+.opt:has(input:checked){border-color:var(--green);background:var(--green-tint)}
+.opt span{min-width:0}
+.part{display:grid;gap:4px}
+.plabel{font-weight:700;font-size:15px}
+.plabel .en{display:inline;font-weight:400}
+.qb:not(.hinted) .plabel .en{display:none}
+input[type="text"]{width:100%;min-height:46px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);font:400 17px/1.3 var(--f-body)}
+.runbar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding:10px 0 calc(10px + env(safe-area-inset-bottom,0px))}
+.runbar .wrap{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.runbar .timer{font:700 22px/1 var(--f-mono);font-variant-numeric:tabular-nums}
+.runbar .meta{font-size:13px;color:var(--muted)}
+.stamp{justify-self:start;display:inline-block;font:800 24px/1 var(--f-display);letter-spacing:.06em;text-transform:uppercase;padding:9px 14px 7px;border:3px solid currentColor;border-radius:6px;transform:rotate(-2.5deg)}
+.stamp.pass{color:var(--green)} .stamp.fail{color:var(--red)}
+.score{font:700 clamp(34px,10vw,48px)/1 var(--f-mono);font-variant-numeric:tabular-nums}
+.review{display:grid;gap:0}
+.rv{display:grid;gap:6px;padding:16px 0;border-top:1px solid var(--line)}
+.rv:first-child{border-top:0}
+.rv .yours{font-family:var(--f-mono);font-size:14px;overflow-wrap:anywhere}
+.got{font:700 14px var(--f-mono);white-space:nowrap}
+.got.ok{color:var(--green)} .got.part{color:var(--amber)} .got.no{color:var(--red)}
+
+/* Facts */
+dl.facts{display:grid;grid-template-columns:minmax(96px,28%) minmax(0,1fr);gap:12px 16px;margin:0}
+dl.facts dt{font-weight:700}
+dl.facts dd{margin:0;min-width:0}
+ol.topics-list{margin:0;padding-left:22px;display:grid;gap:6px}
+ul.plain{margin:0;padding-left:20px;display:grid;gap:6px}
+.sel{user-select:all;font-family:var(--f-mono);overflow-wrap:anywhere}
+footer.wrap{padding-block:0 32px;color:var(--muted);font-size:13px}
+@media (max-width:440px){
+  dl.facts{grid-template-columns:minmax(0,1fr);gap:4px}
+  dl.facts dd{margin-bottom:10px}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="flag" aria-hidden="true"><i></i><i></i><i></i></div>
+<header class="top wrap">
+  <h1>Kulturális vizsga</h1>
+  <p class="sub">Trainer for Hungary's cultural knowledge exam (permanent residence): 12 questions, 30 points, pass at 16.</p>
+  <span class="sync" id="sync" data-mode="device">Progress saved in this browser</span>
+</header>
+<nav class="tabs" aria-label="Sections">
+  <div class="wrap">
+    <button class="tab" data-act="tab" data-tab="ready" id="tab-ready">Readiness</button>
+    <button class="tab" data-act="tab" data-tab="cards" id="tab-cards">Cards</button>
+    <button class="tab" data-act="tab" data-tab="mock" id="tab-mock">Mock exam</button>
+    <button class="tab" data-act="tab" data-tab="facts" id="tab-facts">Exam facts</button>
+  </div>
+</nav>
+<main class="wrap" id="app" aria-live="polite"></main>
+<footer class="wrap">Content follows the official BFKH study material (August 2026 version). Question wording is the trainer's own; the real exam words its questions differently. Unofficial study aid, not affiliated with BFKH or OIF. Your progress is stored only in this browser; nothing is sent to a server.</footer>
+<div class="runbar" id="runbar" hidden>
+  <div class="wrap">
+    <div><div class="timer" id="timer">60:00</div><div class="meta" id="runmeta"></div></div>
+    <div class="row" id="runbtns"></div>
+  </div>
+</div>
+
+<script id="core">
+/* ===== Question bank: official BFKH study material (Aug 2026). x:"law" = Fundamental Law; x:"gk" = beyond the handout ===== */
+const TP={s:1,h:2,l:3,i:4,r:5,e:6,v:0};
+const TOP={0:{hu:"Vizsga-magyar",en:"Exam Hungarian"},1:{hu:"Nemzeti jelképek és ünnepek",en:"National symbols & holidays"},2:{hu:"Történelem",en:"History"},3:{hu:"Irodalom és zene",en:"Literature & music"},4:{hu:"Az Alaptörvény intézményei",en:"Fundamental Law institutions"},5:{hu:"Jogok és kötelezettségek",en:"Rights & obligations"},6:{hu:"Európa és Magyarország a mindennapokban",en:"Everyday Europe & Hungary"}};
+const B=[];
+function cap(s){return s?s.charAt(0).toUpperCase()+s.slice(1):s;}
+function M(id,p,q,qe,o,oe,x){x=x||{};B.push({id,t:TP[id[0]],p,ty:"m",q,qe,o,oe,a:x.a||cap(o[0]),ae:x.ae||cap(oe[0]),n:x.n||"",x:x.x||""});}
+function T(id,p,q,qe,parts,a,ae,x){x=x||{};B.push({id,t:TP[id[0]],p,ty:"t",q,qe,parts:parts.map(pt=>Array.isArray(pt)?{k:pt}:pt),a,ae,n:x.n||"",x:x.x||""});}
+function L(id,p,q,qe,k,opts,a,ae,x){x=x||{};B.push({id,t:TP[id[0]],p,ty:"l",q,qe,pick:{k,opts},a,ae,n:x.n||"",x:x.x||""});}
+function V(id,hu,en){B.push({id,t:0,p:0,ty:"f",q:hu,qe:"",a:en,ae:"",n:"",x:""});}
+
+/* 1 · Nemzeti jelképek és ünnepek */
+M("s01",2,"Mit jelképez a magyar zászló piros színe?","What does the red stripe of the Hungarian flag symbolise?",["az erőt","a hűséget","a reményt","a szabadságot"],["strength","fidelity","hope","freedom"]);
+M("s02",2,"Mit jelképez a magyar zászló fehér színe?","What does the white stripe of the flag symbolise?",["a hűséget","az erőt","a békét","a reményt"],["fidelity (loyalty)","strength","peace","hope"]);
+M("s03",2,"Mit jelképez a magyar zászló zöld színe?","What does the green stripe of the flag symbolise?",["a reményt","a természetet","a hűséget","az erőt"],["hope","nature","fidelity","strength"]);
+M("s04",2,"Mi a magyar zászló színeinek sorrendje fentről lefelé?","What is the order of the flag's colours, top to bottom?",["piros – fehér – zöld","zöld – fehér – piros","piros – zöld – fehér","fehér – piros – zöld"],["red – white – green","green – white – red","red – green – white","white – red – green"]);
+L("s05",3,"Nevezze meg Magyarország három nemzeti ünnepét dátummal!","Name Hungary's three national holidays with their dates.",3,[["marcius 15","marc 15","03 15","3 15","march 15","15 march","15 marcius"],["augusztus 20","aug 20","08 20","8 20","august 20","20 august","20 augusztus"],["oktober 23","okt 23","10 23","october 23","23 october","oct 23","23 oktober"]],"Március 15., augusztus 20., október 23.","15 March, 20 August, 23 October.");
+T("s06",2,"Melyik eseményre emlékezünk március 15-én?","What do we commemorate on 15 March?",[["1848","=48","negyvennyolc"]],"Az 1848–49-es forradalom és szabadságharc kezdetére.","The start of the 1848–49 revolution and war of independence.");
+T("s07",2,"Kire és mire emlékezünk augusztus 20-án?","Whom and what do we commemorate on 20 August?",[["istvan","stephen"],["allamalapit","alapit","foundation","founding"]],"Az államalapításra és az államalapító Szent István királyra.","The foundation of the state and its founder, King St Stephen.");
+T("s08",2,"Melyik eseményre emlékezünk október 23-án?","What do we commemorate on 23 October?",[["1956","=56","otvenhat"]],"Az 1956-os forradalom és szabadságharc kitörésére.","The outbreak of the 1956 revolution and war of independence.");
+T("s09",3,"A Himnusz: a) Ki írta? b) Melyik évben? c) Ki zenésítette meg?","The national anthem (Himnusz): a) Who wrote it? b) In which year? c) Who set it to music?",[{l:"a) szerző",le:"author",k:["kolcsey"]},{l:"b) év",le:"year",k:["1823"]},{l:"c) zeneszerző",le:"composer",k:["erkel"]}],"a) Kölcsey Ferenc · b) 1823 · c) Erkel Ferenc","a) Ferenc Kölcsey · b) 1823 · c) Ferenc Erkel");
+T("s10",3,"A Szózat: a) Ki írta? b) Melyik évben? c) Ki zenésítette meg?","The Szózat (‘Appeal’): a) Who wrote it? b) In which year? c) Who set it to music?",[{l:"a) szerző",le:"author",k:["vorosmarty"]},{l:"b) év",le:"year",k:["1836"]},{l:"c) zeneszerző",le:"composer",k:["egressy"]}],"a) Vörösmarty Mihály · b) 1836 · c) Egressy Béni","a) Mihály Vörösmarty · b) 1836 · c) Béni Egressy");
+T("s11",2,"Ki írta a Himnuszt?","Who wrote the national anthem (Himnusz)?",[["kolcsey"]],"Kölcsey Ferenc (1823).","Ferenc Kölcsey (1823).");
+T("s12",2,"Ki zenésítette meg a Himnuszt?","Who composed the music of the national anthem?",[["erkel"]],"Erkel Ferenc.","Ferenc Erkel.");
+M("s13",2,"Hogyan kezdődik a Szózat?","How does the Szózat begin?",["„Hazádnak rendületlenűl légy híve, oh magyar”","„Isten, áldd meg a magyart”","„Talpra magyar, hí a haza!”","„Szabadság, szerelem!”"],["‘To your homeland be steadfastly faithful, O Hungarian’","‘God, bless the Hungarians’ (that is the Himnusz)","‘Rise, Hungarians, the homeland calls!’ (Nemzeti dal)","‘Liberty, love!’ (Petőfi)"]);
+M("s14",2,"Hogyan kezdődik a Himnusz?","How does the Himnusz begin?",["„Isten, áldd meg a magyart”","„Hazádnak rendületlenűl”","„Talpra magyar, hí a haza!”","„Szabadság, szerelem!”"],["‘God, bless the Hungarians’","‘To your homeland, steadfastly’ (Szózat)","‘Rise, Hungarians, the homeland calls!’ (Nemzeti dal)","‘Liberty, love!’ (Petőfi)"],{x:"gk"});
+L("s15",3,"Soroljon fel hármat a koronázási jelvények közül!","List three of the coronation regalia.",3,[["=korona","=koronat","szent korona","holy crown","=crown"],["orszagalma","=alma","=orb","globus"],["kard","sword"],["jogar","sceptre","scepter"],["palast","mantle","cloak","robe"]],"Szent Korona, országalma, koronázási kard, koronázási jogar, koronázási palást.","Holy Crown, orb, coronation sword, sceptre, coronation mantle.");
+M("s16",2,"Hol tekinthető meg ma a Szent Korona?","Where can the Holy Crown be seen today?",["az Országházban","a Magyar Nemzeti Múzeumban","a Budavári Palotában","az esztergomi bazilikában"],["in the Parliament building (Országház)","in the Hungarian National Museum","in Buda Castle","in Esztergom Basilica"]);
+L("s17",3,"Nevezzen meg három egykori magyar koronázó várost!","Name three former Hungarian coronation cities.",3,[["szekesfehervar","fehervar"],["esztergom"],["pozsony","bratislava","pressburg"],["sopron"],["=buda","=budan","=budaban","=budai"]],"Székesfehérvár, Esztergom, Pozsony, Sopron, Buda.","Székesfehérvár, Esztergom, Pozsony (today Bratislava), Sopron, Buda.");
+L("s18",3,"Soroljon fel három elemet Magyarország címeréből!","List three elements of Hungary's coat of arms.",3,[["kettos kereszt","kettoskereszt","double cross"],["harmas halom","halom","hills","mound"],["=korona","=koronat","szent korona","crown"],["vagott","savok","savos","=sav","stripe","ezust","red and silver","voros es ezust"]],"Kettős kereszt, hármas halom, korona (Szent Korona), vörössel és ezüsttel hétszer vágott mező.","Double cross, triple mound, crown (Holy Crown), a field divided seven times in red and silver.");
+M("s19",2,"Melyik NEM része Magyarország címerének?","Which of these is NOT part of Hungary's coat of arms?",["a turulmadár","a kettős kereszt","a hármas halom","a Szent Korona"],["the turul bird","the double cross","the triple mound","the Holy Crown"]);
+M("s20",2,"Milyen színű sávok vannak a címer hétszer vágott mezején?","What colours are the stripes of the coat of arms' field divided seven times?",["vörös és ezüst","piros és zöld","arany és kék","fehér és zöld"],["red and silver","red and green","gold and blue","white and green"]);
+M("s21",2,"Mit testesít meg a Szent Korona az Alaptörvény szerint?","According to the Fundamental Law, what does the Holy Crown embody?",["Magyarország alkotmányos állami folytonosságát és a nemzet egységét","a királyi család hatalmát","Magyarország EU-tagságát","a katolikus egyház függetlenségét"],["Hungary's constitutional state continuity and the unity of the nation","the power of the royal family","Hungary's EU membership","the independence of the Catholic Church"]);
+M("s22",2,"Melyik nemzeti ünnep kapcsolódik az államalapításhoz?","Which national holiday is linked to the foundation of the state?",["augusztus 20.","március 15.","október 23.","október 6."],["20 August","15 March","23 October","6 October"]);
+M("s23",2,"Melyik napon emlékezünk az 1956-os forradalomra?","On which day do we commemorate the 1956 revolution?",["október 23.","november 4.","március 15.","június 16."],["23 October","4 November","15 March","16 June"]);
+M("s24",2,"Hol vonják fel Magyarország lobogóját a nemzeti ünnepeken?","Where is Hungary's flag raised on national holidays?",["az Országház előtt","a Hősök terén","a Budavári Palotánál","a Szent István-bazilikánál"],["in front of the Parliament building","on Heroes' Square","at Buda Castle","at St Stephen's Basilica"]);
+L("s25",2,"Nevezzen meg kettőt Magyarország legfontosabb nemzeti jelképei közül!","Name two of Hungary's most important national symbols.",2,[["zaszlo","lobogo","flag"],["=korona","=koronat","szent korona","crown"],["himnusz","anthem"],["cimer","coat of arms"]],"Zászló, Szent Korona, Himnusz, címer.","Flag, Holy Crown, national anthem, coat of arms.");
+
+/* 2 · Történelem */
+M("h01",2,"Mikor történt a honfoglalás?","When did the Hungarian conquest of the Carpathian Basin take place?",["895–896","1000–1001","1241–1242","1526"],["895–896","1000–1001","1241–1242","1526"]);
+T("h02",2,"Ki vezetésével foglalta el a hét magyar törzs a Kárpát-medencét?","Under whose leadership did the seven Hungarian tribes occupy the Carpathian Basin?",[["arpad"]],"Árpád vezetésével.","Under Árpád.");
+M("h03",2,"Hány magyar törzs foglalta el a Kárpát-medencét a IX. század végén?","How many Hungarian tribes occupied the Carpathian Basin at the end of the 9th century?",["hét","három","öt","tizenkettő"],["seven","three","five","twelve"]);
+M("h04",2,"Melyik hágón át érkeztek a honfoglaló magyarok a Kárpát-medencébe?","Through which pass did the conquering Hungarians enter the Carpathian Basin?",["a Vereckei-hágón","a Brenner-hágón","a Szent Gotthárd-hágón","a Simplon-hágón"],["the Verecke Pass","the Brenner Pass","the St Gotthard Pass","the Simplon Pass"],{n:"The Verecke Pass is in the Carpathians, in today's Ukraine."});
+T("h05",2,"Ki volt az első keresztény magyar király, és melyik évben koronázták meg?","Who was the first Christian king of Hungary, and in which year was he crowned?",[["istvan","stephen"],["1001"]],"I. (Szent) István; 1001. január 1-jén.","Stephen I (St Stephen); 1 January 1001.",{n:"Some sources say Christmas 1000. The official handout says 1 January 1001, so write 1001."});
+L("h06",2,"Soroljon fel kettőt Szent István államszervező intézkedései közül!","List two of St Stephen's state-building measures.",2,[["varmegye","megye","county","counties"],["egyhazmegye","puspok","ersek","dioces","bishop","archbishop"],["katolikus","kereszteny","catholic","christian","nyugati","western"]],"Megszervezte a vármegyerendszert; tíz egyházmegyét, püspökségeket és érsekségeket alapított; az ország felvette a római katolikus vallást.","He organised the county system; founded ten dioceses, bishoprics and archbishoprics; the country adopted Roman Catholic Christianity.");
+M("h07",2,"Melyik évben adta ki II. András az Aranybullát?","In which year did Andrew II issue the Golden Bull?",["1222","1215","1241","1301"],["1222","1215","1241","1301"],{n:"It summarised the rights of the nobility. 1215 is the English Magna Carta."});
+T("h08",2,"Melyik királyt nevezik „második honalapítónak”?","Which king is called the ‘second founder of the country’?",[["bela"]],"IV. Bélát.","Béla IV.",{n:"He rebuilt the country after the Mongol invasion of 1241–42."});
+M("h09",2,"Mi néptelenítette el a Kárpát-medence nagy részét 1241–42-ben?","What depopulated large parts of the Carpathian Basin in 1241–42?",["a tatárjárás","a török hódoltság","a pestisjárvány","a Habsburg-elnyomás"],["the Mongol (Tatar) invasion","the Ottoman occupation","the plague","Habsburg oppression"]);
+M("h10",2,"Melyik évben halt ki az Árpád-ház III. András halálával?","In which year did the Árpád dynasty die out with the death of Andrew III?",["1301","1241","1387","1526"],["1301","1241","1387","1526"],{n:"After 1301, kings from the Anjou and Luxembourg houses ruled Hungary."});
+T("h11",3,"A déli harangszó: a) Melyik győzelemre emlékeztet (hol)? b) Melyik évben? c) Ki vezette a sereget?","The noon bell: a) Which victory does it commemorate (where)? b) In which year? c) Who led the army?",[{l:"a) helyszín",le:"place",k:["nandorfehervar","belgrad","belgrade"]},{l:"b) év",le:"year",k:["1456"]},{l:"c) hadvezér",le:"commander",k:["hunyadi"]}],"a) Nándorfehérvár (ma Belgrád) · b) 1456 · c) Hunyadi János","a) Nándorfehérvár (today Belgrade) · b) 1456 · c) John Hunyadi",{n:"The victory held back Ottoman expansion in Europe for 70 years."});
+M("h12",2,"Melyik uralkodó alatt (1458–1490) élte fénykorát a reneszánsz Magyarország?","Under which ruler (1458–1490) did Renaissance Hungary reach its golden age?",["Hunyadi Mátyás","Szent László","IV. Béla","II. Rákóczi Ferenc"],["Matthias Hunyadi (Corvinus)","St Ladislaus","Béla IV","Francis II Rákóczi"]);
+T("h13",2,"Hol szenvedett súlyos vereséget a magyar sereg az oszmánoktól 1526. augusztus 29-én?","Where did the Hungarian army suffer a heavy defeat by the Ottomans on 29 August 1526?",[["mohac"]],"Mohácsnál.","At Mohács.");
+M("h14",2,"Mikor foglalták el a törökök Budát?","When did the Ottomans capture Buda?",["1541","1526","1552","1686"],["1541","1526","1552","1686"]);
+M("h15",2,"Hány részre és körülbelül mennyi időre szakadt az ország a török hódoltság idején?","Into how many parts, and for roughly how long, was the country split in the Ottoman era?",["3 részre, közel 150 évre","2 részre, 50 évre","3 részre, 300 évre","4 részre, 100 évre"],["3 parts, nearly 150 years","2 parts, 50 years","3 parts, 300 years","4 parts, 100 years"]);
+M("h16",2,"Melyik vár ostroma emelkedik ki a XVI. századi harcok közül (1552)?","Which castle's siege stands out among the 16th-century wars (1552)?",["Eger","Szigetvár","Kőszeg","Buda"],["Eger","Szigetvár","Kőszeg","Buda"]);
+M("h17",2,"Mikor foglalta vissza Budát a Habsburgok vezette európai keresztény sereg?","When did the Habsburg-led European Christian army retake Buda?",["1686. szeptember 2.","1541. augusztus 29.","1699. január 26.","1711. május 1."],["2 September 1686","29 August 1541","26 January 1699","1 May 1711"]);
+T("h18",2,"Ki vezette az 1703–1711 közötti nemzeti felkelést a Habsburg elnyomás ellen?","Who led the 1703–1711 national uprising against Habsburg oppression?",[["rakoczi"]],"II. Rákóczi Ferenc.","Francis II Rákóczi.");
+M("h19",2,"Melyik időszakot nevezzük reformkornak?","Which period is called the Reform Era?",["1825–1848","1867–1914","1686–1703","1989–1990"],["1825–1848","1867–1914","1686–1703","1989–1990"]);
+L("h20",2,"Soroljon fel kettőt a reformkor fő politikai céljai közül!","List two main political goals of the Reform Era.",2,[["magyar nyelv","nyelv","language"],["alkotmany","constitution"],["nemzeti fejlod","fejlodes","national development"],["feudal","jobbagy","serf"],["polgarosod","polgari","bourgeois","modernis","moderniz"]],"A magyar nyelv hivatalossá tétele; a magyar alkotmányos intézmények védelme; a nemzeti fejlődés kereteinek kialakítása; a feudális viszonyok lebontása; a polgárosodás megindulása.","Making Hungarian the official language; protecting Hungary's constitutional institutions; framing national development; dismantling feudal relations; starting modern civil (bourgeois) society.");
+T("h21",2,"Kit neveztek „a legnagyobb magyarnak”?","Who was called ‘the greatest Hungarian’?",[["szechenyi"]],"Széchenyi Istvánt.","István Széchenyi.");
+T("h22",2,"Melyik két fontos intézmény, illetve létesítmény fűződik Széchenyi István nevéhez?","Which two important institutions or structures are linked to István Széchenyi?",[["akademia","=mta","academy"],["lanchid","lanc hid","chain bridge"]],"A Magyar Tudományos Akadémia (alapítója volt) és a Lánchíd.","The Hungarian Academy of Sciences (he founded it) and the Chain Bridge.");
+M("h23",2,"Melyik volt az első kőhíd Buda és Pest között?","Which was the first stone bridge between Buda and Pest?",["a Lánchíd","az Erzsébet híd","a Margit híd","a Szabadság híd"],["the Chain Bridge","Elisabeth Bridge","Margaret Bridge","Liberty Bridge"]);
+T("h24",2,"Hol gyűltek össze a márciusi ifjak 1848. március 15-én?","Where did the ‘Youth of March’ gather on 15 March 1848?",[["pilvax"]],"A Pilvax kávéházban.","In the Pilvax café.");
+L("h25",3,"Soroljon fel hármat a márciusi ifjak 1848. március 15-i tettei közül!","List three things the ‘Youth of March’ did on 15 March 1848.",3,[["pilvax","osszegyult","gyultek"],["=12","tizenket","nyomd","landerer","kinyomtat","print"],["muzeum","museum","nagygyules","rally"],["tancsics"]],"Összegyűltek a Pilvax kávéházban; Landerer nyomdájában kinyomtatták a 12 pontot; nagygyűlést tartottak a Nemzeti Múzeum előtt; kiszabadították Táncsics Mihályt.","They gathered in the Pilvax café; printed the 12 Points at Landerer's press; held a rally in front of the National Museum; freed Mihály Táncsics from prison.");
+M("h26",2,"Hány pontba foglalták a márciusi ifjak a követeléseiket?","In how many points did the Youth of March list their demands?",["12","10","13","21"],["12","10","13","21"]);
+T("h27",2,"Ki volt az első felelős magyar kormány miniszterelnöke?","Who was prime minister of the first responsible Hungarian government?",[["batthyany","battyany","bathyany"]],"Batthyány Lajos.","Lajos Batthyány.");
+M("h28",2,"Mikor alakult meg az első felelős magyar kormány?","When was the first responsible Hungarian government formed?",["1848. április 11.","1848. március 15.","1849. október 6.","1867. február 17."],["11 April 1848","15 March 1848","6 October 1849","17 February 1867"]);
+L("h29",3,"Nevezzen meg három minisztert a Batthyány-kormányból!","Name three ministers of the Batthyány government.",3,[["kossuth"],["szechenyi"],["deak"],["szemere"],["meszaros"],["klauzal"],["eotvos"],["esterhazy"]],"Pl. Kossuth Lajos (pénzügy), Széchenyi István (közmunka és közlekedés), Deák Ferenc (igazságügy), Szemere Bertalan (belügy), Mészáros Lázár (hadügy), Klauzál Gábor, Eötvös József, Esterházy Pál.","E.g. Lajos Kossuth (finance), István Széchenyi (public works and transport), Ferenc Deák (justice), Bertalan Szemere (interior), Lázár Mészáros (war), Gábor Klauzál, József Eötvös, Pál Esterházy.");
+M("h30",2,"Ki volt a pénzügyminiszter a Batthyány-kormányban?","Who was finance minister in the Batthyány government?",["Kossuth Lajos","Deák Ferenc","Széchenyi István","Eötvös József"],["Lajos Kossuth","Ferenc Deák","István Széchenyi","József Eötvös"]);
+M("h31",2,"Ki volt az igazságügy-miniszter a Batthyány-kormányban?","Who was justice minister in the Batthyány government?",["Deák Ferenc","Kossuth Lajos","Szemere Bertalan","Mészáros Lázár"],["Ferenc Deák","Lajos Kossuth","Bertalan Szemere","Lázár Mészáros"]);
+M("h32",2,"Melyik hadsereg segítségével verték le a Habsburgok a szabadságharcot?","With the help of which army did the Habsburgs crush the war of independence?",["az orosz cári hadseregével","a porosz hadseregével","a francia hadseregével","az oszmán hadseregével"],["the Russian tsarist army","the Prussian army","the French army","the Ottoman army"]);
+M("h33",2,"Hol tette le a fegyvert Görgei Artúr 1849. augusztus 13-án?","Where did Artúr Görgei lay down arms on 13 August 1849?",["Világosnál","Aradon","Pesten","Segesvárnál"],["at Világos","at Arad","in Pest","at Segesvár"]);
+T("h34",3,"1849. október 6.: a) Hol végezték ki a honvédtiszteket? b) Hány tisztet? c) Melyik miniszterelnököt végezték ki aznap Pesten?","6 October 1849: a) Where were the Honvéd officers executed? b) How many? c) Which prime minister was executed that day in Pest?",[{l:"a) hol",le:"where",k:["arad"]},{l:"b) hány",le:"how many",k:["=13","tizenharom","thirteen"]},{l:"c) ki",le:"who",k:["batthyany","battyany","bathyany"]}],"a) Aradon · b) 13 (az aradi vértanúk) · c) Batthyány Lajost","a) Arad · b) 13 (the Martyrs of Arad) · c) Lajos Batthyány");
+T("h35",2,"Mi az 1848–49-es forradalom és szabadságharc egyik legfőbb jelképe?","What is one of the main symbols of the 1848–49 revolution?",[["kokard","cockade"]],"A piros-fehér-zöld kokárda.","The red-white-green cockade.");
+T("h36",2,"Kit neveznek „a haza bölcsének”?","Who is called ‘the sage of the nation’?",[["deak"]],"Deák Ferencet.","Ferenc Deák.");
+T("h37",2,"Mi jött létre az 1867-es kiegyezéssel?","What was created by the Compromise of 1867?",[["osztrak magyar","monarchia","austro hungarian","austria hungary","dualis"]],"Az Osztrák–Magyar Monarchia.","Austria-Hungary (the Austro-Hungarian Monarchy).");
+M("h38",2,"Melyik időszakot tekinthetjük Magyarország egyik aranykorának?","Which period can be considered one of Hungary's golden ages?",["a kiegyezéstől (1867) az első világháborúig (1914)","1920 és 1938 között","1949 és 1956 között","a török hódoltság idejét"],["from the Compromise (1867) to the First World War (1914)","1920–1938","1949–1956","the Ottoman era"]);
+M("h39",2,"Mikor épült az Országház?","When was the Parliament building (Országház) built?",["1885–1904","1867–1873","1902–1908","1837–1848"],["1885–1904","1867–1873","1902–1908","1837–1848"],{n:"1902–1908 is Vajdahunyad Castle."});
+T("h40",3,"Az első világháború kitörése: a) Kit gyilkoltak meg? b) Hol? c) Melyik évben?","Outbreak of the First World War: a) Who was assassinated? b) Where? c) In which year?",[{l:"a) kit",le:"who",k:["ferenc ferdinand","franz ferdinand","ferdinand","tronorokos"]},{l:"b) hol",le:"where",k:["szarajev","sarajev"]},{l:"c) év",le:"year",k:["1914"]}],"a) Ferenc Ferdinánd trónörököst (és feleségét) · b) Szarajevóban · c) 1914-ben (június 28.)","a) Archduke Franz Ferdinand (and his wife) · b) Sarajevo · c) 1914 (28 June)");
+L("h41",2,"Nevezzen meg két államot a központi hatalmak közül!","Name two of the Central Powers.",2,[["nemet","german"],["osztrak","austria","monarchia"],["oszman","torok","ottoman","turk"],["bulgar"]],"Németország, Osztrák–Magyar Monarchia, Oszmán Birodalom, Bulgária.","Germany, Austria-Hungary, the Ottoman Empire, Bulgaria.");
+M("h42",2,"Mikor írták alá a trianoni békeszerződést?","When was the Treaty of Trianon signed?",["1920. június 4.","1918. november 11.","1919. június 28.","1947. február 10."],["4 June 1920","11 November 1918","28 June 1919","10 February 1947"]);
+M("h43",2,"Területének mekkora részét veszítette el Magyarország a trianoni békeszerződéssel?","What share of its territory did Hungary lose under the Treaty of Trianon?",["mintegy kétharmadát","egyharmadát","a felét","a negyedét"],["about two-thirds","one-third","half","a quarter"]);
+M("h44",2,"Hány magyar rekedt az új határokon kívül Trianon után?","How many Hungarians ended up outside the new borders after Trianon?",["3,3 millió","1 millió","7,6 millió","18,2 millió"],["3.3 million","1 million","7.6 million","18.2 million"],{n:"The country's population fell from 18.2 million to 7.6 million."});
+L("h45",2,"Nevezzen meg két meghatározó politikust az 1920-as és 30-as évekből!","Name two leading politicians of the 1920s and 1930s.",2,[["horthy"],["bethlen"],["teleki"]],"Horthy Miklós kormányzó, Bethlen István, Teleki Pál.","Regent Miklós Horthy, István Bethlen, Pál Teleki.");
+M("h46",2,"Melyik oldalon lépett be Magyarország a második világháborúba 1941-ben?","On which side did Hungary enter the Second World War in 1941?",["a tengelyhatalmak oldalán","a szövetségesek oldalán","semleges maradt","a Szovjetunió oldalán"],["the Axis powers","the Allies","it stayed neutral","the Soviet Union"]);
+M("h47",2,"Hol semmisült meg a 2. magyar hadsereg jelentős része 1943 januárjában?","Where was much of the Hungarian 2nd Army destroyed in January 1943?",["a Don térségében","Sztálingrádnál","Varsónál","Budapesten"],["in the Don region","at Stalingrad","at Warsaw","in Budapest"]);
+M("h48",2,"Mikor szállta meg Németország Magyarországot?","When did Germany occupy Hungary?",["1944. március 19.","1941. április 11.","1943. január 12.","1945. április 4."],["19 March 1944","11 April 1941","12 January 1943","4 April 1945"]);
+M("h49",2,"Hány magyarországi áldozata volt a holokausztnak a segédanyag szerint?","According to the official handout, how many victims did the Holocaust claim in Hungary?",["500–600 ezer","50–60 ezer","1,5 millió","100 ezer"],["500–600 thousand","50–60 thousand","1.5 million","100 thousand"]);
+M("h50",2,"Mi történt a magyarországi németek (svábok) jelentős részével a háború után?","What happened to a large part of Hungary's Germans (Swabians) after the war?",["kitelepítették őket","állampolgárságot kaptak","önálló vármegyét kaptak","Ausztriából költöztek be"],["they were expelled","they received citizenship","they received their own county","they moved in from Austria"]);
+T("h51",2,"Ki volt az 1950-es évek kommunista rendszerének gyűlölt vezetője?","Who was the hated leader of the communist regime in the early 1950s?",[["rakosi"]],"Rákosi Mátyás.","Mátyás Rákosi.");
+T("h52",2,"Kik kezdték az 1956-os forradalmat, és milyen formában?","Who started the 1956 revolution, and in what form?",[["diak","egyetemist","student"],["tuntet","demonstr","bekes","peaceful","protest","felvonul"]],"A budapesti diákok, békés tüntetéssel.","Budapest students, with a peaceful demonstration.");
+T("h53",2,"Melyik épületnél alakult ki fegyveres összecsapás 1956. október 23-án?","At which building did armed fighting break out on 23 October 1956?",[["radio"]],"A Magyar Rádió épületénél.","At the Hungarian Radio building.");
+T("h54",2,"Ki állt az 1956-os forradalmi kormány élén?","Who headed the 1956 revolutionary government?",[["nagy imre","imre nagy"]],"Nagy Imre.","Imre Nagy.");
+L("h55",2,"Nevezze meg az 1956-os fegyveres ellenállás két emblematikus helyszínét!","Name two iconic sites of the 1956 armed resistance.",2,[["corvin"],["szena"]],"A Corvin köz és a Széna tér.","Corvin Passage and Széna Square.");
+M("h56",2,"Mi az 1956-os forradalom egyik legfőbb jelképe?","What is one of the main symbols of the 1956 revolution?",["a lyukas zászló","a piros-fehér-zöld kokárda","a turulmadár","a kettős kereszt"],["the flag with a hole (the Rákosi coat of arms cut out)","the red-white-green cockade (that is 1848)","the turul bird","the double cross"]);
+M("h57",2,"Mikor kezdték meg a szovjet csapatok a forradalom leverését?","When did Soviet troops begin crushing the revolution?",["1956. november 4.","1956. október 23.","1956. december 6.","1957. március 15."],["4 November 1956","23 October 1956","6 December 1956","15 March 1957"]);
+T("h58",2,"Ki vezette Magyarországot 1956 után, és meddig tartott a nevével fémjelzett korszak?","Who led Hungary after 1956, and until when did the era named after him last?",[["kadar"],["1989","=89"]],"Kádár János; 1989-ig.","János Kádár; until 1989.");
+M("h59",2,"Mikor temették újra ünnepélyesen Nagy Imrét és mártírtársait?","When were Imre Nagy and his fellow martyrs ceremonially reburied?",["1989. június 16.","1956. november 4.","1990. május 2.","1991. június 19."],["16 June 1989","4 November 1956","2 May 1990","19 June 1991"]);
+T("h60",2,"1990: a) Ki lett a miniszterelnök? b) Ki lett a köztársasági elnök?","1990: a) Who became prime minister? b) Who became President of the Republic?",[{l:"a) miniszterelnök",le:"prime minister",k:["antall"]},{l:"b) köztársasági elnök",le:"president",k:["goncz"]}],"a) Antall József · b) Göncz Árpád","a) József Antall · b) Árpád Göncz");
+M("h61",2,"Mikor hagyták el végleg a szovjet csapatok Magyarországot?","When did the last Soviet troops leave Hungary?",["1991-ben","1989-ben","1990-ben","1956-ban"],["in 1991","in 1989","in 1990","in 1956"]);
+M("h62",2,"Mi történt a rendszerváltás során Magyarországon?","What happened during Hungary's change of regime?",["a szocialista egypártrendszert békés úton a többpárti parlamentáris demokrácia váltotta fel","visszaállították a királyságot","Magyarország kilépett az ENSZ-ből","a Habsburgok visszatértek a trónra"],["the socialist one-party system was peacefully replaced by multi-party parliamentary democracy","the monarchy was restored","Hungary left the UN","the Habsburgs returned to the throne"]);
+M("h63",2,"Mikor tartották az első szabad parlamenti választásokat a rendszerváltáskor?","When were the first free parliamentary elections of the regime change held?",["1990 tavaszán","1989 őszén","1956 októberében","1991 nyarán"],["spring 1990","autumn 1989","October 1956","summer 1991"]);
+
+/* 3 · Irodalom és zene */
+T("l01",2,"Ki írta A walesi bárdok című verset?","Who wrote the poem ‘The Bards of Wales’?",[["arany"]],"Arany János.","János Arany.");
+T("l02",2,"Ki írta a Nemzeti dalt?","Who wrote the ‘National Song’ (Nemzeti dal)?",[["petofi"]],"Petőfi Sándor.","Sándor Petőfi.");
+T("l03",2,"Ki írta Az ember tragédiáját?","Who wrote ‘The Tragedy of Man’?",[["madach"]],"Madách Imre.","Imre Madách.");
+T("l04",2,"Ki írta A kőszívű ember fiai című regényt?","Who wrote the novel ‘The Baron's Sons’ (A kőszívű ember fiai)?",[["jokai"]],"Jókai Mór.","Mór Jókai.");
+T("l05",2,"Ki írta a Bánk bán című drámát?","Who wrote the drama ‘Bánk bán’?",[["katona"]],"Katona József.","József Katona.",{n:"Ferenc Erkel wrote the opera of the same name."});
+T("l06",2,"Ki szerezte a Bánk bán című operát?","Who composed the opera ‘Bánk bán’?",[["erkel"]],"Erkel Ferenc.","Ferenc Erkel.");
+T("l07",2,"Ki szerezte a Magyar rapszódiákat?","Who composed the ‘Hungarian Rhapsodies’?",[["liszt"]],"Liszt Ferenc.","Franz (Ferenc) Liszt.");
+T("l08",2,"Ki szerezte A kékszakállú herceg vára című operát?","Who composed the opera ‘Bluebeard's Castle’?",[["bartok"]],"Bartók Béla.","Béla Bartók.");
+T("l09",2,"Ki szerezte a Háry János című művet?","Who composed ‘Háry János’?",[["kodaly"]],"Kodály Zoltán.","Zoltán Kodály.");
+L("l10",2,"Ki a magyar népzenekutatás két leghíresebb képviselője?","Who are the two most famous researchers of Hungarian folk music?",2,[["bartok"],["kodaly"]],"Bartók Béla és Kodály Zoltán.","Béla Bartók and Zoltán Kodály.");
+M("l11",2,"Mikortól kezdték gyűjteni és lekottázni a magyar népdalokat?","Since when have Hungarian folk songs been collected and written down?",["az 1800-as évektől","az 1500-as évektől","1945 után","az 1990-es évektől"],["from the 1800s","from the 1500s","after 1945","from the 1990s"]);
+T("l12",2,"Ki írta a Pannónia dicsérete című verset?","Who wrote ‘In Praise of Pannonia’?",[["janus","pannonius"]],"Janus Pannonius.","Janus Pannonius.");
+M("l13",2,"Melyik korszak kiemelkedő alakja Janus Pannonius és Balassi Bálint?","Which era do Janus Pannonius and Bálint Balassi belong to?",["a reneszánsz","a barokk","a romantika","a felvilágosodás"],["the Renaissance","the Baroque","Romanticism","the Enlightenment"]);
+M("l14",2,"Ki írta a „Hogy Júliára talála, így köszöne néki” című verset?","Who wrote the poem ‘When he found Julia, he greeted her thus’?",["Balassi Bálint","Janus Pannonius","Zrínyi Miklós","Csokonai Vitéz Mihály"],["Bálint Balassi","Janus Pannonius","Miklós Zrínyi","Mihály Csokonai Vitéz"]);
+T("l15",2,"Ki írta a Szigeti veszedelem című eposzt?","Who wrote the epic ‘The Peril of Sziget’?",[["zrinyi"]],"Zrínyi Miklós.","Miklós Zrínyi.");
+M("l16",2,"Melyik korszakhoz tartozik Zrínyi Miklós Szigeti veszedelem című műve?","Which era does Zrínyi's ‘The Peril of Sziget’ belong to?",["a barokkhoz","a reneszánszhoz","a romantikához","a klasszicizmushoz"],["the Baroque","the Renaissance","Romanticism","Classicism"]);
+T("l17",2,"Ki volt a hazai nyelvújítás vezéralakja?","Who led the Hungarian language reform?",[["kazinczy"]],"Kazinczy Ferenc.","Ferenc Kazinczy.");
+T("l18",2,"Ki írta A reményhez című verset?","Who wrote the poem ‘To Hope’ (A reményhez)?",[["csokonai"]],"Csokonai Vitéz Mihály.","Mihály Csokonai Vitéz.");
+M("l19",2,"Ki írta A franciaországi változásokra című verset?","Who wrote ‘On the Changes in France’?",["Batsányi János","Berzsenyi Dániel","Kazinczy Ferenc","Csokonai Vitéz Mihály"],["János Batsányi","Dániel Berzsenyi","Ferenc Kazinczy","Mihály Csokonai Vitéz"]);
+M("l20",2,"Ki írta Az első szerelem című verset?","Who wrote the poem ‘First Love’ (Az első szerelem)?",["Berzsenyi Dániel","Ady Endre","József Attila","Petőfi Sándor"],["Dániel Berzsenyi","Endre Ady","Attila József","Sándor Petőfi"]);
+T("l21",2,"Ki írta az Édes Anna című regényt?","Who wrote the novel ‘Anna Édes’?",[["kosztolanyi"]],"Kosztolányi Dezső.","Dezső Kosztolányi.");
+T("l22",2,"Ki írta a Tiszta szívvel című verset?","Who wrote the poem ‘With a Pure Heart’?",[["jozsef attila","attila jozsef"]],"József Attila.","Attila József.");
+T("l23",2,"Ki írta a Nem tudhatom… című verset?","Who wrote the poem ‘I Cannot Know…’ (Nem tudhatom…)?",[["radnoti"]],"Radnóti Miklós.","Miklós Radnóti.");
+T("l24",2,"Ki írta az Így írtok ti című művet?","Who wrote ‘This Is How You Write’ (Így írtok ti)?",[["karinthy"]],"Karinthy Frigyes.","Frigyes Karinthy.");
+T("l25",2,"Ki írta a Rokonok című regényt?","Who wrote the novel ‘Relatives’ (Rokonok)?",[["moricz"]],"Móricz Zsigmond.","Zsigmond Móricz.");
+T("l26",2,"Ki írta az Egy polgár vallomása című művet?","Who wrote ‘Confessions of a Bourgeois’?",[["marai"]],"Márai Sándor.","Sándor Márai.");
+T("l27",2,"Ki írta az Elbocsátó, szép üzenet című verset?","Who wrote the poem ‘A Fine Message of Dismissal’?",[["=ady","ady endre"]],"Ady Endre.","Endre Ady.");
+L("l28",3,"Nevezzen meg három magyar romantikus költőt vagy írót!","Name three Hungarian Romantic poets or writers.",3,[["kolcsey"],["vorosmarty"],["petofi"],["jokai"],["=arany","arany janos"],["katona"],["madach"]],"Kölcsey Ferenc, Vörösmarty Mihály, Petőfi Sándor, Jókai Mór, Arany János, Katona József, Madách Imre.","Kölcsey, Vörösmarty, Petőfi, Jókai, Arany, Katona, Madách.");
+L("l29",3,"Nevezzen meg három 20. századi magyar költőt vagy írót!","Name three 20th-century Hungarian poets or writers.",3,[["=ady","ady endre"],["moricz"],["kosztolanyi"],["karinthy"],["jozsef attila","attila jozsef"],["radnoti"],["marai"]],"Ady Endre, Móricz Zsigmond, Kosztolányi Dezső, Karinthy Frigyes, József Attila, Radnóti Miklós, Márai Sándor.","Ady, Móricz, Kosztolányi, Karinthy, Attila József, Radnóti, Márai.");
+L("l30",3,"Nevezzen meg három magyar zeneszerzőt!","Name three Hungarian composers.",3,[["erkel"],["liszt"],["bartok"],["kodaly"],["egressy"]],"Erkel Ferenc, Liszt Ferenc, Bartók Béla, Kodály Zoltán, Egressy Béni.","Erkel, Liszt, Bartók, Kodály, Egressy.");
+T("l31",3,"Ki írta? a) Himnusz b) Szózat c) Nemzeti dal","Who wrote: a) Himnusz b) Szózat c) Nemzeti dal?",[{l:"a) Himnusz",le:"national anthem",k:["kolcsey"]},{l:"b) Szózat",le:"‘Appeal’",k:["vorosmarty"]},{l:"c) Nemzeti dal",le:"‘National Song’",k:["petofi"]}],"a) Kölcsey Ferenc · b) Vörösmarty Mihály · c) Petőfi Sándor","a) Ferenc Kölcsey · b) Mihály Vörösmarty · c) Sándor Petőfi");
+T("l32",3,"Ki szerezte? a) Bánk bán (opera) b) Háry János c) A kékszakállú herceg vára","Who composed: a) Bánk bán (opera) b) Háry János c) Bluebeard's Castle?",[{l:"a) Bánk bán",le:"opera",k:["erkel"]},{l:"b) Háry János",le:"",k:["kodaly"]},{l:"c) A kékszakállú herceg vára",le:"Bluebeard's Castle",k:["bartok"]}],"a) Erkel Ferenc · b) Kodály Zoltán · c) Bartók Béla","a) Ferenc Erkel · b) Zoltán Kodály · c) Béla Bartók");
+T("l33",3,"Ki írta? a) Rómeó és Júlia b) Faust c) Candide","Who wrote: a) Romeo and Juliet b) Faust c) Candide?",[{l:"a) Rómeó és Júlia",le:"Romeo and Juliet",k:["shakespeare","shakespear","sekszpir"]},{l:"b) Faust",le:"",k:["goethe","gothe","gote"]},{l:"c) Candide",le:"",k:["voltaire","volter"]}],"a) William Shakespeare · b) Johann Wolfgang von Goethe · c) Voltaire","a) William Shakespeare · b) Goethe · c) Voltaire");
+T("l34",3,"Ki szerezte? a) A varázsfuvola b) A hattyúk tava c) IX. szimfónia","Who composed: a) The Magic Flute b) Swan Lake c) Symphony No. 9?",[{l:"a) A varázsfuvola",le:"The Magic Flute",k:["mozart"]},{l:"b) A hattyúk tava",le:"Swan Lake",k:["csajkovszkij","csajkovszki","cajkovszkij","tchaikovsky","tchaikovski","tschaikowsky","chaikovsky"]},{l:"c) IX. szimfónia",le:"Symphony No. 9",k:["beethoven","betoven"]}],"a) Wolfgang Amadeus Mozart · b) Pjotr Iljics Csajkovszkij · c) Ludwig van Beethoven","a) Mozart · b) Tchaikovsky · c) Beethoven");
+T("l35",3,"Az Európai Unió himnusza: a) Melyik zeneszerző műve? b) Melyik szimfóniájának része? c) Kinek a költeménye a szövege?","The EU anthem: a) Which composer? b) Part of which symphony? c) Whose poem is the text?",[{l:"a) zeneszerző",le:"composer",k:["beethoven","betoven"]},{l:"b) szimfónia",le:"symphony",k:["=9","=ix","kilencedik","ninth"]},{l:"c) költő",le:"poet",k:["schiller","siller"]}],"a) Ludwig van Beethoven · b) IX. szimfónia (4. tétel) · c) Friedrich Schiller (Örömóda)","a) Beethoven · b) Symphony No. 9 (4th movement) · c) Friedrich Schiller (‘Ode to Joy’)");
+M("l36",2,"Mi az Európai Unió himnuszának alapja?","What is the EU anthem based on?",["Beethoven IX. szimfóniájának negyedik tétele (Örömóda)","Mozart: A varázsfuvola nyitánya","Liszt: II. magyar rapszódia","Csajkovszkij: A hattyúk tava"],["the 4th movement of Beethoven's 9th Symphony (Ode to Joy)","the overture of Mozart's Magic Flute","Liszt's Hungarian Rhapsody No. 2","Tchaikovsky's Swan Lake"]);
+M("l37",2,"Mikor nyitotta meg kapuit a Pesti Magyar Színház, a Nemzeti Színház elődje?","When did the Pest Hungarian Theatre, predecessor of the National Theatre, open?",["1837-ben","1823-ban","1848-ban","1904-ben"],["1837","1823","1848","1904"]);
+M("l38",2,"Mikor vált Pest-Buda az ország irodalmi középpontjává?","When did Pest-Buda become the country's literary centre?",["az 1820-as években","az 1700-as években","1873-ban","1920 után"],["in the 1820s","in the 1700s","in 1873","after 1920"]);
+M("l39",2,"Melyik művet írta Voltaire?","Which work did Voltaire write?",["Candide","Faust","Rómeó és Júlia","A varázsfuvola"],["Candide","Faust","Romeo and Juliet","The Magic Flute"]);
+M("l40",2,"Melyik művet írta Goethe?","Which work did Goethe write?",["Faust","Candide","Rómeó és Júlia","Az ember tragédiája"],["Faust","Candide","Romeo and Juliet","The Tragedy of Man"]);
+T("l41",2,"Ki szerezte A varázsfuvola című operát?","Who composed the opera ‘The Magic Flute’?",[["mozart"]],"Wolfgang Amadeus Mozart.","Wolfgang Amadeus Mozart.");
+T("l42",2,"Ki szerezte A hattyúk tava című balettet?","Who composed the ballet ‘Swan Lake’?",[["csajkovszkij","csajkovszki","cajkovszkij","tchaikovsky","tchaikovski","tschaikowsky","chaikovsky"]],"Pjotr Iljics Csajkovszkij.","Pyotr Ilyich Tchaikovsky.");
+T("l43",2,"Ki írta a Rómeó és Júliát?","Who wrote ‘Romeo and Juliet’?",[["shakespeare","shakespear","sekszpir"]],"William Shakespeare.","William Shakespeare.");
+
+/* 4 · Az Alaptörvény intézményei */
+M("i01",2,"Mikor fogadta el az Országgyűlés Magyarország Alaptörvényét?","When did Parliament adopt Hungary's Fundamental Law?",["2011. április 18.","2012. január 1.","1989. október 23.","2004. május 1."],["18 April 2011","1 January 2012","23 October 1989","1 May 2004"]);
+M("i02",2,"Mikor lépett hatályba az Alaptörvény?","When did the Fundamental Law enter into force?",["2012. január 1.","2011. április 18.","2004. május 1.","1990. május 2."],["1 January 2012","18 April 2011","1 May 2004","2 May 1990"]);
+T("i03",2,"Az Alaptörvény: a) Melyik évben fogadták el? b) Melyik évben lépett hatályba?","The Fundamental Law: a) In which year was it adopted? b) In which year did it enter into force?",[{l:"a) elfogadás",le:"adopted",k:["2011"]},{l:"b) hatálybalépés",le:"in force",k:["2012"]}],"a) 2011 (április 18.) · b) 2012 (január 1.)","a) 2011 (18 April) · b) 2012 (1 January)");
+M("i04",2,"Melyik állítás igaz az Alaptörvényre?","Which statement about the Fundamental Law is true?",["Magyarország alkotmánya, a legmagasabb jogi erejű norma","egy kormányrendelet","csak az Országgyűlés működését szabályozza","1949 óta változatlan"],["it is Hungary's constitution, the norm with the highest legal force","it is a government decree","it only regulates how Parliament works","it has been unchanged since 1949"]);
+M("i05",2,"Mi Magyarország legfőbb népképviseleti szerve?","What is Hungary's supreme body of popular representation?",["az Országgyűlés","a Kormány","a köztársasági elnök","az Alkotmánybíróság"],["Parliament (the National Assembly)","the Government","the President of the Republic","the Constitutional Court"]);
+M("i06",2,"Hány évre választják az Országgyűlés tagjait?","For how many years are Members of Parliament elected?",["4 évre","5 évre","6 évre","3 évre"],["4 years","5 years","6 years","3 years"]);
+M("i07",2,"Hány országgyűlési képviselő van?","How many Members of Parliament are there?",["199","386","200","150"],["199","386","200","150"]);
+T("i08",3,"Egészítse ki! a) A képviselőket … évre választják. b) A képviselők száma … fő. c) A köztársasági elnököt … évre választják.","Complete: a) MPs are elected for … years. b) The number of MPs is … c) The President is elected for … years.",[{l:"a) … év",le:"years",k:["=4","=negy","=negyre","=four"]},{l:"b) … fő",le:"MPs",k:["199","szazkilencvenkilenc"]},{l:"c) … év",le:"years",k:["=5","=ot","=otre","=five"]}],"a) 4 · b) 199 · c) 5","a) 4 · b) 199 · c) 5");
+L("i09",3,"Soroljon fel hármat az Országgyűlés legfőbb feladatai közül!","List three of Parliament's main tasks.",3,[["alaptorveny","alkotmany","constitution","fundamental law"],["torvenyeket","torvenyt","torvenyalkot","torvenyhoz","laws","legislat"],["koltsegvet","budget"],["miniszterelnok","kormanyfo","prime minister","=pm"],["bizalm","confidence"]],"Megalkotja és módosítja az Alaptörvényt; törvényeket alkot; elfogadja a központi költségvetést és jóváhagyja végrehajtását; megválasztja a miniszterelnököt; dönt a Kormánnyal kapcsolatos bizalmi kérdésekről.","Adopts and amends the Fundamental Law; makes laws; adopts the central budget and approves its implementation; elects the Prime Minister; decides confidence questions about the Government.");
+M("i10",2,"Ki választja meg a miniszterelnököt?","Who elects the Prime Minister?",["az Országgyűlés","a köztársasági elnök","a választópolgárok közvetlenül","az Alkotmánybíróság"],["Parliament","the President of the Republic","voters directly","the Constitutional Court"]);
+T("i11",2,"Ki Magyarország miniszterelnöke?","Who is Hungary's Prime Minister?",[["magyar peter","peter magyar"]],"Magyar Péter.","Péter Magyar.",{n:"As named in the August 2026 handout. Officeholders can change, so check before your exam date."});
+T("i12",2,"Ki Magyarország köztársasági elnöke?","Who is Hungary's President of the Republic?",[["baka"]],"Baka András (2026. augusztus 19-től).","András Baka (in office since 19 August 2026).",{n:"The January 2025 handout named Tamás Sulyok; the August 2026 version names András Baka."});
+T("i13",3,"a) Ki Magyarország miniszterelnöke? b) Ki a köztársasági elnök? c) Melyik szerv választja meg mindkettőjüket?","a) Who is the Prime Minister? b) Who is the President? c) Which body elects both of them?",[{l:"a) miniszterelnök",le:"prime minister",k:["magyar peter","peter magyar"]},{l:"b) köztársasági elnök",le:"president",k:["baka"]},{l:"c) szerv",le:"body",k:["orszaggyules","parlament","parliament","national assembly"]}],"a) Magyar Péter · b) Baka András · c) az Országgyűlés","a) Péter Magyar · b) András Baka · c) Parliament");
+M("i14",2,"Mi alkotja a végrehajtó hatalmat?","What makes up the executive power?",["a Kormány és a neki alárendelt közigazgatás","az Országgyűlés","a bíróságok","a köztársasági elnök és az Alkotmánybíróság"],["the Government and the public administration under it","Parliament","the courts","the President and the Constitutional Court"]);
+T("i15",2,"Kik a Kormány tagjai?","Who are the members of the Government?",[["miniszterelnok","kormanyfo","prime minister"],["=miniszterek","=minisztereket","=miniszterekbol","=miniszter","=ministers"]],"A miniszterelnök (kormányfő) és a miniszterek.","The Prime Minister (head of government) and the ministers.");
+L("i16",2,"Soroljon fel kettőt a Kormány főbb feladatai közül!","List two main tasks of the Government.",2,[["kozigazgat","administration"],["jogszabaly","rendelet","regulation","decree"],["ellatorendszer","honvedelem","rendvedelem","oktatas","egeszsegugy","education","health","defence","defense","police"]],"Irányítja a közigazgatás munkáját és összehangolja tevékenységét; jogszabályokat alkot; működteti az állami ellátórendszereket (pl. honvédelem, rendvédelem, oktatás, egészségügy).","Directs and coordinates public administration; issues regulations; runs state services (e.g. defence, law enforcement, education, health care).");
+M("i17",2,"Ki képviseli Magyarországot az Európai Tanácsban?","Who represents Hungary in the European Council?",["a miniszterelnök","a köztársasági elnök","az Országgyűlés elnöke","a külügyminiszter"],["the Prime Minister","the President of the Republic","the Speaker of Parliament","the foreign minister"]);
+M("i18",2,"Ki Magyarország államfője?","Who is Hungary's head of state?",["a köztársasági elnök","a miniszterelnök","az Országgyűlés elnöke","az Alkotmánybíróság elnöke"],["the President of the Republic","the Prime Minister","the Speaker of Parliament","the President of the Constitutional Court"]);
+M("i19",2,"Hány évre választják a köztársasági elnököt?","For how many years is the President elected?",["5 évre","4 évre","6 évre","7 évre"],["5 years","4 years","6 years","7 years"],{n:"General rule of the Fundamental Law. Baka András was elected under a 2026 amendment until a new constitution takes effect, for at most 5 years."});
+M("i20",2,"Ki választja a köztársasági elnököt?","Who elects the President of the Republic?",["az Országgyűlés, titkos szavazással","a választópolgárok közvetlenül","a Kormány","az Alkotmánybíróság"],["Parliament, by secret ballot","voters directly","the Government","the Constitutional Court"]);
+M("i21",2,"Hányszor választható újra a köztársasági elnök?","How many times can the President be re-elected?",["legfeljebb egy alkalommal","kétszer","korlátlanul","egyszer sem"],["at most once","twice","without limit","never"]);
+L("i22",3,"Soroljon fel hármat a köztársasági elnök feladatai és jogkörei közül!","List three duties or powers of the President of the Republic.",3,[["egyseg","unity"],["demokratikus","orkodik","democratic"],["honvedseg","foparancsnok","hadsereg","commander","armed forces","army"],["alakulo","osszehiv","inaugural","convene"],["feloszlat","dissolve"]],"Kifejezi a nemzet egységét; őrködik az államszervezet demokratikus működése felett; a Magyar Honvédség főparancsnoka; összehívja az Országgyűlés alakuló ülését; feloszlathatja az Országgyűlést.","Embodies the unity of the nation; safeguards the democratic functioning of the state; commander-in-chief of the Hungarian Defence Forces; convenes Parliament's inaugural sitting; may dissolve Parliament (in cases set by the Fundamental Law).");
+M("i23",2,"Ki a Magyar Honvédség főparancsnoka?","Who is commander-in-chief of the Hungarian Defence Forces?",["a köztársasági elnök","a miniszterelnök","a honvédelmi miniszter","az Országgyűlés elnöke"],["the President of the Republic","the Prime Minister","the defence minister","the Speaker of Parliament"]);
+L("i24",2,"Nevezzen meg két minisztériumot!","Name two ministries.",2,[["belugy","interior"],["honvedelm","defence","defense"],["igazsagugy","justice"],["kulugy","foreign"],["penzugy","finance"],["egeszsegugy","health"],["oktatas","gyermekugy","education"],["miniszterelnokseg","prime minister s office"],["agrar","elelmiszer","agricultur"],["gazdasag","energet","economy","energy"],["kozlekedes","beruhaz","transport"],["szocialis","csaladugy","social","family"],["tudomany","technologia","science"],["videk","telepulesfejleszt","rural"],["elo kornyezet","environment"],["tarsadalmi kapcsolat","kultura","culture"]],"Pl. Belügyminisztérium, Honvédelmi Minisztérium, Igazságügyi Minisztérium, Külügyminisztérium, Pénzügyminisztérium, Egészségügyi Minisztérium.","E.g. the ministries of the Interior, Defence, Justice, Foreign Affairs, Finance, Health.",{n:"The August 2026 handout lists 16 ministries of the new government."});
+M("i25",2,"Mely értékek megőrzését tartotta szem előtt (többek között) az Országgyűlés az Alaptörvény megalkotásakor?","Among other things, which values did Parliament aim to preserve when drafting the Fundamental Law?",["a keresztény értékek és az európai kultúra megőrzését","a monarchia visszaállítását","az egypártrendszer megőrzését","a nemesi kiváltságokat"],["Christian values and European culture","restoring the monarchy","keeping the one-party system","noble privileges"]);
+
+/* 5 · Alapvető állampolgári jogok és kötelezettségek */
+M("r01",2,"Melyik dokumentumot adta ki II. András 1222-ben?","Which document did Andrew II issue in 1222?",["az Aranybullát","a Magna Chartát","az Emberi és Polgári Jogok Nyilatkozatát","a 12 pontot"],["the Golden Bull","Magna Carta","the Declaration of the Rights of Man and of the Citizen","the 12 Points"]);
+L("r02",3,"Nevezzen meg három történelmi dokumentumot, amely kiemelkedő az emberi jogok fejlődésében!","Name three historic documents that were milestones for human rights.",3,[["magna","1215"],["aranybull","golden bull","1222"],["nyilatkozat","declaration","1789"],["egyezmeny","convention","1950"]],"Magna Charta Libertatum (1215), Aranybulla (1222), az Emberi és Polgári Jogok Nyilatkozata (1789), az Emberi Jogok Európai Egyezménye (1950).","Magna Carta (1215), the Golden Bull (1222), the Declaration of the Rights of Man and of the Citizen (1789), the European Convention on Human Rights (1950).");
+M("r03",2,"Mikor fogadták el az Emberi Jogok Európai Egyezményét?","When was the European Convention on Human Rights adopted?",["1950-ben","1789-ben","1215-ben","2004-ben"],["1950","1789","1215","2004"]);
+M("r04",2,"Melyik ország dokumentuma az Emberi és Polgári Jogok Nyilatkozata (1789)?","Which country produced the Declaration of the Rights of Man and of the Citizen (1789)?",["Franciaország","Anglia","Magyarország","Németország"],["France","England","Hungary","Germany"]);
+M("r05",2,"Mit jelent a jogegyenlőség?","What does equality of rights mean?",["az állam minden polgárát egyenlő jogok illetik meg, és a törvény előtt mindenki egyenlő","mindenki ugyanannyi adót fizet","mindenkinek ugyanakkora vagyona van","csak a nemeseknek vannak jogaik"],["every citizen has equal rights and everyone is equal before the law","everyone pays the same tax","everyone owns the same wealth","only nobles have rights"]);
+L("r06",3,"Soroljon fel három első generációs (szabadság)jogot!","List three first-generation rights (freedoms).",3,[["elet","life"],["szemelyi szabad","szemelyes szabad","personal liberty","personal freedom"],["egyesul","gyulekez","association","assembly"],["lelkiismeret","vallas","religio","conscience"],["szolas","sajto","velemeny","speech","press","expression"]],"Az élethez való jog; a személyi szabadsághoz való jog; az egyesülési és gyülekezési szabadság; a lelkiismereti és vallásszabadság; a szólás- és sajtószabadság.","Right to life; right to personal liberty; freedom of association and assembly; freedom of conscience and religion; freedom of speech and of the press.");
+L("r07",2,"Soroljon fel két második generációs jogot!","List two second-generation rights.",2,[["munka","work","labour","labor"],["sztrajk","strike"],["oktatas","tanulas","education"],["szocialis","social security"]],"A munkához, a sztrájkhoz, az oktatáshoz és a szociális biztonsághoz való jog.","The rights to work, to strike, to education and to social security.");
+L("r08",2,"Soroljon fel két harmadik generációs jogot!","List two third-generation rights.",2,[["kornyezet","environment"],["gyermek","child"],["beteg","patient"],["fogyatek","disab"]],"Az egészséges környezethez való jog, a gyermekek jogai, a betegjogok, a fogyatékkal élők jogai.","The right to a healthy environment, children's rights, patients' rights, rights of persons with disabilities.");
+T("r09",3,"Melyik generációba tartozik? a) szólás- és sajtószabadság b) sztrájkhoz való jog c) betegjogok","Which generation? a) freedom of speech and press b) right to strike c) patients' rights",[{l:"a) szólásszabadság",le:"free speech",k:["=1","=elso","=first","=i"]},{l:"b) sztrájkjog",le:"right to strike",k:["=2","=masodik","=second","=ii"]},{l:"c) betegjogok",le:"patients' rights",k:["=3","=harmadik","=third","=iii"]}],"a) első · b) második · c) harmadik","a) first · b) second · c) third");
+M("r10",2,"Mi az állam elsőrendű kötelessége az ember alapvető jogaival kapcsolatban?","What is the state's primary duty regarding fundamental rights?",["tiszteletben tartásuk és védelmük","korlátozásuk","megadóztatásuk","ötévenkénti felülvizsgálatuk"],["to respect and protect them","to restrict them","to tax them","to review them every five years"]);
+M("r11",2,"Mikor korlátozható egy alapvető jog?","When may a fundamental right be restricted?",["csak másik alapvető jog vagy egy alkotmányos érték védelme érdekében","bármikor, ha a Kormány úgy dönt","soha, semmilyen esetben","ha egy népszavazáson a többség megszavazza"],["only to protect another fundamental right or a constitutional value","whenever the Government decides","never, under any circumstances","if a majority votes for it in a referendum"]);
+L("r12",3,"Soroljon fel hármat az Alaptörvényben biztosított legfőbb alapvető jogok közül!","List three of the main fundamental rights guaranteed by the Fundamental Law.",3,[["egyenloseg","equality"],["elet","meltosag","life","dignity"],["tisztesseges","fair"],["gondolat","lelkiismeret","vallas","religio","conscience","thought"],["velemeny","szolas","expression","speech"],["gyulekez","assembly"],["tulajdon","orokl","property","inherit"],["szemelyes adat","adatved","data"]],"Törvény előtti egyenlőség; élethez és emberi méltósághoz való jog; tisztességes eljáráshoz való jog; gondolat-, lelkiismeret- és vallásszabadság; véleménynyilvánítás szabadsága; gyülekezési szabadság; tulajdonjog és örökléshez való jog; személyes adatok védelméhez való jog.","Equality before the law; right to life and human dignity; right to a fair procedure; freedom of thought, conscience and religion; freedom of expression; freedom of assembly; property and inheritance; protection of personal data.");
+M("r13",2,"Mikor törölték el a halálbüntetést Magyarországon?","When was the death penalty abolished in Hungary?",["1990-ben","1956-ban","2004-ben","1949-ben"],["1990","1956","2004","1949"]);
+M("r14",2,"Melyik szerv nyilvánította alkotmányellenesnek a halálbüntetést?","Which body declared the death penalty unconstitutional?",["az Alkotmánybíróság","az Országgyűlés","a Kormány","az Európai Parlament"],["the Constitutional Court","Parliament","the Government","the European Parliament"]);
+T("r15",2,"Halálbüntetés: a) Mikor törölték el? b) Melyik szerv döntése nyomán?","Death penalty: a) When was it abolished? b) Following which body's decision?",[{l:"a) év",le:"year",k:["1990"]},{l:"b) szerv",le:"body",k:["alkotmanybirosag","constitutional court","=ab"]}],"a) 1990-ben · b) az Alkotmánybíróság döntése nyomán","a) 1990 · b) the Constitutional Court's decision");
+M("r16",2,"Melyik szerv az Alaptörvény védelmének legfőbb szerve?","Which body is the supreme guardian of the Fundamental Law?",["az Alkotmánybíróság","a Kormány","az alapvető jogok biztosa","a köztársasági elnök"],["the Constitutional Court","the Government","the Commissioner for Fundamental Rights","the President of the Republic"],{x:"law",n:"Fundamental Law, Article 24(1)."});
+M("r17",2,"Kihez fordulhat bárki, ha alapvető jogai sérülnek (ombudsman)?","To whom can anyone turn if their fundamental rights are violated (ombudsman)?",["az alapvető jogok biztosához","a miniszterelnökhöz","a köztársasági elnökhöz","az Országgyűlés elnökéhez"],["the Commissioner for Fundamental Rights","the Prime Minister","the President of the Republic","the Speaker of Parliament"],{x:"law",n:"Fundamental Law, Article 30: the Commissioner protects fundamental rights and acts at anyone's request."});
+M("r18",2,"Mi minden magyar állampolgár kötelessége az Alaptörvény szerint?","According to the Fundamental Law, what is every Hungarian citizen obliged to do?",["megvédeni a hazát","szavazni minden választáson","párttagnak lenni","templomba járni"],["defend the country","vote in every election","be a party member","attend church"],{x:"law",n:"Fundamental Law, Article XXXI(1). Voting is a right, not an obligation."});
+M("r19",2,"Milyen alapon járul hozzá mindenki a közös szükségletek fedezéséhez?","On what basis does everyone contribute to covering common needs?",["teherbíró képessége és a gazdaságban való részvétele szerint","mindenki ugyanakkora összeggel","csak a munkáltatók fizetnek","önkéntes adományokkal"],["according to ability to pay and participation in the economy","everyone pays the same amount","only employers pay","by voluntary donations"],{x:"law",n:"Fundamental Law, Article XXX(1), the basis of tax obligations."});
+M("r20",2,"Mire kötelesek a szülők kiskorú gyermekükkel kapcsolatban?","What are parents obliged to do for their minor children?",["gondoskodni róluk, beleértve a taníttatásukat","minden vagyonukat rájuk íratni","csak hatéves korukig gondoskodni róluk","külföldön taníttatni őket"],["care for them, including their schooling","transfer all their property to them","care for them only until age six","have them educated abroad"],{x:"law",n:"Fundamental Law, Article XVI(3)."});
+L("r21",2,"Nevezzen meg két alapvető kötelezettséget az Alaptörvényből!","Name two basic obligations from the Fundamental Law.",2,[["=ado","adot","adofizet","adoz","kozteher","kozos szukseg","tax"],["haza","honved","defen"],["szulo","gyermek","tanittat","parent","child","school"],["kozosseg","hozzajarul","contribut"]],"Hozzájárulás a közös szükségletekhez (adófizetés); a haza védelme (magyar állampolgárok); a szülők gondoskodása gyermekükről és taníttatásukról; hozzájárulás az állami és közösségi feladatokhoz.","Contributing to common needs (taxes); defending the country (Hungarian citizens); parents caring for and schooling their children; contributing to state and community tasks.",{x:"law"});
+
+/* 6 · Európa és Magyarország a mindennapokban */
+M("e01",2,"Mi Magyarország államformája?","What is Hungary's form of state?",["köztársaság","királyság","szövetségi állam","alkotmányos monarchia"],["republic","kingdom","federal state","constitutional monarchy"]);
+M("e02",2,"Mekkora Magyarország területe?","How large is Hungary's area?",["kb. 93 ezer km²","kb. 39 ezer km²","kb. 193 ezer km²","kb. 930 ezer km²"],["about 93,000 km²","about 39,000 km²","about 193,000 km²","about 930,000 km²"]);
+M("e03",2,"Hány lakosa van Magyarországnak a segédanyag szerint?","According to the handout, what is Hungary's population?",["9,6 millió","7,6 millió","18,2 millió","12 millió"],["9.6 million","7.6 million","18.2 million","12 million"]);
+M("e04",2,"Mi Magyarország pénzneme?","What is Hungary's currency?",["a forint","az euró","a pengő","a korona"],["the forint","the euro","the pengő (historical)","the korona (historical)"]);
+M("e05",2,"Mi Magyarország hivatalos nyelve?","What is Hungary's official language?",["a magyar","a magyar és a német","a magyar és az angol","nincs hivatalos nyelve"],["Hungarian","Hungarian and German","Hungarian and English","it has none"]);
+L("e06",3,"Soroljon fel három szomszédos országot!","List three neighbouring countries.",3,[["szlovak","slovak"],["ukraj","ukrain"],["roman","rumania"],["szerb","serbia"],["horvat","croatia"],["szloven","sloven"],["auszt","austria","osztrak"]],"Szlovákia, Ukrajna, Románia, Szerbia, Horvátország, Szlovénia, Ausztria.","Slovakia, Ukraine, Romania, Serbia, Croatia, Slovenia, Austria.");
+M("e07",2,"Hány országgal határos Magyarország?","How many countries border Hungary?",["7","5","6","8"],["7","5","6","8"]);
+M("e08",2,"Melyik szomszédos ország NEM tagja az Európai Uniónak?","Which neighbouring country is NOT an EU member?",["Szerbia","Ausztria","Szlovákia","Horvátország"],["Serbia","Austria","Slovakia","Croatia"],{n:"The two non-EU neighbours are Serbia and Ukraine."});
+L("e09",3,"Nevezzen meg három olyan szomszédos országot, amely az EU tagja!","Name three neighbouring countries that are EU members.",3,[["szlovak","slovak"],["roman","rumania"],["horvat","croatia"],["szloven","sloven"],["auszt","austria","osztrak"]],"Ausztria, Szlovákia, Románia, Horvátország, Szlovénia.","Austria, Slovakia, Romania, Croatia, Slovenia.");
+L("e10",2,"Nevezzen meg két nagy folyót Magyarországon!","Name two major rivers in Hungary.",2,[["duna","danube"],["tisza"],["drava","drau"],["raba","raab"]],"Duna, Tisza, Dráva, Rába.","Danube, Tisza, Drava, Rába.");
+L("e11",3,"Nevezze meg Magyarország három legnagyobb tavát!","Name Hungary's three largest lakes.",3,[["balaton"],["ferto","neusiedl"],["velence"]],"Balaton, Fertő tó, Velencei-tó.","Balaton, Lake Fertő (Neusiedl), Lake Velence.");
+L("e12",2,"Nevezzen meg két magyarországi tájegységet!","Name two landscape regions of Hungary.",2,[["alfold","great plain","great hungarian"],["kisalfold","little plain","little hungarian","small hungarian"],["alpokalj"],["dunantuli domb","transdanubian hills"],["dunantuli kozep","transdanubian mountains"],["eszaki kozep","north hungarian","northern mountains"]],"Alföld, Kisalföld, Alpokalja, Dunántúli-dombság, Dunántúli-középhegység, Északi-középhegység.","Great Plain, Little Plain, Alpokalja (Alpine foothills), Transdanubian Hills, Transdanubian Mountains, North Hungarian Mountains.");
+M("e13",2,"Hány vármegyéje van Magyarországnak?","How many counties does Hungary have?",["19","20","23","7"],["19","20","23","7"]);
+L("e14",3,"Nevezzen meg három vármegyét!","Name three counties.",3,[["=pest"],["fejer"],["baranya"],["somogy"],["tolna"],["=zala"],["=vas"],["veszprem"],["gyor","moson","=sopron"],["komarom","=esztergom"],["nograd"],["heves"],["borsod","abauj","zemplen"],["szabolcs","szatmar","bereg"],["hajdu","bihar"],["bekes"],["csongrad","csanad"],["bacs","kiskun"],["jasz","nagykun","szolnok"]],"Pl. Pest, Fejér, Baranya, Somogy, Tolna, Zala, Vas, Veszprém, Győr-Moson-Sopron, Komárom-Esztergom, Nógrád, Heves, Borsod-Abaúj-Zemplén, Szabolcs-Szatmár-Bereg, Hajdú-Bihar, Békés, Csongrád-Csanád, Bács-Kiskun, Jász-Nagykun-Szolnok.","19 counties, e.g. Pest, Fejér, Baranya, Somogy, Zala, Vas, Veszprém, Heves, Békés, Hajdú-Bihar.");
+M("e15",2,"Mikor jött létre Budapest Pest, Buda és Óbuda egyesítésével?","When was Budapest created by uniting Pest, Buda and Óbuda?",["1873. november 17.","1867. február 17.","1848. március 15.","1896. május 2."],["17 November 1873","17 February 1867","15 March 1848","2 May 1896"]);
+M("e16",2,"Hány kerülete van Budapestnek 1994 óta?","How many districts has Budapest had since 1994?",["23","22","19","25"],["23","22","19","25"]);
+M("e17",2,"A Duna melyik partján fekszik Pest?","On which bank of the Danube does Pest lie?",["a bal partján","a jobb partján","mindkét partján","egy szigeten"],["the left bank","the right bank","both banks","on an island"]);
+L("e18",3,"Soroljon fel három budapesti nevezetességet!","List three Budapest landmarks.",3,[["budavari palota","kiralyi palota","budai var","budavar","buda castle"],["citadella","citadel"],["gellert"],["halaszbastya","fisherman"],["hosok tere","heroes"],["nemzeti muzeum","national museum"],["zene haza","house of music"],["opera"],["matyas templom","matthias"],["parlament","orszaghaz","parliament"],["bazilika","basilica"],["lanchid","lanc hid","chain bridge"],["szepmuveszeti","fine arts"],["vajdahunyad"]],"Budavári Palota, Citadella, Gellért Gyógyfürdő, Halászbástya, Hősök tere, Magyar Nemzeti Múzeum, Magyar Zene Háza, Magyar Állami Operaház, Mátyás-templom, Parlament, Szent István Bazilika, Széchenyi Lánchíd, Szépművészeti Múzeum, Vajdahunyad vára.","Buda Castle, the Citadel, Gellért Baths, Fisherman's Bastion, Heroes' Square, National Museum, House of Music, State Opera, Matthias Church, Parliament, St Stephen's Basilica, Chain Bridge, Museum of Fine Arts, Vajdahunyad Castle.");
+M("e19",2,"Honnan ered a „hungarikum” szó?","Where does the word ‘hungarikum’ come from?",["Magyarország latin nevéből (Hungaria)","egy magyar király nevéből","a Duna latin nevéből","a „gulyás” szóból"],["from Hungary's Latin name (Hungaria)","from the name of a Hungarian king","from the Latin name of the Danube","from the word ‘gulyás’"]);
+M("e20",2,"Mit nevezünk hungarikumnak?","What is a ‘hungarikum’?",["tipikusan magyar alkotást, tárgyat vagy szokást, amely csak a magyarokra jellemző","bármilyen Magyarországon gyártott terméket","egy magyar állami intézményt","egy EU által támogatott terméket"],["a typically Hungarian creation, object or custom found only among Hungarians","any product made in Hungary","a Hungarian state institution","an EU-subsidised product"]);
+L("e21",3,"Soroljon fel három hungarikumot!","List three Hungarikums.",3,[["gulyas"],["halaszle"],["dobos"],["szalami","teliszalami","=pick"],["hagyma","mako"],["paprika"],["tokaji","aszu"],["bikaver"],["palinka"],["buso"],["pannonhalm"],["holloko"],["anna bal"],["szurke","marha"],["=puli"],["komondor"],["kuvasz"],["vizsla"],["kopo"],["csipke","halasi"],["matyo"],["hollohaz"],["zsolnay"]],"Pl. gulyásleves, halászlé, dobostorta, Pick téliszalámi, makói hagyma, kalocsai és szegedi fűszerpaprika, tokaji aszú, egri bikavér, pálinka, mohácsi busójárás, Pannonhalmi Főapátság, Hollókő, Füredi Anna-bál, szürke szarvasmarha, puli, komondor, kuvasz, magyar vizsla, erdélyi kopó, halasi csipke, matyó népművészet, hollóházi és Zsolnay-porcelán.","E.g. goulash soup, fisherman's soup, Dobos cake, Pick winter salami, Makó onion, ground paprika, Tokaji Aszú, Egri Bikavér, pálinka, the Busójárás of Mohács, Pannonhalma Abbey, Hollókő, the Anna Ball, grey cattle, Puli, Komondor, Kuvasz, Vizsla, Halas lace, Matyó folk art, Hollóháza and Zsolnay porcelain.");
+M("e22",2,"Melyik város hungarikuma a busójárás?","Which town's Hungarikum is the Busójárás?",["Mohács","Szeged","Kalocsa","Eger"],["Mohács","Szeged","Kalocsa","Eger"]);
+M("e23",2,"Melyik bor hungarikum?","Which wine is a Hungarikum?",["a tokaji aszú","a chianti","a rioja","a prosecco"],["Tokaji Aszú","Chianti","Rioja","Prosecco"],{n:"Egri bikavér is also a Hungarikum."});
+L("e24",2,"Nevezzen meg két magyar pásztorkutyát!","Name two Hungarian sheepdogs.",2,[["=puli"],["komondor"],["kuvasz"]],"Puli, komondor, kuvasz.","Puli, Komondor, Kuvasz.");
+M("e25",2,"Melyik porcelán hungarikum?","Which porcelain is a Hungarikum?",["a Zsolnay-porcelán","a meisseni porcelán","a Wedgwood","a sèvres-i porcelán"],["Zsolnay porcelain","Meissen porcelain","Wedgwood","Sèvres porcelain"],{n:"Hollóháza porcelain is also listed in the handout."});
+L("e26",3,"Nevezze meg Magyarország három legrégibb és legjelentősebb keresztény felekezetét!","Name Hungary's three oldest and most important Christian denominations.",3,[["katolik","catholic"],["reformatus","reformed","kalvin","calvin"],["evangelikus","lutheran","luther"]],"Magyar Katolikus Egyház (latin és görög), Magyarországi Református Egyház, Magyarországi Evangélikus Egyház.","Catholic (Latin and Greek rite), Reformed (Calvinist), Evangelical-Lutheran.");
+M("e27",2,"Mikor ünneplik a karácsonyt?","When is Christmas celebrated?",["december 24–26.","december 6.","január 6.","december 31."],["24–26 December","6 December","6 January","31 December"]);
+M("e28",2,"Mire emlékeznek és mit ünnepelnek a keresztények húsvétkor?","What do Christians commemorate and celebrate at Easter?",["Jézus kereszthalálára emlékeznek és feltámadását ünneplik","Jézus születését ünneplik","Szent István megkoronázását ünneplik","az államalapítást ünneplik"],["Jesus's death on the cross and his resurrection","Jesus's birth","St Stephen's coronation","the foundation of the state"]);
+T("e29",2,"Milyen körmenetet tartanak augusztus 20-án?","Which procession is held on 20 August?",[["szent jobb","=jobb","holy right"]],"A Szent Jobb-körmenetet (Szent István ereklyéjével); este tűzijáték.","The Holy Right Hand procession (with St Stephen's relic); fireworks in the evening.");
+L("e30",3,"Nevezzen meg három magyar szentet!","Name three Hungarian saints.",3,[["istvan","stephen"],["laszlo","ladislaus"],["imre","emeric"],["gellert","gerard"],["margit","margaret"],["erzsebet","elizabeth"]],"Szent István, Szent László, Szent Imre, Szent Gellért, Árpád-házi Szent Margit, Árpád-házi Szent Erzsébet.","St Stephen, St Ladislaus, St Emeric, St Gerard, St Margaret of Hungary, St Elizabeth of Hungary.");
+M("e31",2,"Mikor csatlakozott Magyarország az Európai Unióhoz?","When did Hungary join the European Union?",["2004. május 1.","2007. január 1.","1999. március 12.","1990. május 2."],["1 May 2004","1 January 2007","12 March 1999","2 May 1990"]);
+M("e32",2,"Mikor csatlakozott Magyarország a schengeni övezethez?","When did Hungary join the Schengen Area?",["2007-ben","2004-ben","2011-ben","1999-ben"],["2007","2004","2011","1999"]);
+M("e33",2,"Mit biztosít a schengeni övezet?","What does the Schengen Area provide?",["a határok szabad átjárhatóságát","a közös pénznemet","a közös hadsereget","a vámmentes vásárlást az egész világon"],["free movement across internal borders","a common currency","a common army","duty-free shopping worldwide"]);
+M("e34",2,"Hány tagállama van az Európai Uniónak?","How many member states does the EU have?",["27","28","25","30"],["27","28","25","30"]);
+M("e35",2,"Hány fővel képviseli magát Magyarország az Európai Parlamentben?","How many members does Hungary have in the European Parliament?",["21","13","27","199"],["21","13","27","199"]);
+M("e36",2,"Milyen gyakran tartanak európai parlamenti választást?","How often are European Parliament elections held?",["ötévente","négyévente","hatévente","kétévente"],["every 5 years","every 4 years","every 6 years","every 2 years"]);
+M("e37",2,"Hol van az Európai Unió központja?","Where is the EU's headquarters?",["Brüsszelben","Strasbourgban","Luxembourgban","Bécsben"],["Brussels","Strasbourg","Luxembourg","Vienna"]);
+L("e38",2,"Soroljon fel kettőt az Európai Unió legfontosabb intézményei közül!","List two of the EU's most important institutions.",2,[["bizottsag","commission"],["parlament","parliament"],["tanacs","council"]],"Európai Bizottság, Tanács, Európai Parlament, Európai Tanács.","European Commission, Council of the EU, European Parliament, European Council.");
+M("e39",2,"Hány polgár él az Európai Unióban a segédanyag szerint?","According to the handout, how many citizens live in the EU?",["450 millió","150 millió","750 millió","1 milliárd"],["450 million","150 million","750 million","1 billion"]);
+L("e40",2,"Nevezzen meg két Magyarországon elismert nemzetiséget!","Name two officially recognised nationalities in Hungary.",2,[["bolgar","bulgarian"],["gorog","greek"],["horvat","croat"],["lengyel","polish"],["nemet","german"],["ormeny","armenian"],["=roma","=romak","cigany"],["roman","rumanian"],["ruszin","rusyn"],["szerb","serb"],["szlovak","slovak"],["szloven","sloven"],["ukran","ukrain"]],"Bolgár, görög, horvát, lengyel, német, örmény, roma, román, ruszin, szerb, szlovák, szlovén, ukrán.","Bulgarian, Greek, Croatian, Polish, German, Armenian, Roma, Romanian, Rusyn, Serbian, Slovak, Slovenian, Ukrainian.");
+M("e41",2,"Mi Magyarország fővárosa?","What is the capital of Hungary?",["Budapest","Debrecen","Szeged","Esztergom"],["Budapest","Debrecen","Szeged","Esztergom"]);
+M("e42",2,"Hány nemzetiség él elismerten Magyarországon a segédanyag szerint?","According to the handout, how many recognised nationalities live in Hungary?",["13","7","19","23"],["13","7","19","23"]);
+
+/* 0 · Vizsga-magyar (flashcards only) */
+V("v01","Ki?","Who?");
+V("v02","Mi? · Mit?","What? (subject · object)");
+V("v03","Mikor?","When?");
+V("v04","Hol? · Hová? · Honnan?","Where? · Where to? · Where from?");
+V("v05","Melyik?","Which?");
+V("v06","Hány? · Hányszor?","How many? · How many times?");
+V("v07","Milyen? · Mekkora?","What kind of? · How big?");
+V("v08","Kinek a …? · Kié?","Whose …?");
+V("v09","Soroljon fel …!","List …!");
+V("v10","Nevezze meg … · Nevezzen meg …!","Name the … · Name a …!");
+V("v11","Egészítse ki!","Complete it (fill in the gaps)!");
+V("v12","Párosítsa!","Match them!");
+V("v13","Válassza ki a helyes választ!","Choose the correct answer!");
+V("v14","Karikázza be! · Húzza alá!","Circle it! · Underline it!");
+V("v15","Igaz vagy hamis?","True or false?");
+V("v16","Írja le! · Írja be!","Write it down! · Write it in!");
+V("v17","évszám · dátum · század","year · date · century");
+V("v18","ünnep · nemzeti ünnep · emléknap","holiday · national holiday · day of remembrance");
+V("v19","jelkép · címer · zászló (lobogó)","symbol · coat of arms · flag");
+V("v20","forradalom · szabadságharc · felkelés","revolution · war of independence · uprising");
+V("v21","csata · háború · ostrom · békeszerződés","battle · war · siege · peace treaty");
+V("v22","király · uralkodó · királyság","king · ruler · kingdom");
+V("v23","költő · író · zeneszerző","poet · writer · composer");
+V("v24","vers · regény · dráma · mű","poem · novel · drama · work");
+V("v25","Országgyűlés · képviselő","National Assembly (Parliament) · Member of Parliament");
+V("v26","Kormány · miniszterelnök · miniszter","Government · Prime Minister · minister");
+V("v27","köztársasági elnök · államfő","President of the Republic · head of state");
+V("v28","Alaptörvény · törvény · alkotmány","Fundamental Law · law · constitution");
+V("v29","jog · kötelezettség · szabadság","right · obligation · freedom");
+V("v30","állampolgár · választás · szavazás","citizen · election · voting");
+V("v31","szomszédos ország · határ","neighbouring country · border");
+V("v32","vármegye · főváros · kerület","county · capital city · district");
+V("v33","folyó · tó · hegység · síkság","river · lake · mountains · plain");
+V("v34","Európai Unió · tagállam","European Union · member state");
+V("v35","egyház · szent · ünneplik","church · saint · they celebrate");
+V("v36","Melyik évben? · Hányban?","In which year? · In what year? (colloquial)");
+V("v37","Ki írta? · Ki szerezte?","Who wrote it? · Who composed it?");
+V("v38","Hol található? · Hol tekinthető meg?","Where is it? · Where can it be seen?");
+V("v39","megfelelt · nem megfelelt","passed · failed");
+V("v40","vizsgalap · vizsgajegyzőkönyv · pont","exam sheet · exam record · point");
+
+/* ===== Normalisation & grading ===== */
+function norm(s){return String(s==null?"":s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g," ").trim();}
+function prepK(arr){return arr.map(k=>{const ex=k.charAt(0)==="=";const s=norm(ex?k.slice(1):k);return {e:ex||s.length<=3,s};});}
+B.forEach(it=>{if(it.ty==="t")it.parts.forEach(pt=>{pt.K=prepK(pt.k);});if(it.ty==="l")it.pick.O=it.pick.opts.map(prepK);});
+const BYID=Object.fromEntries(B.map(it=>[it.id,it]));
+function lev(a,b){if(a===b)return 0;const m=a.length,n=b.length;if(!m)return n;if(!n)return m;let pr=new Array(n+1),cu=new Array(n+1);for(let j=0;j<=n;j++)pr[j]=j;for(let i=1;i<=m;i++){cu[0]=i;for(let j=1;j<=n;j++){cu[j]=Math.min(pr[j]+1,cu[j-1]+1,pr[j-1]+(a[i-1]===b[j-1]?0:1));}const t=pr;pr=cu;cu=t;}return pr[n];}
+function hit(ans,kw){
+  if(!ans||!kw.s)return false;
+  const A=" "+ans+" ";
+  if(kw.e)return A.includes(" "+kw.s+" ");
+  if(A.includes(" "+kw.s))return true;
+  if(kw.s.length<6)return false;
+  const tol=kw.s.length>=11?2:1,aw=ans.split(" "),nw=kw.s.split(" ").length;
+  for(let i=0;i+nw<=aw.length;i++){const w=aw.slice(i,i+nw).join(" ");if(lev(w,kw.s)<=tol)return true;if(w.length>kw.s.length&&lev(w.slice(0,kw.s.length),kw.s)<=tol)return true;}
+  return false;
+}
+function anyHit(ans,K){return K.some(k=>hit(ans,k));}
+function isLabeled(it){return it.ty==="t"&&it.parts.some(pt=>pt.l);}
+function grade(it,r){
+  if(it.ty==="m")return r===0?1:0;
+  if(it.ty==="t"){const lab=isLabeled(it);let g=0;it.parts.forEach((pt,i)=>{const raw=lab?(Array.isArray(r)?r[i]:""):r;if(anyHit(norm(raw),pt.K))g++;});return g/it.parts.length;}
+  if(it.ty==="l"){const a=norm(r);let m=0;it.pick.O.forEach(K=>{if(anyHit(a,K))m++;});return Math.min(it.pick.k,m)/it.pick.k;}
+  return 0;
+}
+/* ===== Readiness model: Beta-binomial per topic, exam = 6 x (2-pt + 3-pt), all-or-nothing, exact convolution ===== */
+function topicPost(items,t){let x=0,n=0;for(const it of B){if(it.t!==t||!it.p)continue;const s=items[it.id];if(s&&typeof s.qs==="number"){x+=s.qs;n++;}}return {t,a:1+x,b:1+n-x,n,x};}
+function predict(items){
+  const tops=[1,2,3,4,5,6].map(t=>topicPost(items,t));
+  let dist=[1];
+  for(const tp of tops){const a=tp.a,b=tp.b,s=a+b,d=s*(s+1),pp=a*(a+1)/d,qq=b*(b+1)/d,pq=a*b/d;const nd=new Array(dist.length+5).fill(0);dist.forEach((v,i)=>{nd[i]+=v*qq;nd[i+2]+=v*pq;nd[i+3]+=v*pq;nd[i+5]+=v*pp;});dist=nd;}
+  const pass=dist.slice(16).reduce((s,v)=>s+v,0),mean=dist.reduce((s,v,i)=>s+v*i,0);
+  return {tops,dist,pass,mean,n:tops.reduce((s,tp)=>s+tp.n,0)};
+}
+</script>
+
+<script id="ui">
+(function(){
+"use strict";
+const LS="kiv-trainer-v1",LSRUN="kiv-trainer-run-v1",DAY=864e5,IV=[0,0,1,3,7,16,35];
+const P={items:{},mocks:[]};
+const S={tab:"ready",run:null,flash:null,cardFilter:"all",drillTopic:1};
+const SYNC={db:null,uid:null,busy:false,again:false,timer:0,retried:false};
+const $=id=>document.getElementById(id);
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function fmtPct(p){if(p>=0.995)return ">99%";if(p<0.005)return "<1%";return Math.round(p*100)+"%";}
+function fmtClock(ms){const s=Math.max(0,Math.ceil(ms/1000));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");}
+function fmtDate(t){try{return new Date(t).toLocaleDateString("en-GB",{day:"numeric",month:"short"});}catch(e){return "";}}
+function r1(x){return Math.round(x*10)/10;}
+function srcTag(it){return it.t===0?"Exam Hungarian":it.x==="law"?"Fundamental Law":it.x==="gk"?"Beyond the handout":"Official handout (Aug 2026)";}
+
+/* ---- persistence ---- */
+function loadLocal(){try{const raw=localStorage.getItem(LS);if(raw){const d=JSON.parse(raw);if(d&&d.items&&typeof d.items==="object")P.items=d.items;if(d&&Array.isArray(d.mocks))P.mocks=d.mocks;}}catch(e){}
+  try{const r=localStorage.getItem(LSRUN);if(r){const run=JSON.parse(r);if(run&&!run.done&&Array.isArray(run.ids))S.run=run;}}catch(e){}}
+function saveLocal(){try{localStorage.setItem(LS,JSON.stringify({items:P.items,mocks:P.mocks.slice(0,80)}));}catch(e){}}
+function saveRun(){try{if(S.run&&!S.run.done)localStorage.setItem(LSRUN,JSON.stringify(S.run));else localStorage.removeItem(LSRUN);}catch(e){}}
+let runSaveT=0;function saveRunSoon(){clearTimeout(runSaveT);runSaveT=setTimeout(saveRun,400);}
+function setSync(mode){const el=$("sync");if(!el)return;el.dataset.mode=mode;el.textContent=mode==="account"?"Progress synced to your Claude account":"Progress saved in this browser";}
+function persist(){saveLocal();queueSave();}
+function queueSave(){if(!SYNC.db)return;clearTimeout(SYNC.timer);SYNC.timer=setTimeout(flush,1500);}
+async function flush(){
+  if(!SYNC.db)return;if(SYNC.busy){SYNC.again=true;return;}SYNC.busy=true;
+  try{await SYNC.db.doc("progress/"+SYNC.uid).set({v:1,items:P.items,updatedAt:Date.now()});SYNC.retried=false;}
+  catch(e){if(e&&e.code==="unavailable"&&!SYNC.retried){SYNC.retried=true;setTimeout(queueSave,2000+Math.random()*2000);}else{SYNC.db=null;setSync("device");}}
+  finally{SYNC.busy=false;if(SYNC.again){SYNC.again=false;queueSave();}}
+}
+async function pushMock(m){if(!SYNC.db)return;try{const body=JSON.parse(JSON.stringify(m));delete body.synced;body.uid=SYNC.uid;await SYNC.db.collection("mocks").doc(m.id).set(body);m.synced=true;saveLocal();}catch(e){}}
+async function connect(){
+  try{
+    const C=window.claude;if(!C||typeof C.use!=="function")return;
+    const res=await Promise.all([C.use("db"),C.use("user")]);const db=res[0],user=res[1];
+    if(!db||!user)return;
+    const uid=await user.id();if(!uid)return;
+    let cw=null;try{cw=await user.can("data.write");}catch(e){}
+    if(cw===false)return;
+    const snap=await db.doc("progress/"+uid).get();
+    if(snap.exists){const items=(snap.data()||{}).items||{};for(const id in items){const r=items[id],l=P.items[id];if(r&&(!l||(r.u||0)>(l.u||0)))P.items[id]=r;}}
+    const qs=await db.collection("mocks").where("uid","==",uid).orderBy("at","desc").limit(80).get();
+    const have=new Map(P.mocks.map(m=>[m.id,m]));
+    qs.docs.forEach(d=>{const m=Object.assign({},d.data(),{id:d.id,synced:true});delete m.uid;if(have.has(m.id))have.get(m.id).synced=true;else P.mocks.push(m);});
+    P.mocks.sort((a,b)=>b.at-a.at);
+    SYNC.db=db;SYNC.uid=uid;setSync("account");saveLocal();render();
+    queueSave();P.mocks.filter(m=>!m.synced).forEach(pushMock);
+  }catch(e){SYNC.db=null;setSync("device");}
+}
+
+/* ---- flashcards ---- */
+function inFilter(it,f){return f==="all"?true:it.t===f;}
+function buildSession(f){
+  const now=Date.now(),pool=B.filter(it=>inFilter(it,f));
+  const due=pool.filter(it=>{const s=P.items[it.id];return s&&s.b&&s.d<=now;}).sort((a,b)=>P.items[a.id].d-P.items[b.id].d);
+  const fresh=pool.filter(it=>!(P.items[it.id]&&P.items[it.id].b));
+  const byT={};fresh.forEach(it=>{(byT[it.t]=byT[it.t]||[]).push(it);});
+  const order=[];let added=true;while(added){added=false;for(const t of [0,1,2,3,4,5,6]){const arr=byT[t];if(arr&&arr.length){order.push(arr.shift());added=true;}}}
+  const queue=due.concat(order).slice(0,20).map(it=>it.id);
+  return {queue,i:0,flip:false,en:false,rq:{},stats:[0,0,0]};
+}
+function nextBox(id,g){const s=P.items[id]||{};const b=s.b||0;if(g===0)return {b:1,days:0};if(g===1){const nb=Math.max(1,b);return {b:nb,days:Math.max(1,Math.round(IV[nb]/2))};}const nb=b<1?2:Math.min(6,b+1);return {b:nb,days:IV[nb]};}
+function rateFlash(id,g){const nb=nextBox(id,g),now=Date.now();const s=P.items[id]||(P.items[id]={});s.b=nb.b;s.d=now+nb.days*DAY;s.fn=(s.fn||0)+1;s.u=now;}
+function dayLabel(d){return d===0?"now":d===1?"1 day":d+" days";}
+
+/* ---- mock & drill ---- */
+function pickFrom(arr,exclude){
+  const cand=arr.filter(it=>!exclude.has(it.id));if(!cand.length)return null;
+  const sorted=cand.map(it=>({it,k:(P.items[it.id]&&P.items[it.id].qt)||0})).sort((a,b)=>a.k-b.k);
+  const unseen=sorted.filter(z=>!z.k);const pool=unseen.length?unseen:sorted.slice(0,Math.max(1,Math.ceil(sorted.length*0.4)));
+  return pool[Math.floor(Math.random()*pool.length)].it.id;
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function startRun(kind,topic){
+  const ex=new Set(),ids=[];
+  if(kind==="mock"){for(let t=1;t<=6;t++){const a=pickFrom(B.filter(it=>it.t===t&&it.p===2),ex);ex.add(a);ids.push(a);const b=pickFrom(B.filter(it=>it.t===t&&it.p===3),ex);ex.add(b);ids.push(b);}}
+  else{const pool=B.filter(it=>it.t===topic&&it.p>0);while(ids.length<6){const id=pickFrom(pool,ex);if(!id)break;ex.add(id);ids.push(id);}}
+  const perm={};ids.forEach(id=>{if(BYID[id].ty==="m")perm[id]=shuffle([0,1,2,3]);});
+  const now=Date.now();
+  S.run={id:"m"+now.toString(36)+Math.random().toString(36).slice(2,6),kind,topic:kind==="drill"?topic:0,ids,start:now,end:kind==="mock"?now+3600000:0,resp:{},hint:{},perm,done:false,mid:null,armed:false,discard:false};
+  S.tab="mock";saveRun();render();window.scrollTo(0,0);
+}
+function answered(id){const r=S.run.resp[id];if(r==null)return false;if(typeof r==="number")return r>=0;if(Array.isArray(r))return r.some(x=>x&&String(x).trim());return String(r).trim().length>0;}
+function submitRun(){
+  const R=S.run;if(!R||R.done)return;const now=Date.now();
+  const rows=R.ids.map(id=>{const it=BYID[id],r=R.resp[id];const f=grade(it,r==null?(it.ty==="m"?-1:""):r);return {id,f,p:it.p,h:!!R.hint[id],r:r==null?null:r,ov:false};});
+  rows.forEach(x=>{const s=P.items[x.id]||(P.items[x.id]={});s.qa=(s.qa||0)+1;s.qs=x.f;s.qt=now;s.qh=x.h;s.u=now;});
+  const score=r1(rows.reduce((s,x)=>s+x.f*x.p,0)),max=rows.reduce((s,x)=>s+x.p,0);
+  const m={id:R.id,at:now,kind:R.kind,topic:R.topic,score,max,hints:rows.filter(x=>x.h).length,dur:Math.round((now-R.start)/1000),rows};
+  P.mocks.unshift(m);R.done=true;R.mid=m.id;saveRun();persist();pushMock(m);render();window.scrollTo(0,0);
+}
+
+/* ---- readiness ---- */
+function readiness(){
+  const pr=predict(P.items);
+  const mocks=P.mocks.filter(m=>m.kind==="mock");
+  const last2=mocks.slice(0,2);
+  const g2=last2.length===2&&last2.every(m=>m.score>=20&&m.hints<=2);
+  const g1=pr.pass>=0.95;
+  let state="none";if(pr.n>=12){state=g1&&g2?"ready":(pr.pass>=0.8?"almost":"notyet");}
+  let weak=null;pr.tops.forEach(tp=>{const mean=tp.a/(tp.a+tp.b);const key=mean-(tp.n<4?0.25:0);if(!weak||key<weak.key)weak={t:tp.t,key,mean,n:tp.n};});
+  return {pr,g1,g2,state,mocks,last2,weak};
+}
+function distChart(dist){
+  const W=360,H=150,L=6,R=6,T=14,BT=116,step=(W-L-R)/31,bw=step*0.7,max=Math.max.apply(null,dist.concat([1e-9]));
+  const xc=i=>L+i*step+step/2;
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Predicted exam score distribution from 0 to 30 points, pass mark 16"><title>Predicted score distribution</title>`;
+  s+=`<rect class="zone" x="${(L+16*step).toFixed(1)}" y="${T}" width="${(15*step).toFixed(1)}" height="${BT-T}" rx="3"/>`;
+  dist.forEach((v,i)=>{const h=(BT-T-6)*v/max;s+=`<rect class="${i>=16?"b-pass":"b-fail"}" x="${(xc(i)-bw/2).toFixed(1)}" y="${(BT-h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="1"/>`;});
+  s+=`<line class="axis" x1="${L}" x2="${W-R}" y1="${BT}" y2="${BT}"/>`;
+  [0,5,10,16,20,25,30].forEach(t=>{const x=xc(t).toFixed(1);s+=`<line class="axis" x1="${x}" x2="${x}" y1="${BT}" y2="${BT+4}"/><text x="${x}" y="${BT+16}" text-anchor="middle"${t===16?' class="lbl"':""}>${t}</text>`;});
+  const px=(L+16*step).toFixed(1);
+  s+=`<line class="passline" x1="${px}" x2="${px}" y1="${T-6}" y2="${BT}"/><text class="lbl" x="${(+px+5).toFixed(1)}" y="${T+4}">16 = megfelelt (pass)</text>`;
+  s+=`<text x="${W-R}" y="${H-4}" text-anchor="end">points (0–30)</text></svg>`;
+  return s;
+}
+function scoreRuler(score){
+  const W=360,H=52,L=10,R=10,x=v=>L+v*(W-L-R)/30;
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Score ${score} of 30; pass mark 16"><title>Score on the 30-point scale</title>`;
+  s+=`<rect class="zone" x="${x(16).toFixed(1)}" y="10" width="${(x(30)-x(16)).toFixed(1)}" height="20" rx="3"/>`;
+  for(let i=0;i<=30;i++){const big=i%5===0||i===16;const xx=x(i).toFixed(1);s+=`<line class="axis" x1="${xx}" x2="${xx}" y1="${big?12:20}" y2="30"/>`;if(big)s+=`<text x="${xx}" y="44" text-anchor="middle"${i===16?' class="lbl"':""}>${i}</text>`;}
+  const sx=x(Math.max(0,Math.min(30,score))).toFixed(1);
+  s+=`<line class="mark" x1="${sx}" x2="${sx}" y1="6" y2="32"/><circle class="markdot" cx="${sx}" cy="6" r="4"/></svg>`;
+  return s;
+}
+function histList(list){
+  if(!list.length)return `<p class="muted small">No results yet.</p>`;
+  return `<ul class="hist">`+list.slice(0,8).map(m=>{
+    const isMock=m.kind==="mock",pass=isMock&&m.score>=16;
+    const label=isMock?"Mock exam":"Drill · "+esc(TOP[m.topic].en);
+    const pill=isMock?`<span class="pill ${pass?"pass":"fail"}">${pass?"megfelelt":"nem megfelelt"}</span>`:`<span class="pill drill">${Math.round(100*m.score/Math.max(1,m.max))}%</span>`;
+    return `<li><span><b>${label}</b><br><span class="small muted">${fmtDate(m.at)} · ${m.hints} English hint${m.hints===1?"":"s"}</span></span><span style="text-align:right"><span class="mono"><b>${m.score}</b>/${m.max}</span><br>${pill}</span></li>`;
+  }).join("")+`</ul>`;
+}
+
+/* ---- views ---- */
+function viewReady(){
+  const R=readiness(),pr=R.pr,w=R.weak,pct=fmtPct(pr.pass);
+  const words={none:["Not assessed","Még nincs adat"],notyet:["Not yet","Még nem"],almost:["Almost","Majdnem"],ready:["Ready","Felkészült"]};
+  let reason="",cta="";
+  if(R.state==="none"){reason="The verdict uses only auto-graded answers from mock exams and topic drills. One mock exam (12 questions) gives a first estimate.";cta=`<button class="btn primary" data-act="startMock">Take a baseline mock exam</button><button class="btn" data-act="tab" data-tab="cards">Study flashcards first</button>`;}
+  else if(R.state==="notyet"){reason=`Estimated chance of scoring 16 or more: ${pct}. The bar is 95%. Weakest area: ${esc(TOP[w.t].en)}.`;cta=`<button class="btn primary" data-act="startDrill" data-topic="${w.t}">Drill ${esc(TOP[w.t].en)}</button><button class="btn" data-act="tab" data-tab="cards">Flashcards</button>`;}
+  else if(R.state==="almost"){reason=R.g1?`Your knowledge estimate clears the bar (${pct}). To finish: two full mock exams in a row at 20/30 or more, with at most 2 English hints each.`:`Estimated chance of scoring 16 or more: ${pct}, close to the 95% bar. Weakest area: ${esc(TOP[w.t].en)}.`;cta=R.g1?`<button class="btn primary" data-act="startMock">Start a mock exam</button>`:`<button class="btn primary" data-act="startDrill" data-topic="${w.t}">Drill ${esc(TOP[w.t].en)}</button><button class="btn" data-act="startMock">Mock exam</button>`;}
+  else{reason=`Estimated chance of scoring 16 or more: ${pct}, and your last two mock exams were 20/30 or better in Hungarian-only conditions. You can apply for an exam date; BFKH notifies you at least 15 working days before it. Keep one mock a week until then.`;cta=`<button class="btn primary" data-act="tab" data-tab="facts">How to apply</button><button class="btn" data-act="startMock">Another mock exam</button>`;}
+  const l2=R.last2.map(m=>`${m.score}/30 (${m.hints} EN)`).join(" · ")||"none yet";
+  const gates=`<ul class="gates">
+    <li class="gate"><span class="dot ${R.g1?"ok":"no"}">${R.g1?"✓":"1"}</span><span><b>Knowledge:</b> chance of 16+ is at least 95%<br><span class="small muted">Now: ${pr.n>=12?pct:"needs 12+ graded answers"} · ${pr.n} graded answers</span></span></li>
+    <li class="gate"><span class="dot ${R.g2?"ok":"no"}">${R.g2?"✓":"2"}</span><span><b>Exam conditions:</b> last two full mocks at 20/30 or more, each with at most 2 English hints<br><span class="small muted">Last two: ${l2}</span></span></li></ul>`;
+  const rows=R.pr.tops.map(tp=>{const pool=B.filter(it=>it.t===tp.t&&it.p).length;const mean=tp.n?Math.round(100*tp.x/tp.n):null;const isWeak=R.state!=="none"&&w&&w.t===tp.t;
+    return `<div class="trow${isWeak?" weak":""}"><span class="name"><b>${esc(TOP[tp.t].en)}</b><span class="small muted">${esc(TOP[tp.t].hu)} · ${tp.n} of ${pool} questions answered</span></span><span class="val">${mean==null?"—":mean+"%"}</span><span class="bar"><i style="width:${mean==null?0:mean}%"></i></span><span class="small"><button class="btn ghost" data-act="startDrill" data-topic="${tp.t}">Drill this topic</button></span></div>`;}).join("");
+  const chart=pr.n>=12?`<div class="panel"><div class="kpis"><div class="kpi"><span class="eyebrow">Chance of 16+</span><span class="num">${pct}</span></div><div class="kpi"><span class="eyebrow">Expected score</span><span class="num">${r1(pr.mean)}</span></div><div class="kpi"><span class="eyebrow">Graded answers</span><span class="num">${pr.n}</span></div></div><div class="chart">${distChart(pr.dist)}</div><p class="small muted">Predicted distribution of your score on a 12-question exam. Green bars are passing scores.</p></div>`:"";
+  return `<div class="verdict"><span class="eyebrow">Readiness verdict</span><span class="word ${R.state}">${words[R.state][0]}</span><span class="hu">${words[R.state][1]}</span><p>${reason}</p><div class="row">${cta}</div></div>
+  ${chart?`<section><h2>Chance of passing</h2>${chart}</section>`:""}
+  <section><h2>Both conditions are needed for “Ready”</h2>${gates}</section>
+  <section><h2>By topic</h2><div class="topics">${rows}</div></section>
+  <section><h2>Results</h2>${histList(P.mocks)}</section>
+  <details><summary>How the verdict is calculated</summary><div class="body">
+    <p>Each topic's skill is modelled as Beta(1 + points earned, 1 + points missed), counting only your latest auto-graded attempt at each question. Flashcard self-ratings are left out, because people tend to overrate their own recall when they grade themselves (Dunlosky &amp; Rawson, 2012).</p>
+    <p>The exam is simulated as six topics, each with one 2-point and one 3-point question, every question scored all-or-nothing. That is a cautious assumption: the real exam can give partial points, which makes scores less spread out. The chart is the exact predicted distribution of your total; “chance of 16+” is its share at 16 points or above.</p>
+    <p>Limitation: this question bank approximates the six official topics. The real exam uses its own wording, so treat the estimate as a lower bar, not a guarantee.</p>
+  </div></details>`;
+}
+function viewCards(){
+  const f=S.cardFilter,now=Date.now();
+  const chipsArr=[["all","All"],[1,"Symbols"],[2,"History"],[3,"Literature & music"],[4,"Institutions"],[5,"Rights"],[6,"Everyday"],[0,"Exam Hungarian"]];
+  const chips=`<div class="chips" role="group" aria-label="Deck">`+chipsArr.map(c=>`<button class="chip" data-act="filter" data-f="${c[0]}" aria-pressed="${String(c[0])===String(f)}">${c[1]}</button>`).join("")+`</div>`;
+  const pool=B.filter(it=>inFilter(it,f));
+  const due=pool.filter(it=>{const s=P.items[it.id];return s&&s.b&&s.d<=now;}).length;
+  const fresh=pool.filter(it=>!(P.items[it.id]&&P.items[it.id].b)).length;
+  const F=S.flash;
+  let body="";
+  if(!F){
+    body=`<div class="panel"><h3>${due} due · ${fresh} new · ${pool.length} cards in this deck</h3><p class="muted small">A session is up to 20 cards: due reviews first, then new cards mixed across topics. Read the Hungarian, answer in your head, then check. Rate honestly: “Again” brings the card back in a few minutes.</p><div class="row"><button class="btn primary" data-act="startCards" ${due+fresh?"":"disabled"}>Start session</button></div></div>`;
+    if(!due&&!fresh)body+=`<p class="muted small">Nothing due in this deck. Next reviews arrive on their scheduled days; try a mock exam meanwhile.</p>`;
+  }else if(F.i>=F.queue.length){
+    body=`<div class="panel"><h3>Session done</h3><p class="muted">Again ${F.stats[0]} · Hard ${F.stats[1]} · Good ${F.stats[2]}</p><div class="row"><button class="btn primary" data-act="startCards">Next session</button><button class="btn" data-act="endCards">Close</button></div></div>`;
+  }else{
+    const it=BYID[F.queue[F.i]];const ivs=[0,1,2].map(g=>dayLabel(nextBox(it.id,g).days));
+    const isVocab=it.t===0;
+    body=`<div class="row" style="justify-content:space-between"><span class="small muted mono">Card ${F.i+1} of ${F.queue.length}</span><button class="btn ghost" data-act="endCards">End session</button></div>
+    <div class="progress"><i style="width:${Math.round(100*F.i/F.queue.length)}%"></i></div>
+    <div class="card"><span class="eyebrow">${esc(TOP[it.t].en)} · ${esc(TOP[it.t].hu)}</span>
+      <div class="q">${esc(it.q)}</div>
+      ${isVocab?"":(F.en?`<div class="qe">${esc(it.qe)}</div>`:`<div><button class="btn ghost" data-act="cardEn">Show English</button></div>`)}
+      ${F.flip?`<div class="ans"><div class="a">${esc(it.a)}</div>${it.ae?`<div class="muted">${esc(it.ae)}</div>`:""}${it.n?`<div class="note">${esc(it.n)}</div>`:""}<div class="src">${esc(srcTag(it))}</div></div>`:""}
+    </div>
+    ${F.flip?`<div class="rate"><button class="btn warn" data-act="rate" data-g="0">Again<span>${ivs[0]}</span></button><button class="btn" data-act="rate" data-g="1">Hard<span>${ivs[1]}</span></button><button class="btn primary" data-act="rate" data-g="2">Good<span>${ivs[2]}</span></button></div>`:`<button class="btn primary" data-act="flip">Show answer</button>`}`;
+  }
+  return `<section><h2>Flashcards</h2>${chips}${body}</section>`;
+}
+function qBlock(it,i,R){
+  const h=!!R.hint[it.id];let body="";
+  if(it.ty==="m"){const perm=R.perm[it.id]||[0,1,2,3];body=`<div class="opts" role="radiogroup" aria-label="Options for question ${i+1}">`+perm.map(oi=>`<label class="opt"><input type="radio" name="q-${it.id}" id="q-${it.id}-${oi}" data-q="${it.id}" value="${oi}"${R.resp[it.id]===oi?" checked":""}><span><span>${esc(it.o[oi])}</span><span class="en">${esc(it.oe[oi])}</span></span></label>`).join("")+`</div>`;}
+  else if(isLabeled(it)){body=it.parts.map((pt,pi)=>`<label class="part" for="q-${it.id}-${pi}"><span class="plabel">${esc(pt.l)}${pt.le?` <span class="en">(${esc(pt.le)})</span>`:""}</span><input type="text" id="q-${it.id}-${pi}" data-q="${it.id}" data-part="${pi}" value="${esc((R.resp[it.id]||[])[pi]||"")}" autocomplete="off" autocapitalize="off" spellcheck="false"></label>`).join("");}
+  else{body=`<input type="text" id="q-${it.id}" data-q="${it.id}" value="${esc(R.resp[it.id]||"")}" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Answer to question ${i+1}">${it.ty==="l"?`<span class="small muted">Separate items with commas.</span>`:""}`;}
+  return `<div class="qb${h?" hinted":""}" id="b-${it.id}"><div class="qhead"><span class="qnum">${i+1}.</span><span class="qtop">${esc(TOP[it.t].hu)}</span><span class="qpts">${it.p} pont</span></div><div class="qtext">${esc(it.q)}</div><div class="en">${esc(it.qe)}</div>${body}<div><button class="btn ghost" data-act="hint" data-id="${it.id}"${h?' aria-pressed="true"':""}>${h?"English shown (hint counted)":"EN · show English"}</button></div></div>`;
+}
+function viewMock(){
+  const R=S.run;
+  if(R&&!R.done){
+    const head=R.kind==="mock"?`<h2>Mock exam</h2><p class="muted small">12 questions · 30 points · pass at 16 · 60 minutes. Hungarian only, as on the day. Each “EN” tap is counted as a hint.</p>`:`<h2>Drill · ${esc(TOP[R.topic].en)}</h2><p class="muted small">${R.ids.length} questions from one topic, untimed.</p>`;
+    return `<section>${head}<div class="sheet">${R.ids.map((id,i)=>qBlock(BYID[id],i,R)).join("")}</div><div class="row"><button class="btn primary" data-act="submit">Hand in</button><button class="btn ghost" data-act="discard">${R.discard?"Tap again to discard":"Discard"}</button></div></section>`;
+  }
+  if(R&&R.done){
+    const m=P.mocks.find(x=>x.id===R.mid);if(!m){S.run=null;return viewMock();}
+    const isMock=m.kind==="mock",pass=m.score>=16;
+    const head=isMock?`<span class="stamp ${pass?"pass":"fail"}">${pass?"Megfelelt":"Nem megfelelt"}</span><div class="score">${m.score}<span class="muted" style="font-size:.5em"> / 30 pont</span></div><div class="chart">${scoreRuler(m.score)}</div><p class="small muted">${pass?"Pass":"Fail"} on the official scale (16 needed). ${m.hints} English hint${m.hints===1?"":"s"} · ${fmtClock(m.dur*1000)} used.</p>`
+      :`<h2>Drill · ${esc(TOP[m.topic].en)}</h2><div class="score">${m.score}<span class="muted" style="font-size:.5em"> / ${m.max} pont</span></div><p class="small muted">${Math.round(100*m.score/Math.max(1,m.max))}% · ${m.hints} English hint${m.hints===1?"":"s"}</p>`;
+    const rev=m.rows.map((x,i)=>{const it=BYID[x.id];if(!it)return "";const got=r1(x.f*x.p);const cls=x.f>=1?"ok":x.f>0?"part":"no";
+      let yours="";if(it.ty==="m")yours=x.r==null||x.r<0?"—":esc(it.o[x.r]);else if(Array.isArray(x.r))yours=x.r.map((v,pi)=>esc((it.parts[pi]&&it.parts[pi].l?it.parts[pi].l+" ":"")+(v||"—"))).join(" · ");else yours=x.r?esc(x.r):"—";
+      const canOv=it.ty!=="m"&&x.f<1&&x.r!=null&&String(Array.isArray(x.r)?x.r.join(""):x.r).trim();
+      return `<div class="rv"><div class="qhead"><span class="qnum">${i+1}.</span><span class="qtop">${esc(TOP[it.t].hu)}${x.h?" · EN hint":""}</span><span class="got ${cls}">${got}/${x.p}${x.ov?" ✎":""}</span></div><div class="qtext" style="font-size:16px">${esc(it.q)}</div><div class="en">${esc(it.qe)}</div><div class="yours">Your answer: ${yours}</div><div><b class="pts-ok">${esc(it.a)}</b><br><span class="muted small">${esc(it.ae)}</span></div>${it.n?`<div class="small muted">${esc(it.n)}</div>`:""}${canOv?`<div><button class="btn ghost" data-act="ov" data-i="${i}">My answer was right: count it</button></div>`:""}</div>`;}).join("");
+    return `<section>${head}<div class="row"><button class="btn primary" data-act="startMock">New mock exam</button><button class="btn" data-act="tab" data-tab="ready">See readiness</button><button class="btn ghost" data-act="closeRun">Close</button></div></section><section><h2>Review</h2><div class="review">${rev}</div></section>`;
+  }
+  const chips=[1,2,3,4,5,6].map(t=>`<button class="chip" data-act="drillTopic" data-topic="${t}" aria-pressed="${S.drillTopic===t}">${esc(TOP[t].en)}</button>`).join("");
+  return `<section><h2>Full mock exam</h2><p>12 questions, two from each of the six official topics: one worth 2 points and one worth 3. Total 30 points; 16 passes. 60-minute timer.</p><p class="muted small">Questions appear in Hungarian only, as on the day. You can tap “EN” for the English, but each tap is counted as a hint and the readiness verdict needs your last two mocks with at most 2 hints. Typed answers are checked without accents, so “Kolcsey” counts for “Kölcsey”.</p><div class="row"><button class="btn primary" data-act="startMock">Start mock exam</button></div></section>
+  <section><h2>Topic drill</h2><p class="muted small">Six questions from one topic, untimed. Drill results also feed the readiness estimate.</p><div class="chips" role="group" aria-label="Topic">${chips}</div><div class="row"><button class="btn" data-act="startDrill" data-topic="${S.drillTopic}">Start drill: ${esc(TOP[S.drillTopic].en)}</button></div></section>
+  <section><h2>Results</h2>${histList(P.mocks)}</section>`;
+}
+function viewFacts(){
+  return `<section><h2>The exam in brief</h2>
+  <p>The <b>magyar kulturális ismereti vizsga</b> (Hungarian cultural knowledge exam) is how you prove the “social coexistence” condition when applying for a <b>national residence card</b> or an <b>EU residence card</b>. It applies to applications submitted on or after 1 January 2025.</p>
+  <dl class="facts">
+    <dt>Format</dt><dd>Written, in Hungarian, in Budapest. 12 questions, 2 from each of 6 topics, 60 minutes.</dd>
+    <dt>Scoring</dt><dd>30 points. 16 points (50% + 1) is <i>megfelelt</i> (pass); 0–15 is <i>nem megfelelt</i> (fail).</dd>
+    <dt>Fee</dt><dd>HUF 20,000 per attempt, by bank transfer only, to BFKH's Hungarian State Treasury account <span class="sel">10023002-00299592-00000000</span>. Reference: <span class="sel">your name, magyar kulturális ismereti vizsga</span>.</dd>
+    <dt>Applying</dt><dd>Application form, a copy of your passport and proof of payment, by email to <span class="sel">kepzes.budapest@bfkh.gov.hu</span> or by post to Budapest Főváros Kormányhivatala, 1364 Budapest, Pf. 234. Only complete, paid applications receive dates.</dd>
+    <dt>Exam date</dt><dd>Assigned in order of application; written notice at least 15 working days before.</dd>
+    <dt>Place</dt><dd>1138 Budapest, Váci út 174. No parking on site.</dd>
+    <dt>On the day</dt><dd>08:30–09:00 document check · 09:00–10:00 written exam · 12:00 results and the exam record (vizsgajegyzőkönyv). Bring your valid passport.</dd>
+    <dt>Failing</dt><dd>After three failed results, a new application is refused. Not attending without official proof by the 2nd working day counts as a fail and the fee is lost.</dd>
+    <dt>Exemptions</dt><dd>Already passed in another aliens-policing procedure; under 14; under guardianship by final court judgment; national residence card issued in the national interest. No exemption for age, origin, family ties or qualifications.</dd>
+    <dt>Proof</dt><dd>The exam record you receive on the day is the proof you submit with the residence card application.</dd>
+  </dl></section>
+  <section><h2>The six official topics</h2><ol class="topics-list">${[1,2,3,4,5,6].map(t=>`<li><b>${esc(TOP[t].hu)}</b><br><span class="muted small">${esc(TOP[t].en)}</span></li>`).join("")}</ol></section>
+  <section><h2>What changed in 2026</h2><p>The January 2025 study material named Orbán Viktor as Prime Minister and Sulyok Tamás as President. The August 2026 version names <b>Magyar Péter</b> and <b>Baka András</b> (President since 19 August 2026) and lists 16 new ministries. This trainer follows the August 2026 version. Check officeholders again before your exam date.</p></section>
+  <section><h2>How to study with this trainer</h2><ul class="plain">
+    <li><b>Test yourself instead of rereading.</b> Retrieval practice produces better long-term retention than restudying (Roediger &amp; Karpicke, 2006).</li>
+    <li><b>Spread sessions over days.</b> Distributed practice beats cramming (Cepeda et al., 2006). The flashcard scheduler spaces reviews at 1, 3, 7, 16 and 35 days.</li>
+    <li>Both techniques are rated “high utility” in the review by Dunlosky et al. (2013).</li>
+    <li><b>Read the Hungarian first.</b> The exam has no English. Use the “Exam Hungarian” deck for question words such as <i>Soroljon fel</i> (list) and <i>Nevezze meg</i> (name).</li>
+  </ul></section>
+  <section><h2>Sources</h2><ul class="plain small">
+    <li><a href="https://oif.gov.hu/factsheets/hungarian-cultural-knowledge-exam" target="_blank" rel="noopener">OIF factsheet: Hungarian cultural knowledge exam</a> (last edited 24 Sep 2026)</li>
+    <li><a href="https://oif.gov.hu/storage/media/Kultur%C3%A1lis%20Ismereti%20Vizsga/magyar-kulturalis-ismereti-vizsga-tajekoztato.pdf" target="_blank" rel="noopener">BFKH information sheet on the exam (PDF, Hungarian)</a></li>
+    <li><a href="https://oif.gov.hu/storage/media/Kultur%C3%A1lis%20Ismereti%20Vizsga/kiv_segedanyag_bfkh_honlapra_aug.pdf" target="_blank" rel="noopener">Official study material, August 2026 version (PDF, Hungarian)</a></li>
+    <li><a href="https://oif.gov.hu/storage/media/Kultur%C3%A1lis%20Ismereti%20Vizsga/magyar-kulturalis-ismereti-vizsga-jelentkezesi-lap%20(1).docx" target="_blank" rel="noopener">Exam application form (DOCX)</a></li>
+    <li><a href="https://www.partylaw.leidenuniv.nl/party-law/51ef8d28-521c-4299-912a-050484e5412d.pdf" target="_blank" rel="noopener">Fundamental Law of Hungary, English translation (2011 text)</a>: Articles O, XVI, XXX, XXXI, 24, 30</li>
+    <li><a href="https://doi.org/10.1111/j.1467-9280.2006.01693.x" target="_blank" rel="noopener">Roediger &amp; Karpicke (2006), Psychological Science</a></li>
+    <li><a href="https://doi.org/10.1037/0033-2909.132.3.354" target="_blank" rel="noopener">Cepeda et al. (2006), Psychological Bulletin</a></li>
+    <li><a href="https://doi.org/10.1177/1529100612453266" target="_blank" rel="noopener">Dunlosky et al. (2013), Psychological Science in the Public Interest</a></li>
+    <li><a href="https://doi.org/10.1016/j.learninstruc.2011.08.003" target="_blank" rel="noopener">Dunlosky &amp; Rawson (2012), Learning and Instruction</a></li>
+  </ul></section>`;
+}
+
+/* ---- render & run bar ---- */
+function render(){
+  document.querySelectorAll(".tab").forEach(b=>{if(b.dataset.tab===S.tab)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");});
+  const v={ready:viewReady,cards:viewCards,mock:viewMock,facts:viewFacts}[S.tab]||viewReady;
+  $("app").innerHTML=v();
+  updateRunbar();
+}
+function updateRunbar(){
+  const bar=$("runbar"),R=S.run,active=!!(R&&!R.done);
+  bar.hidden=!active;document.body.classList.toggle("running",active);
+  if(!active)return;
+  const n=R.ids.filter(answered).length,hints=Object.keys(R.hint).length,blanks=R.ids.length-n;
+  $("timer").textContent=R.end?fmtClock(R.end-Date.now()):"Untimed";
+  $("runmeta").textContent=`${n}/${R.ids.length} answered · ${hints} EN hint${hints===1?"":"s"}`;
+  const back=S.tab!=="mock"?`<button class="btn sm" data-act="tab" data-tab="mock">Back to exam</button>`:"";
+  $("runbtns").innerHTML=back+`<button class="btn primary sm" data-act="submit">${R.armed&&blanks?"Hand in with "+blanks+" blank?":"Hand in"}</button>`;
+}
+
+/* ---- actions ---- */
+const ACT={
+  tab:b=>{S.tab=b.dataset.tab;render();window.scrollTo(0,0);},
+  startMock:()=>{if(S.run&&!S.run.done){S.tab="mock";render();return;}startRun("mock",0);},
+  startDrill:b=>{if(S.run&&!S.run.done){S.tab="mock";render();return;}const t=+b.dataset.topic||S.drillTopic;S.drillTopic=t;startRun("drill",t);},
+  drillTopic:b=>{S.drillTopic=+b.dataset.topic;render();},
+  hint:b=>{const R=S.run;if(!R||R.done)return;const id=b.dataset.id;R.hint[id]=true;const blk=$("b-"+id);if(blk)blk.classList.add("hinted");b.textContent="English shown (hint counted)";b.setAttribute("aria-pressed","true");saveRunSoon();updateRunbar();},
+  submit:()=>{const R=S.run;if(!R||R.done)return;const blanks=R.ids.filter(id=>!answered(id)).length;if(blanks>0&&!R.armed){R.armed=true;updateRunbar();setTimeout(()=>{if(S.run===R&&!R.done){R.armed=false;updateRunbar();}},4000);return;}submitRun();},
+  discard:()=>{const R=S.run;if(!R)return;if(!R.discard){R.discard=true;render();setTimeout(()=>{if(S.run===R&&!R.done&&R.discard){R.discard=false;if(S.tab==="mock")render();}},4000);return;}S.run=null;saveRun();render();},
+  closeRun:()=>{S.run=null;saveRun();render();},
+  ov:b=>{const R=S.run;if(!R)return;const m=P.mocks.find(x=>x.id===R.mid);if(!m)return;const x=m.rows[+b.dataset.i];if(!x||x.f>=1)return;x.f=1;x.ov=true;m.score=r1(m.rows.reduce((s,r)=>s+r.f*r.p,0));const s=P.items[x.id];if(s&&s.qt===m.at){s.qs=1;s.u=Date.now();}m.synced=false;persist();pushMock(m);render();},
+  filter:b=>{const v=b.dataset.f;S.cardFilter=v==="all"?"all":+v;S.flash=null;render();},
+  startCards:()=>{S.flash=buildSession(S.cardFilter);render();},
+  endCards:()=>{S.flash=null;render();},
+  flip:()=>{if(S.flash){S.flash.flip=true;render();}},
+  cardEn:()=>{if(S.flash){S.flash.en=true;render();}},
+  rate:b=>{const F=S.flash;if(!F)return;const id=F.queue[F.i],g=+b.dataset.g;rateFlash(id,g);F.stats[g]++;if(g===0&&(F.rq[id]||0)<2){F.rq[id]=(F.rq[id]||0)+1;F.queue.splice(Math.min(F.queue.length,F.i+4),0,id);}F.i++;F.flip=false;F.en=false;persist();render();}
+};
+document.addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(!b||b.disabled)return;const f=ACT[b.dataset.act];if(f){e.preventDefault();f(b,e);}});
+function onField(e){
+  const el=e.target;const R=S.run;if(!R||R.done||!el.dataset||!el.dataset.q)return;const id=el.dataset.q;
+  if(el.type==="radio"){if(el.checked)R.resp[id]=+el.value;}
+  else if(el.dataset.part!=null){const arr=Array.isArray(R.resp[id])?R.resp[id]:(R.resp[id]=[]);arr[+el.dataset.part]=el.value;}
+  else R.resp[id]=el.value;
+  R.armed=false;saveRunSoon();updateRunbar();
+}
+document.addEventListener("input",onField);
+document.addEventListener("change",onField);
+setInterval(()=>{const R=S.run;if(!R||R.done||!R.end)return;const left=R.end-Date.now();if(left<=0){submitRun();return;}const el=$("timer");if(el)el.textContent=fmtClock(left);},1000);
+
+/* ---- boot ---- */
+function boot(data){
+  loadLocal();
+  if(data&&data.S){try{Object.assign(S,data.S);}catch(e){}}
+  if(S.run&&!S.run.done&&S.run.end&&S.run.end<=Date.now())submitRun();
+  if(S.run&&!S.run.done)S.tab="mock";
+  render();connect();
+}
+try{if(window.claude&&window.claude.hot&&typeof window.claude.hot.snapshot==="function")window.claude.hot.snapshot(()=>({S:{tab:S.tab,run:S.run,flash:S.flash,cardFilter:S.cardFilter,drillTopic:S.drillTopic}}));}catch(e){}
+const H=window.claude&&window.claude.hot;
+if(H&&typeof H.ready==="function")H.ready(boot);else boot((H&&H.data)||{});
+})();
+</script>
+</body>
+</html>
