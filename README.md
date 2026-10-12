@@ -6,19 +6,20 @@ Unofficial practice app for Hungary's cultural knowledge exam (*magyar kulturál
 
 ## What it does
 
+- **Study guide** (Learn tab): the six official topics condensed into tables, a timeline, comparison cards and lists, in Hungarian with the chosen translation underneath. **Test me** turns the key terms into blanks you tap to reveal. Also: two matching drills (year – event, author – work), a numbers-and-dates drill, a search that ignores accents, and each topic's practice questions. Tick ✓ what you know and hide learned items. Each topic on the Readiness tab links to its part of the guide.
 - **Flashcards** with spaced repetition: 219 exam questions across the six official topics, plus 40 cards of exam Hungarian (question words and instructions).
 - **Mock exam** in the official format: 12 questions (2 per topic), 30 points, pass at 16, 60-minute timer. Questions are shown in Hungarian only; each English hint you open is counted.
 - **Topic drills**: 6 untimed questions from one topic.
 - **Readiness verdict**: shows "Ready" only when (1) the estimated chance of scoring 16+ is at least 95%, from a Beta-binomial model of your auto-graded answers, and (2) your last two mock exams scored 20/30 or more with at most 2 translation hints each.
-- **Three translation languages**: English, Українська (Ukrainian) and हिन्दी (Hindi), switched at the top of the page. The Hungarian exam text never changes; the interface, question translations, answer explanations and notes follow the chosen language. Translations live in `lang/uk.js` and `lang/hi.js` and load only when selected. Answers are still typed in Hungarian, as on the real exam.
-- **Profiles**: several people can share one device. Tap the name under the title to switch, add, rename or delete profiles; each profile keeps its own progress and language. Up to 20 profiles per browser.
-- **Progress file**: save a profile's progress as a `.json` file to back it up or move it to another device. Opening a file adds it as a new profile, so nothing is overwritten.
+- **Three translation languages**: English, Українська (Ukrainian) and हिन्दी (Hindi), switched at the top of the page. The Hungarian exam text never changes; the interface, question translations, answer explanations, notes and the study guide follow the chosen language. Translations live in `lang/uk.js` and `lang/hi.js` and load only when selected. Answers are still typed in Hungarian, as on the real exam.
+- **Profiles**: several people can share one device. Tap the name under the title to switch, add, rename or delete profiles; each profile keeps its own progress, study-guide marks and language. Up to 20 profiles per browser.
+- **Progress file**: save a profile's progress (including study-guide marks) as a `.json` file to back it up or move it to another device. Opening a file adds it as a new profile, so nothing is overwritten.
 
 ## Your data
 
 - No account, no analytics, no server-side code. Profiles, progress and language choices are saved in your browser's `localStorage` only.
 - Progress does not sync between devices or browsers by itself, and clearing site data erases it. Use the progress file to move it or keep a backup.
-- An opened progress file is checked before use: only known questions and numeric values are kept, and names are stripped of markup.
+- An opened progress file is checked before use: only known questions, well-formed study-guide marks and numeric values are kept, and names are stripped of markup.
 - Fonts are self-hosted, so the app makes no requests to third-party servers.
 - GitHub Pages itself logs visitors' IP addresses for security purposes ([GitHub docs](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages)).
 

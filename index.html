@@ -17,6 +17,7 @@
   --green:#2b6a42; --on-green:#ffffff; --green-tint:#dfede3;
   --red:#ad3539; --red-tint:#f6e1df; --amber:#94600c; --amber-tint:#f4e8d2;
   --flag-red:#cd2a3e; --flag-white:#ffffff; --flag-green:#436f4d;
+  --mask:#e3e9e1; --mask-line:#7d8a80;
   --f-display:"Bricolage Grotesque","Noto Sans","Noto Sans Devanagari","Atkinson Hyperlegible Next",system-ui,sans-serif;
   --f-body:"Atkinson Hyperlegible Next","Noto Sans","Noto Sans Devanagari","Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --f-mono:"Atkinson Hyperlegible Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,"Noto Sans","Noto Sans Devanagari",monospace;
@@ -26,6 +27,7 @@
     --paper:#0e1310; --surface:#151c17; --ink:#e5ebe6; --muted:#9aa79e; --line:#29332c; --soft:#1d2620;
     --green:#74c08f; --on-green:#0c1810; --green-tint:#1a2c20;
     --red:#e6827c; --red-tint:#3a201f; --amber:#e1b25e; --amber-tint:#33291a;
+    --mask:#253029; --mask-line:#7f8c83;
     --flag-white:#eceeea; color-scheme:dark;
   }
 }
@@ -33,6 +35,7 @@
   --paper:#0e1310; --surface:#151c17; --ink:#e5ebe6; --muted:#9aa79e; --line:#29332c; --soft:#1d2620;
   --green:#74c08f; --on-green:#0c1810; --green-tint:#1a2c20;
   --red:#e6827c; --red-tint:#3a201f; --amber:#e1b25e; --amber-tint:#33291a;
+  --mask:#253029; --mask-line:#7f8c83;
   --flag-white:#eceeea; color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -221,6 +224,127 @@ html[lang="hi"] .sync,html[lang="hi"] .src,html[lang="hi"] .rv .yours,html[lang=
 .pmsg:empty{display:none}
 .pwarn{color:var(--amber)}
 .who:focus-visible,.pbtn:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+/* Tab bar: fade the edge that hides more tabs; slightly tighter tabs on phones */
+nav.tabs .wrap.more{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 32px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 32px),transparent)}
+nav.tabs .wrap.less{-webkit-mask-image:linear-gradient(90deg,transparent,#000 32px);mask-image:linear-gradient(90deg,transparent,#000 32px)}
+nav.tabs .wrap.more.less{-webkit-mask-image:linear-gradient(90deg,transparent,#000 32px,#000 calc(100% - 32px),transparent);mask-image:linear-gradient(90deg,transparent,#000 32px,#000 calc(100% - 32px),transparent)}
+@media (max-width:420px){.tab{padding:14px 8px 11px;font-size:14px}}
+/* Learn tab: the study guide. Each line is Hungarian (.gh) plus the chosen translation (.gt);
+   [[key terms]] (.gk) become exam-sheet blanks in Test me mode. */
+.gintro{display:grid;gap:6px}
+.gbar{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--navh,46px));z-index:4;background:var(--paper);border-bottom:1px solid var(--line);margin:14px -16px 0;padding:10px 16px;display:grid;gap:8px}
+.gbar .r1{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.gbar .chips{padding-bottom:2px;scrollbar-width:none}
+.gbar .chips::-webkit-scrollbar{display:none}
+.gbar .chip{padding:7px 11px;font-size:13px}
+.gbar .chip b{color:var(--green);margin-right:2px}
+.gseg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--surface)}
+.gseg button{appearance:none;border:0;background:none;color:var(--muted);font:700 14px/1 var(--f-body);padding:10px 12px;min-height:40px;cursor:pointer}
+.gseg button+button{border-left:1px solid var(--line)}
+.gseg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.gtog{appearance:none;display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:9px 12px;min-height:40px;font:700 14px/1 var(--f-body);cursor:pointer}
+.gtog::before{content:"";flex:none;width:14px;height:14px;border-radius:4px;border:2px solid var(--muted)}
+.gtog[aria-pressed="true"]{border-color:var(--green);color:var(--green)}
+.gtog[aria-pressed="true"]::before{background:var(--green);border-color:var(--green)}
+.gtools{display:grid;gap:8px;padding-top:14px}
+.gd input[type="search"]{flex:1 1 200px;min-width:0;min-height:44px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--ink);font:400 16px var(--f-body)}
+.gseg button:focus-visible,.gtog:focus-visible,.gkb:focus-visible,.gmt:focus-visible,.gd input[type="search"]:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.gh,.gt{display:block}
+.gt{color:var(--muted);font-size:.92em;font-style:italic}
+html[lang="hi"] .gt{font-style:normal}
+.gd[data-view="hu"] .gt{display:none}
+.gd[data-view="tr"] .gh:not(.gs){display:none}
+.gd[data-view="tr"] .gt{font-style:normal;color:inherit;font-size:1em}
+.gk{font-weight:700}
+.gd.test .gk:not(.show),
+.gd.test .gnum[data-dir="meaning"] .gm:not(.show),
+.gd.test .gnum[data-dir="number"] .gn:not(.show),
+.gtl.hide-years .gyr:not(.show){color:transparent!important;background:var(--mask);border-bottom:2px dotted var(--mask-line);border-radius:3px;cursor:pointer;-webkit-user-select:none;user-select:none}
+.gd.test .gnum[data-dir="meaning"] .gm:not(.show) *{color:transparent!important}
+.gd.test .gk.show,.gd.test .gm.show,.gd.test .gn.show,.gtl.hide-years .gyr.show{background:var(--green-tint);border-radius:3px}
+.gd:not(.test) [data-act="greveal"]{display:none}
+.gd .gsec{display:grid;gap:18px;margin-top:26px;padding-top:28px;border-top:2px solid var(--ink);scroll-margin-top:calc(env(safe-area-inset-top,0px) + var(--navh,46px) + var(--gbarh,100px) + 6px)}
+.gth{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;align-items:start}
+.gtn{font:800 clamp(40px,11vw,56px)/.85 var(--f-display);color:var(--green)}
+.gth h2{font-size:clamp(21px,5.4vw,27px);line-height:1.12}
+.gth h2 .gt{font:600 .62em/1.3 var(--f-body);margin-top:4px}
+.gth .meta{font-size:14px;color:var(--muted);margin-top:6px}
+.gprog{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-size:14px;color:var(--muted)}
+.gpb{flex:1 1 120px;height:6px;border-radius:3px;background:var(--soft);overflow:hidden;min-width:80px}
+.gpb i{display:block;height:100%;width:0;background:var(--green)}
+.gblk{display:grid;gap:10px;min-width:0}
+.gblk h3 .gt{font-weight:400;font-size:14px}
+.glst{list-style:none;margin:0;padding:0;display:grid;border-top:1px solid var(--line)}
+.glst li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start;padding:10px 0;border-bottom:1px solid var(--line)}
+.gr.known .gc{opacity:.62}
+.gd.hk .gr.known{display:none}
+.gkb{appearance:none;flex:none;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--muted);font:700 15px/1 var(--f-body);cursor:pointer;display:grid;place-items:center}
+.gkb[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:var(--on-green)}
+.gtw{overflow-x:auto;border-top:1px solid var(--line)}
+.gtbl{width:100%;border-collapse:collapse}
+.gtbl th{text-align:left;font:700 12px/1.3 var(--f-body);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding:8px 8px 6px 0;border-bottom:1px solid var(--line);vertical-align:bottom}
+.gtbl th .gh,.gtbl th .gt{display:inline;font-style:normal;font-size:1em;color:inherit}
+.gtbl th .gt::before{content:" / "}
+.gd[data-view="tr"] .gtbl th .gt::before{content:""}
+.gtbl td{padding:10px 8px 10px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.gtbl td:first-child{font-weight:700}
+.gtbl td.gkc{width:42px;padding-right:0;text-align:right}
+.gtbl.three td:first-child{width:24%}
+.gchips{display:flex;flex-wrap:wrap;gap:8px}
+.gchip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 11px;font-size:15px}
+.gchip .gh,.gchip .gt{display:inline}
+.gchip .gt::before{content:" · "}
+.gd[data-view="tr"] .gchip .gt::before{content:""}
+.gnote{background:var(--soft);border-radius:10px;padding:12px 14px;display:grid;gap:4px}
+.gnote.trap{background:var(--red-tint)}
+.gnote.hook{background:var(--green-tint)}
+.gnote.law{background:var(--amber-tint)}
+.gtag{font:700 12px/1.2 var(--f-body);letter-spacing:.06em;text-transform:uppercase}
+.gnote.trap .gtag{color:var(--red)}
+.gnote.hook .gtag{color:var(--green)}
+.gnote.law .gtag{color:var(--amber)}
+.gdir{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:14px;color:var(--muted)}
+.gera{display:grid;gap:8px}
+.gera h4{margin:6px 0 0;font:700 13px/1.3 var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.gera h4 .gh,.gera h4 .gt{display:inline;font-style:normal;font-size:1em;color:inherit}
+.gera h4 .gt::before{content:" · "}
+.gd[data-view="tr"] .gera h4 .gt::before{content:""}
+.gtl{list-style:none;margin:0 0 0 8px;padding:0 0 0 18px;border-left:3px solid var(--green);display:grid;gap:14px}
+.gtl li{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start}
+.gtl li::before{content:"";position:absolute;left:-26px;top:.35em;width:13px;height:13px;border-radius:50%;background:var(--paper);border:3px solid var(--green)}
+.gyr{display:inline-block;font:700 15px/1.3 var(--f-mono);font-variant-numeric:tabular-nums;margin-bottom:2px}
+.gcmp{display:grid;gap:12px}
+.gcc{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:10px}
+.gcch{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start}
+.gcc h3{font:800 20px/1.15 var(--f-display)}
+.gcc dl{display:grid;grid-template-columns:minmax(84px,26%) minmax(0,1fr);gap:8px 12px;margin:0}
+.gcc dt{font:700 13px/1.4 var(--f-body);color:var(--muted)}
+.gcc dt .gh,.gcc dt .gt{display:inline;font-style:normal;font-size:1em;color:inherit}
+.gcc dt .gt::before{content:" / "}
+.gd[data-view="tr"] .gcc dt .gt::before{content:""}
+.gcc dd{margin:0;min-width:0}
+.ggame{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.gmg{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:8px}
+.gcol{display:grid;gap:8px;align-content:start}
+.gmt{appearance:none;text-align:left;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:8px;padding:9px 10px;font:700 15px/1.3 var(--f-body);min-height:44px;cursor:pointer;min-width:0;overflow-wrap:anywhere}
+.gmt .gt{font-weight:400;font-size:13px}
+.gmt.yearbtn{font-family:var(--f-mono)}
+.gmt.sel{border-color:var(--green);box-shadow:inset 0 0 0 2px var(--green)}
+.gmt.ok{background:var(--green-tint);border-color:transparent;color:var(--green);cursor:default}
+.gmt.bad{background:var(--red-tint);border-color:var(--red)}
+.gfoot{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;margin-top:10px}
+.gql{list-style:none;margin:10px 0 0;padding:0;display:grid}
+.gql li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start;padding:12px 0;border-bottom:1px solid var(--line)}
+.gqq{display:grid;grid-template-columns:auto minmax(0,1fr);gap:0 6px}
+.gqq .gh{font-weight:700}
+.gqn{font:700 12px/1.9 var(--f-mono);color:var(--muted)}
+.gqa{margin-top:6px;padding-left:22px;color:var(--green)}
+.gqa .gt{color:var(--muted)}
+.gsrc{display:inline-block;margin-top:6px;padding-left:22px;font:400 12px/1.3 var(--f-mono);color:var(--amber)}
+html[lang="hi"] .gsrc{font-family:var(--f-body)}
+.gend{margin-top:26px}
+.gno{display:none!important}
+@media (max-width:420px){.gcc dl{grid-template-columns:minmax(0,1fr)}.gcc dd{margin-bottom:6px}}
 </style>
 </head>
 <body>
@@ -244,6 +368,7 @@ html[lang="hi"] .sync,html[lang="hi"] .src,html[lang="hi"] .rv .yours,html[lang=
 <nav class="tabs" aria-label="Sections">
   <div class="wrap">
     <button class="tab" data-act="tab" data-tab="ready" id="tab-ready" data-i18n="tabReady">Readiness</button>
+    <button class="tab" data-act="tab" data-tab="learn" id="tab-learn" data-i18n="tabLearn">Learn</button>
     <button class="tab" data-act="tab" data-tab="cards" id="tab-cards" data-i18n="tabCards">Cards</button>
     <button class="tab" data-act="tab" data-tab="mock" id="tab-mock" data-i18n="tabMock">Mock exam</button>
     <button class="tab" data-act="tab" data-tab="facts" id="tab-facts" data-i18n="tabFacts">Exam facts</button>
@@ -577,14 +702,309 @@ function predict(items){
 }
 </script>
 
+<script id="guide">
+/* Study guide (Learn tab), condensed from the official BFKH study material (August 2026).
+   Each text is [Hungarian, English]; [[…]] marks key terms, which become blanks in Test me mode.
+   Ukrainian and Hindi translations are in lang/uk.js and lang/hi.js under "guide", keyed by the English text. */
+const GUIDE=(function(){
+"use strict";
+const Lst=(h,items)=>({t:"list",h,items});
+const Tbl=(h,cols,rows)=>({t:"table",h,cols,rows});
+const Chp=(h,items)=>({t:"chips",h,items});
+const Note=(kind,body)=>({t:"note",kind,body});
+const TL=(eras)=>({t:"timeline",eras});
+const Cmp=(h,cards)=>({t:"compare",h,cards});
+const Game=(h,pairs,n)=>({t:"match",h,pairs,n:n||5});
+
+/* ===== 1 · Nemzeti jelképek és ünnepek ===== */
+const T1=[
+ Lst(["A négy legfontosabb nemzeti jelkép","The four main national symbols"],[
+  ["[[zászló]] (lobogó)","[[flag]]"],["[[Szent Korona]]","[[Holy Crown]]"],["[[Himnusz]]","[[national anthem]]"],["[[címer]]","[[coat of arms]]"]]),
+ Tbl(["A zászló: piros – fehér – zöld, fentről lefelé","The flag: red – white – green, top to bottom"],[["Szín","Colour"],["Jelentés","Meaning"]],[
+  [["piros","red"],["[[erő]]","[[strength]]"]],
+  [["fehér","white"],["[[hűség]]","[[fidelity]]"]],
+  [["zöld","green"],["[[remény]]","[[hope]]"]]]),
+ Note("hook",["Nemzeti ünnepeken a zászlót az [[Országház]] előtt vonják fel.","On national holidays the flag is raised in front of the [[Parliament building]]."]),
+ Lst(["A címer elemei","Elements of the coat of arms"],[
+  ["vörössel és ezüsttel [[hétszer vágott]] mező (sávok)","a field [[divided seven times]] in red and silver (stripes)"],
+  ["[[hármas halom]], rajta korona","a [[triple mound]] with a crown on it"],
+  ["[[kettős kereszt]]","a [[double cross]]"],
+  ["a címer tetején a [[Szent Korona]]","on top: the [[Holy Crown]]"]]),
+ Note("trap",["A [[turulmadár]] NEM része a címernek.","The [[turul bird]] is NOT part of the coat of arms."]),
+ Lst(["Koronázási jelvények (5)","Coronation regalia (5)"],[
+  ["[[Szent Korona]]","[[Holy Crown]]"],["[[országalma]]","[[orb]]"],["koronázási [[kard]]","coronation [[sword]]"],["koronázási [[jogar]]","coronation [[sceptre]]"],["koronázási [[palást]]","coronation [[mantle]]"]]),
+ Note("hook",["A Szent Korona az [[Országházban]] látható. Az Alaptörvény szerint megtestesíti Magyarország [[alkotmányos állami folytonosságát]] és a [[nemzet egységét]].","The Holy Crown is on display in the [[Parliament building]]. Under the Fundamental Law it embodies Hungary's [[constitutional state continuity]] and the [[unity of the nation]]."]),
+ Chp(["Egykori koronázó városok (5)","Former coronation cities (5)"],[["[[Székesfehérvár]]",""],["[[Esztergom]]",""],["[[Pozsony]]","[[Pozsony]] (today Bratislava)"],["[[Sopron]]",""],["[[Buda]]",""]]),
+ Tbl(["Himnusz és Szózat","The anthem and the Szózat"],[["",""],["Himnusz","Anthem"],["Szózat","Szózat"]],[
+  [["Szerző","Author"],["[[Kölcsey Ferenc]]",""],["[[Vörösmarty Mihály]]",""]],
+  [["Év","Year"],["[[1823]]",""],["[[1836]]",""]],
+  [["Zene","Music"],["[[Erkel Ferenc]]",""],["[[Egressy Béni]]",""]],
+  [["Első sor","First line"],["„[[Isten, áldd meg a magyart]]”","‘[[God, bless the Hungarians]]’"],["„[[Hazádnak rendületlenűl]] légy híve, oh magyar”","‘[[To your homeland be steadfastly faithful]], O Hungarian’"]]]),
+ Note("hook",["Mindkét zeneszerző neve E-vel kezdődik: [[Erkel]] (Himnusz), [[Egressy]] (Szózat). A Himnusz a régebbi: [[1823]].","Both composers start with E: [[Erkel]] (anthem), [[Egressy]] (Szózat). The anthem is older: [[1823]]."]),
+ Tbl(["Nemzeti ünnepek (3)","National holidays (3)"],[["Dátum","Date"],["Mire emlékezünk?","What we commemorate"]],[
+  [["március 15.","15 March"],["az [[1848–49-es forradalom és szabadságharc]]","the [[1848–49 revolution and war of independence]]"]],
+  [["augusztus 20.","20 August"],["az [[államalapítás]] és az államalapító [[Szent István]] király","the [[foundation of the state]] and its founder, King [[St Stephen]]"]],
+  [["október 23.","23 October"],["az [[1956-os forradalom és szabadságharc]]","the [[1956 revolution and war of independence]]"]]]),
+ Note("trap",["Október 6. NEM nemzeti ünnep: 1849-ben ezen a napon végezték ki a 13 aradi vértanút.","6 October is NOT a national holiday: the 13 Martyrs of Arad were executed on this day in 1849."]),
+ Note("hook",["Augusztus 20.: [[Szent Jobb-körmenet]] Szent István ereklyéjével, este [[tűzijáték]].","20 August: the [[Holy Right Hand procession]] with St Stephen's relic, then [[fireworks]] in the evening."])
+];
+
+/* ===== 2 · Történelem ===== */
+const T2=[
+ TL([
+  {h:["Honfoglalás és államalapítás","Conquest and foundation"],ev:[
+   ["895–896","[[Honfoglalás]]: [[Árpád]] vezetésével [[7]] magyar törzs foglalja el a Kárpát-medencét (a Vereckei-hágón át)","The [[conquest]]: [[7]] Hungarian tribes led by [[Árpád]] take the Carpathian Basin (through the Verecke Pass)"],
+   ["1001. jan. 1.","[[I. (Szent) István]] koronázása – az [[első keresztény]] király; [[vármegyék]], tíz egyházmegye, római katolikus hit","[[Stephen I (St Stephen)]] crowned – the [[first Christian]] king; [[counties]], ten dioceses, Roman Catholic faith"]]},
+  {h:["Középkor","Middle Ages"],ev:[
+   ["XI–XII. sz.","Trónviszályok után a legjelentősebb Árpád-házi királyok: [[Szent László]] és [[Könyves Kálmán]]","After succession fights, the leading Árpád kings: [[St Ladislaus]] and [[Coloman the Learned]]"],
+   ["1222","[[II. András]] kiadja az [[Aranybullát]] – a nemesek jogai","[[Andrew II]] issues the [[Golden Bull]] – the rights of the nobility"],
+   ["1241–42","[[Tatárjárás]]; [[IV. Béla]], a „második honalapító” újjáépíti az országot","The [[Mongol invasion]]; [[Béla IV]], the ‘second founder’, rebuilds the country"],
+   ["1301","[[III. András]] halálával kihal az [[Árpád-ház]]; utána [[Anjou]] és [[Luxemburgi]] királyok","With [[Andrew III]]'s death the [[Árpád dynasty]] ends; then [[Anjou]] and [[Luxembourg]] kings"],
+   ["1456","[[Nándorfehérvár]] (ma Belgrád): [[Hunyadi János]] győzelme a törökök felett – erre emlékeztet a [[déli harangszó]]; 70 évre megállítja a török terjeszkedést","[[Nándorfehérvár]] (today Belgrade): [[John Hunyadi]] defeats the Ottomans – recalled by the [[noon bell]]; Ottoman expansion halted for 70 years"],
+   ["1458–1490","[[Hunyadi Mátyás]] uralkodása – a reneszánsz [[fénykora]]","Reign of [[Matthias Hunyadi]] – the Renaissance [[golden age]]"]]},
+  {h:["Török kor","Ottoman era"],ev:[
+   ["1526. aug. 29.","[[Mohácsi]] vereség","Defeat at [[Mohács]]"],
+   ["1541","A törökök elfoglalják [[Budát]] – az ország [[3 részre]] szakad közel [[150 évre]]","The Ottomans take [[Buda]] – the country splits into [[3 parts]] for nearly [[150 years]]"],
+   ["1552","[[Eger]] ostroma","Siege of [[Eger]]"],
+   ["1686. szept. 2.","Buda [[visszafoglalása]] a Habsburgok vezette keresztény sereggel","Buda [[retaken]] by a Habsburg-led Christian army"]]},
+  {h:["Habsburg uralom és reformkor","Habsburg rule and Reform Era"],ev:[
+   ["1686–1848","Újjáépítés és betelepítés – az ország [[soknemzetiségű]] lesz","Rebuilding and resettlement – the country becomes [[multi-ethnic]]"],
+   ["1703–1711","Nemzeti felkelés [[II. Rákóczi Ferenc]] vezetésével","National uprising led by [[Francis II Rákóczi]]"],
+   ["1825–1848","[[Reformkor]]: magyar nyelv, alkotmányvédelem, polgárosodás; [[Széchenyi István]], „a legnagyobb magyar”: [[MTA]], [[Lánchíd]]","[[Reform Era]]: Hungarian language, constitution, modernisation; [[István Széchenyi]], ‘the greatest Hungarian’: [[Academy of Sciences]], [[Chain Bridge]]"]]},
+  {h:["1848–49","1848–49"],ev:[
+   ["1848. márc. 15.","Forradalom Pesten: [[Pilvax]] kávéház, a [[12 pont]] (Landerer nyomda), nagygyűlés a [[Nemzeti Múzeum]] előtt, [[Táncsics Mihály]] kiszabadítása; Petőfi, Jókai, Vasvári; jelkép: [[kokárda]]","Revolution in Pest: [[Pilvax]] café, the [[12 Points]] (Landerer press), rally at the [[National Museum]], [[Mihály Táncsics]] freed; Petőfi, Jókai, Vasvári; symbol: the [[cockade]]"],
+   ["1848. ápr. 11.","Az [[első felelős magyar kormány]]; miniszterelnök: [[Batthyány Lajos]]","The [[first responsible Hungarian government]]; PM: [[Lajos Batthyány]]"],
+   ["1849. aug. 13.","[[Világos]]: [[Görgei Artúr]] leteszi a fegyvert az [[orosz cári]] hadsereg előtt","[[Világos]]: [[Artúr Görgei]] surrenders to the [[Russian tsarist]] army"],
+   ["1849. okt. 6.","[[Arad]]: [[13]] honvédtiszt kivégzése; Pesten [[Batthyány Lajost]] is kivégzik","[[Arad]]: [[13]] army officers executed; [[Lajos Batthyány]] executed in Pest"]]},
+  {h:["Kiegyezés és dualizmus","Compromise and dualism"],ev:[
+   ["1867","[[Kiegyezés]] – kulcsszereplő [[Deák Ferenc]], „a haza bölcse” → [[Osztrák–Magyar Monarchia]]","The [[Compromise]] – led by [[Ferenc Deák]], ‘the sage of the nation’ → [[Austria-Hungary]]"],
+   ["1867–1914","Magyarország egyik [[aranykora]]: gazdasági fejlődés","One of Hungary's [[golden ages]]: economic growth"],
+   ["1873","[[Budapest]] létrejötte: Pest, Buda és Óbuda egyesítése","[[Budapest]] created by uniting Pest, Buda and Óbuda"],
+   ["1885–1904","Az [[Országház]] építése","The [[Parliament building]] is built"]]},
+  {h:["Világháborúk","World wars"],ev:[
+   ["1914","Június 28.: [[Ferenc Ferdinánd]] trónörököst meggyilkolják [[Szarajevóban]]; július 28.: hadüzenet Szerbiának → I. világháború","28 June: heir [[Franz Ferdinand]] assassinated in [[Sarajevo]]; 28 July: war on Serbia → First World War"],
+   ["1920. jún. 4.","[[Trianoni békeszerződés]]: a terület kb. [[kétharmada]] elvész; 18,2 → 7,6 millió lakos; [[3,3 millió]] magyar a határon kívül","[[Treaty of Trianon]]: about [[two-thirds]] of the territory lost; 18.2 → 7.6 million people; [[3.3 million]] Hungarians left outside"],
+   ["1920–30-as évek","[[Horthy Miklós]] kormányzó, Bethlen István, Teleki Pál; fő cél: a [[revízió]]","Regent [[Miklós Horthy]], István Bethlen, Pál Teleki; main goal: [[revision]] of the borders"],
+   ["1941","Belépés a II. világháborúba a [[tengelyhatalmak]] oldalán","Hungary enters WWII on the side of the [[Axis]]"],
+   ["1943. jan.","A 2. magyar hadsereg pusztulása a [[Don]] térségében","The Hungarian 2nd Army destroyed in the [[Don]] region"],
+   ["1944. márc. 19.","[[Német megszállás]]; holokauszt: [[500–600 ezer]] magyarországi áldozat","[[German occupation]]; Holocaust: [[500–600 thousand]] victims in Hungary"],
+   ["1945","Budapest ostroma; szovjet megszállás, Gulag; a háború vége; a bécsi döntések (1938, 1940) területei ismét elvesznek; a svábok [[kitelepítése]]","Siege of Budapest; Soviet occupation, Gulag; war ends; areas regained by the Vienna Awards (1938, 1940) lost again; Germans (Swabians) [[expelled]]"]]},
+  {h:["Kommunizmus és 1956","Communism and 1956"],ev:[
+   ["1945 után","A szovjet hadsereg marad; néhány év után kommunista egypártrendszer, gyűlölt vezetője [[Rákosi Mátyás]]","Soviet troops stay; after a few years a communist one-party state, its hated leader [[Mátyás Rákosi]]"],
+   ["1956. okt. 23.","Budapesti [[diáktüntetés]] → harc a [[Magyar Rádiónál]]; [[Nagy Imre]] kormánya; [[Corvin köz]], [[Széna tér]]; jelkép: a [[lyukas zászló]]","Budapest [[student demonstration]] → fighting at the [[Hungarian Radio]]; [[Imre Nagy]]'s government; [[Corvin Passage]], [[Széna Square]]; symbol: the [[flag with a hole]]"],
+   ["1956. nov. 4.","Szovjet támadás; [[Kádár János]] kerül hatalomra, Nagy Imrét kivégzik; a Kádár-korszak [[1989-ig]] tart","Soviet attack; [[János Kádár]] installed, Imre Nagy executed; the Kádár era lasts until [[1989]]"]]},
+  {h:["Rendszerváltás","Change of regime"],ev:[
+   ["1989. jún. 16.","[[Nagy Imre]] és mártírtársai ünnepélyes újratemetése","Ceremonial reburial of [[Imre Nagy]] and his fellow martyrs"],
+   ["1990 tavasza","Szabad választások: [[Antall József]] miniszterelnök, [[Göncz Árpád]] köztársasági elnök; békés út a [[többpárti demokráciába]]","Free elections: PM [[József Antall]], President [[Árpád Göncz]]; a peaceful move to [[multi-party democracy]]"],
+   ["1991","A szovjet csapatok [[végleg elhagyják]] az országot","The last Soviet troops [[leave]] the country"]]}
+ ]),
+ Note("hook",["Három évszámlánc: 1526 → 1541 → 1686 (Mohács, Buda eleste, Buda visszavétele) · 1848 → 1849 → 1867 (forradalom, Arad, kiegyezés) · 1956 → 1989 → 1990 → 1991 (forradalom, újratemetés, szabad választás, szovjet kivonulás).","Three date chains: 1526 → 1541 → 1686 (Mohács, fall of Buda, Buda retaken) · 1848 → 1849 → 1867 (revolution, Arad, Compromise) · 1956 → 1989 → 1990 → 1991 (revolution, reburial, free elections, Soviet withdrawal)."]),
+ Game(["Párosítsd: évszám – esemény","Match: year – event"],[
+  ["895–896",["honfoglalás","the conquest"]],["1001",["Szent István koronázása","St Stephen crowned"]],["1222",["Aranybulla","Golden Bull"]],["1241–42",["tatárjárás","Mongol invasion"]],["1456",["nándorfehérvári diadal","victory at Nándorfehérvár"]],["1526",["mohácsi vereség","defeat at Mohács"]],["1541",["Buda török kézre kerül","the Ottomans take Buda"]],["1686",["Buda visszafoglalása","Buda retaken"]],["1703–1711",["Rákóczi-szabadságharc","Rákóczi's uprising"]],["1848",["márciusi forradalom (Pilvax)","March revolution (Pilvax)"]],["1849",["az aradi vértanúk","the Martyrs of Arad"]],["1867",["kiegyezés","the Compromise"]],["1873",["Budapest létrejötte","Budapest created"]],["1914",["az I. világháború kitörése","WWI breaks out"]],["1920",["trianoni békeszerződés","Treaty of Trianon"]],["1944",["német megszállás","German occupation"]],["1956",["októberi forradalom (Nagy Imre)","October revolution (Imre Nagy)"]],["1989",["Nagy Imre újratemetése","Imre Nagy reburied"]],["1990",["első szabad választás","first free elections"]],["1991",["szovjet csapatok kivonulása","Soviet troops leave"]],["2004",["EU-csatlakozás","joins the EU"]],["2007",["schengeni csatlakozás","joins Schengen"]],["2012",["az Alaptörvény hatályba lép","Fundamental Law in force"]]
+ ]),
+ Tbl(["Az első felelős kormány (1848. április 11.)","The first responsible government (11 April 1848)"],[["Miniszter","Minister"],["Tárca","Portfolio"]],[
+  [["Batthyány Lajos",""],["[[miniszterelnök]]","[[prime minister]]"]],
+  [["Kossuth Lajos",""],["[[pénzügy]]","[[finance]]"]],
+  [["Széchenyi István",""],["[[közmunka és közlekedés]]","[[public works and transport]]"]],
+  [["Deák Ferenc",""],["[[igazságügy]]","[[justice]]"]],
+  [["Szemere Bertalan",""],["[[belügy]]","[[interior]]"]],
+  [["Mészáros Lázár",""],["[[hadügy]]","[[war]]"]],
+  [["Klauzál Gábor",""],["[[földművelés, ipar és kereskedelem]]","[[agriculture, industry and trade]]"]],
+  [["Eötvös József",""],["[[vallás és közoktatás]]","[[religion and education]]"]],
+  [["Esterházy Pál",""],["[[a király személye körüli]] miniszter","minister [[attending the king]]"]]]),
+ Lst(["Ragadványnevek – gyakori kérdés","Nicknames – a frequent question"],[
+  ["„a legnagyobb magyar” – [[Széchenyi István]]","‘the greatest Hungarian’ – [[István Széchenyi]]"],
+  ["„a haza bölcse” – [[Deák Ferenc]]","‘the sage of the nation’ – [[Ferenc Deák]]"],
+  ["„második honalapító” – [[IV. Béla]]","‘second founder of the country’ – [[Béla IV]]"],
+  ["államalapító, az első keresztény király – [[I. (Szent) István]]","founder of the state, the first Christian king – [[Stephen I]]"]]),
+ Lst(["Jelképek a történelemből","Symbols from history"],[
+  ["1848–49: a piros-fehér-zöld [[kokárda]]","1848–49: the red-white-green [[cockade]]"],
+  ["1956: a [[lyukas zászló]] – kivágták belőle a Rákosi-címert","1956: the [[flag with a hole]] – the Rákosi coat of arms cut out"],
+  ["A [[déli harangszó]]: a nándorfehérvári diadal (1456) emléke","The [[noon bell]]: in memory of the 1456 victory at Nándorfehérvár"]]),
+ Lst(["Világháborús szövetségek","World-war alliances"],[
+  ["I. vh. – [[antant]]: Franciaország, Oroszország, Nagy-Britannia, Olaszország, Japán, USA, Szerbia, Románia – ők győztek","WWI – the [[Entente]]: France, Russia, Britain, Italy, Japan, USA, Serbia, Romania – the winners"],
+  ["I. vh. – [[központi hatalmak]]: Németország, Osztrák–Magyar Monarchia, Oszmán Birodalom, Bulgária","WWI – the [[Central Powers]]: Germany, Austria-Hungary, the Ottoman Empire, Bulgaria"],
+  ["II. vh. – [[szövetségesek]]: Egyesült Királyság, Egyesült Államok, Szovjetunió","WWII – the [[Allies]]: United Kingdom, United States, Soviet Union"],
+  ["II. vh. – [[tengelyhatalmak]]: Németország, Olaszország, Japán (Magyarország 1941-től)","WWII – the [[Axis]]: Germany, Italy, Japan (Hungary from 1941)"]])
+];
+
+/* ===== 3 · Irodalom és zene ===== */
+const CW=[["Szerző","Author"],["Mű","Work"]];
+const T3=[
+ Tbl(["Reneszánsz","Renaissance"],CW,[
+  [["Janus Pannonius",""],["[[Pannónia dicsérete]]","[[In Praise of Pannonia]]"]],
+  [["Balassi Bálint",""],["[[Hogy Júliára talála, így köszöne néki]]","[[When he found Julia, he greeted her thus]]"]]]),
+ Tbl(["Barokk","Baroque"],CW,[[["Zrínyi Miklós",""],["[[Szigeti veszedelem]] (eposz)","[[The Peril of Sziget]] (epic)"]]]),
+ Tbl(["Felvilágosodás","Enlightenment"],CW,[
+  [["Csokonai Vitéz Mihály",""],["[[A reményhez]]","[[To Hope]]"]],
+  [["Batsányi János",""],["[[A franciaországi változásokra]]","[[On the Changes in France]]"]]]),
+ Tbl(["Klasszicizmus","Classicism"],CW,[
+  [["Kazinczy Ferenc",""],["a [[nyelvújítás]] vezéralakja","leader of the [[language reform]]"]],
+  [["Berzsenyi Dániel",""],["[[Az első szerelem]]","[[First Love]]"]]]),
+ Tbl(["Romantika","Romanticism"],CW,[
+  [["Kölcsey Ferenc",""],["[[Himnusz]]","[[the national anthem]]"]],
+  [["Vörösmarty Mihály",""],["[[Szózat]]","[[Szózat]] (‘Appeal’)"]],
+  [["Petőfi Sándor",""],["[[Nemzeti dal]]","[[National Song]]"]],
+  [["Jókai Mór",""],["[[A kőszívű ember fiai]] (regény)","[[The Baron's Sons]] (novel)"]],
+  [["Arany János",""],["[[A walesi bárdok]]","[[The Bards of Wales]]"]],
+  [["Katona József",""],["[[Bánk bán]] (dráma)","[[Bánk bán]] (drama)"]],
+  [["Madách Imre",""],["[[Az ember tragédiája]]","[[The Tragedy of Man]]"]]]),
+ Tbl(["20. század","20th century"],CW,[
+  [["Ady Endre",""],["[[Elbocsátó, szép üzenet]]","[[A Fine Message of Dismissal]]"]],
+  [["Móricz Zsigmond",""],["[[Rokonok]]","[[Relatives]]"]],
+  [["Kosztolányi Dezső",""],["[[Édes Anna]]","[[Anna Édes]]"]],
+  [["Karinthy Frigyes",""],["[[Így írtok ti]]","[[This Is How You Write]]"]],
+  [["József Attila",""],["[[Tiszta szívvel]]","[[With a Pure Heart]]"]],
+  [["Radnóti Miklós",""],["[[Nem tudhatom…]]","[[I Cannot Know…]]"]],
+  [["Márai Sándor",""],["[[Egy polgár vallomása]]","[[Confessions of a Bourgeois]]"]]]),
+ Tbl(["Magyar zene","Hungarian music"],[["Zeneszerző","Composer"],["Mű","Work"]],[
+  [["Erkel Ferenc",""],["[[Bánk bán]] (opera); a Himnusz zenéje","[[Bánk bán]] (opera); music of the anthem"]],
+  [["Liszt Ferenc",""],["[[Magyar rapszódiák]]","[[Hungarian Rhapsodies]]"]],
+  [["Bartók Béla",""],["[[A kékszakállú herceg vára]]","[[Bluebeard's Castle]]"]],
+  [["Kodály Zoltán",""],["[[Háry János]]","[[Háry János]]"]]]),
+ Note("hook",["Népzenekutatás: [[Bartók Béla]] és [[Kodály Zoltán]]. A népdalokat az [[1800-as évektől]] gyűjtik és kottázzák le.","Folk-music research: [[Béla Bartók]] and [[Zoltán Kodály]]. Folk songs have been collected and written down [[since the 1800s]]."]),
+ Note("trap",["A Bánk bán kétszer szerepel: [[Katona József]] drámája és [[Erkel Ferenc]] operája.","Bánk bán appears twice: [[József Katona]]'s drama and [[Ferenc Erkel]]'s opera."]),
+ Tbl(["Európai irodalom és zene","European literature and music"],[["Alkotó","Creator"],["Mű","Work"]],[
+  [["William Shakespeare","William Shakespeare"],["[[Rómeó és Júlia]]","[[Romeo and Juliet]]"]],
+  [["Voltaire","Voltaire"],["[[Candide]]","[[Candide]]"]],
+  [["Johann Wolfgang von Goethe","Johann Wolfgang von Goethe"],["[[Faust]]","[[Faust]]"]],
+  [["Ludwig van Beethoven","Ludwig van Beethoven"],["[[IX. szimfónia]] – az EU himnusza","[[Symphony No. 9]] – the EU anthem"]],
+  [["Wolfgang Amadeus Mozart","Wolfgang Amadeus Mozart"],["[[A varázsfuvola]]","[[The Magic Flute]]"]],
+  [["Pjotr Iljics Csajkovszkij","Pyotr Ilyich Tchaikovsky"],["[[A hattyúk tava]]","[[Swan Lake]]"]]]),
+ Note("hook",["Az EU himnusza Beethoven IX. szimfóniájának [[4. tétele]] (bemutató: 1824), szövege Schiller [[Örömódája]] (1785).","The EU anthem is the [[4th movement]] of Beethoven's 9th (premiered 1824); the text is Schiller's [[Ode to Joy]] (1785)."]),
+ Note("hook",["Az 1820-as években [[Pest-Buda]] lett az ország irodalmi központja; [[1837-ben]] nyílt meg a Pesti Magyar Színház, a Nemzeti Színház elődje.","In the 1820s [[Pest-Buda]] became the literary centre; in [[1837]] the Pest Hungarian Theatre, forerunner of the National Theatre, opened."]),
+ Game(["Párosítsd: alkotó – mű","Match: author – work"],[
+  ["Kölcsey",["Himnusz","the anthem"]],["Vörösmarty",["Szózat","Szózat"]],["Petőfi",["Nemzeti dal","National Song"]],["Arany János",["A walesi bárdok","The Bards of Wales"]],["Jókai",["A kőszívű ember fiai","The Baron's Sons"]],["Katona",["Bánk bán (dráma)","Bánk bán (drama)"]],["Madách",["Az ember tragédiája","The Tragedy of Man"]],["Janus Pannonius",["Pannónia dicsérete","In Praise of Pannonia"]],["Balassi",["Hogy Júliára talála…","When he found Julia…"]],["Zrínyi",["Szigeti veszedelem","The Peril of Sziget"]],["Csokonai",["A reményhez","To Hope"]],["Batsányi",["A franciaországi változásokra","On the Changes in France"]],["Berzsenyi",["Az első szerelem","First Love"]],["Ady",["Elbocsátó, szép üzenet","A Fine Message of Dismissal"]],["Móricz",["Rokonok","Relatives"]],["Kosztolányi",["Édes Anna","Anna Édes"]],["Karinthy",["Így írtok ti","This Is How You Write"]],["József Attila",["Tiszta szívvel","With a Pure Heart"]],["Radnóti",["Nem tudhatom…","I Cannot Know…"]],["Márai",["Egy polgár vallomása","Confessions of a Bourgeois"]],["Erkel",["Bánk bán (opera)","Bánk bán (opera)"]],["Liszt",["Magyar rapszódiák","Hungarian Rhapsodies"]],["Bartók",["A kékszakállú herceg vára","Bluebeard's Castle"]],["Kodály",["Háry János","Háry János"]],["Shakespeare",["Rómeó és Júlia","Romeo and Juliet"]],["Voltaire",["Candide","Candide"]],["Goethe",["Faust","Faust"]],["Beethoven",["IX. szimfónia","Symphony No. 9"]],["Mozart",["A varázsfuvola","The Magic Flute"]],["Csajkovszkij",["A hattyúk tava","Swan Lake"]]
+ ])
+];
+
+/* ===== 4 · Az Alaptörvény intézményei ===== */
+const T4=[
+ Lst(["Az Alaptörvény","The Fundamental Law"],[
+  ["Elfogadta az Országgyűlés: [[2011. április 18.]]","Adopted by Parliament: [[18 April 2011]]"],
+  ["Hatályba lépett: [[2012. január 1.]]","In force since: [[1 January 2012]]"],
+  ["Magyarország [[alkotmánya]]: a többi törvény felett álló, [[legmagasabb jogi erejű]] norma, a jogrend alapja","Hungary's [[constitution]]: above all other laws, the norm with the [[highest legal force]], the basis of the legal order"],
+  ["Szem előtt tartott értékek: alkotmányos hagyományok, stabil demokratikus intézmények, nemzeti függetlenség, [[keresztény értékek és európai kultúra]], a családok és a határon túli magyarok védelme","Values it protects: constitutional traditions, stable democratic institutions, national independence, [[Christian values and European culture]], families and Hungarians abroad"]]),
+ Cmp(["A három fő intézmény","The three main institutions"],[
+  {name:["Országgyűlés","National Assembly (Parliament)"],rows:[
+   [["Szerep","Role"],["a [[legfőbb népképviseleti szerv]]","the [[supreme body of popular representation]]"]],
+   [["Tagok","Members"],["[[199]] országgyűlési képviselő","[[199]] Members of Parliament"]],
+   [["Megbízatás","Term"],["[[4 év]]","[[4 years]]"]],
+   [["Feladatok","Tasks"],["az Alaptörvény elfogadása és módosítása; [[törvényalkotás]]; a [[központi költségvetés]] elfogadása; a [[miniszterelnök megválasztása]]; bizalmi kérdések","adopts and amends the Fundamental Law; [[makes laws]]; adopts the [[central budget]]; [[elects the Prime Minister]]; confidence questions"]]]},
+  {name:["Kormány","Government"],rows:[
+   [["Szerep","Role"],["a [[végrehajtó hatalom]] (a neki alárendelt közigazgatással)","the [[executive power]] (with the public administration under it)"]],
+   [["Tagok","Members"],["a [[miniszterelnök]] és a [[miniszterek]]","the [[Prime Minister]] and the [[ministers]]"]],
+   [["Miniszterelnök","Prime Minister"],["[[Magyar Péter]] – az Országgyűlés választja; a Kormány feje; képviseli Magyarországot az [[Európai Tanácsban]]","[[Péter Magyar]] – elected by Parliament; head of the Government; represents Hungary in the [[European Council]]"]],
+   [["Feladatok","Tasks"],["irányítja a közigazgatást; [[jogszabályokat alkot]]; működteti az állami ellátórendszereket (honvédelem, rendvédelem, oktatás, egészségügy)","directs public administration; [[issues regulations]]; runs state services (defence, law enforcement, education, health care)"]]]},
+  {name:["Köztársasági elnök","President of the Republic"],rows:[
+   [["Szerep","Role"],["[[államfő]]: kifejezi a nemzet egységét, őrködik az államszervezet demokratikus működése felett","[[head of state]]: embodies the unity of the nation, safeguards the democratic functioning of the state"]],
+   [["Jelenleg","Currently"],["[[Baka András]] (2026. augusztus 19-től)","[[András Baka]] (since 19 August 2026)"]],
+   [["Választás","Election"],["az [[Országgyűlés]] választja titkos szavazással, [[5 évre]]; legfeljebb [[egyszer]] választható újra","elected by [[Parliament]] by secret ballot for [[5 years]]; can be re-elected [[once]]"]],
+   [["Jogkörök","Powers"],["a Magyar Honvédség [[főparancsnoka]]; összehívja az Országgyűlés [[alakuló ülését]]; meghatározott esetekben [[feloszlathatja]] az Országgyűlést","[[commander-in-chief]] of the Hungarian Defence Forces; convenes Parliament's [[inaugural sitting]]; may [[dissolve]] Parliament in set cases"]]]}
+ ]),
+ Note("trap",["2026 óta: miniszterelnök [[Magyar Péter]], köztársasági elnök [[Baka András]]. A 2025-ös segédanyagban még Orbán Viktor és Sulyok Tamás szerepelt – régebbi tesztek tévesek lehetnek.","Since 2026: Prime Minister [[Péter Magyar]], President [[András Baka]]. The 2025 handout still named Viktor Orbán and Tamás Sulyok, so older practice tests may be wrong."]),
+ Chp(["Minisztériumok (16, a 2026. augusztusi segédanyag szerint)","Ministries (16, per the August 2026 handout)"],[
+  ["Agrár- és Élelmiszergazdaságért Felelős Minisztérium","Agriculture and Food Economy"],["Belügyminisztérium","Interior"],["Egészségügyi Minisztérium","Health"],["Élő Környezetért Felelős Minisztérium","Living Environment"],["Gazdasági és Energetikai Minisztérium","Economy and Energy"],["Honvédelmi Minisztérium","Defence"],["Szociális és Családügyi Minisztérium","Social Affairs and Family"],["Vidék- és Településfejlesztési Minisztérium","Rural and Settlement Development"],["Igazságügyi Minisztérium","Justice"],["Oktatási és Gyermekügyi Minisztérium","Education and Children's Affairs"],["Közlekedési és Beruházási Minisztérium","Transport and Investment"],["Külügyminisztérium","Foreign Affairs"],["Miniszterelnökség","Prime Minister's Office"],["Pénzügyminisztérium","Finance"],["Társadalmi Kapcsolatokért és Kultúráért Felelős Minisztérium","Social Relations and Culture"],["Tudományos és Technológiai Minisztérium","Science and Technology"]])
+];
+
+/* ===== 5 · Jogok és kötelezettségek ===== */
+const T5=[
+ Tbl(["Történelmi mérföldkövek","Historic milestones"],[["Év","Year"],["Dokumentum","Document"]],[
+  [["1215",""],["[[Magna Charta Libertatum]] (Anglia)","[[Magna Carta]] (England)"]],
+  [["1222",""],["[[Aranybulla]] (Magyarország, II. András)","[[Golden Bull]] (Hungary, Andrew II)"]],
+  [["1789",""],["az [[Emberi és Polgári Jogok Nyilatkozata]] (Franciaország)","the [[Declaration of the Rights of Man and of the Citizen]] (France)"]],
+  [["1950",""],["az [[Emberi Jogok Európai Egyezménye]]","the [[European Convention on Human Rights]]"]]]),
+ Tbl(["A jogok generációi","Generations of rights"],[["Generáció","Generation"],["Jogok","Rights"]],[
+  [["1. (szabadságjogok)","1st (freedoms)"],["[[élet]], [[személyi szabadság]], [[egyesülés és gyülekezés]], [[lelkiismeret és vallás]], [[szólás és sajtó]]","[[life]], [[personal liberty]], [[association and assembly]], [[conscience and religion]], [[speech and press]]"]],
+  [["2.","2nd"],["[[munka]], [[sztrájk]], [[oktatás]], [[szociális biztonság]]","[[work]], [[strike]], [[education]], [[social security]]"]],
+  [["3.","3rd"],["[[egészséges környezet]], [[gyermekek jogai]], [[betegjogok]], [[fogyatékkal élők jogai]]","[[healthy environment]], [[children's rights]], [[patients' rights]], [[rights of persons with disabilities]]"]]]),
+ Lst(["Az Alaptörvény az alapjogokról","The Fundamental Law on rights"],[
+  ["Jogegyenlőség: a [[törvény előtt]] mindenki egyenlő","Equality of rights: everyone is equal [[before the law]]"],
+  ["Az alapjogok [[sérthetetlenek és elidegeníthetetlenek]]; tiszteletben tartásuk és védelmük az állam [[elsőrendű kötelessége]]","Fundamental rights are [[inviolable and inalienable]]; respecting and protecting them is the state's [[primary duty]]"],
+  ["Alapjog csak [[másik alapjog]] vagy [[alkotmányos érték]] védelmében korlátozható","A fundamental right may be restricted only to protect [[another fundamental right]] or a [[constitutional value]]"],
+  ["A halálbüntetést [[1990-ben]] törölték el, miután az [[Alkotmánybíróság]] alkotmányellenesnek nyilvánította","The death penalty was abolished in [[1990]] after the [[Constitutional Court]] ruled it unconstitutional"]]),
+ Chp(["A legfőbb alapjogok az Alaptörvényben (8)","Main fundamental rights in the Fundamental Law (8)"],[
+  ["törvény előtti egyenlőség","equality before the law"],["élet és emberi méltóság","life and human dignity"],["tisztességes eljárás","fair procedure"],["gondolat-, lelkiismeret- és vallásszabadság","freedom of thought, conscience and religion"],["véleménynyilvánítás szabadsága","freedom of expression"],["gyülekezési szabadság","freedom of assembly"],["tulajdon és öröklés","property and inheritance"],["személyes adatok védelme","protection of personal data"]]),
+ Note("law",["Ez a két blokk nem a segédanyagból való: az 5. témakör a kötelezettségeket és a jogvédelmet is felsorolja, de a segédanyag nem tárgyalja. Forrás: az Alaptörvény.","These two blocks are not in the handout: topic 5 lists obligations and rights protection, but the handout skips them. Source: the Fundamental Law."]),
+ Lst(["Kötelezettségek az Alaptörvényben","Obligations in the Fundamental Law"],[
+  ["Mindenki képességei szerint hozzájárul az [[állami és közösségi feladatokhoz]] (O. cikk)","Everyone contributes to [[state and community tasks]] as they are able (Article O)"],
+  ["[[Közteherviselés]]: teherbíró képesség szerint hozzájárulás a közös szükségletekhez – vagyis [[adófizetés]] (XXX. cikk)","[[Sharing public burdens]]: contributing to common needs by ability to pay – that is, [[taxes]] (Article XXX)"],
+  ["Minden magyar állampolgár köteles a [[haza védelmére]] (XXXI. cikk)","Every Hungarian citizen must [[defend the country]] (Article XXXI)"],
+  ["A szülők gondoskodnak kiskorú gyermekükről, ez a [[taníttatást]] is jelenti; a nagykorú gyermekek a [[rászoruló szüleikről]] (XVI. cikk)","Parents care for their minor children, including [[schooling]]; adult children care for [[parents in need]] (Article XVI)"]]),
+ Lst(["Az alapjogok védelme","Protecting fundamental rights"],[
+  ["[[Alkotmánybíróság]]: az Alaptörvény védelmének legfőbb szerve (24. cikk)","[[Constitutional Court]]: the supreme body protecting the Fundamental Law (Article 24)"],
+  ["[[Alapvető jogok biztosa]] (ombudsman): bárki kérheti az eljárását (30. cikk)","[[Commissioner for Fundamental Rights]] (ombudsman): anyone may ask them to act (Article 30)"]]),
+ Note("trap",["A szavazás jog, nem kötelesség. A haza védelme a magyar állampolgárok kötelessége.","Voting is a right, not a duty. Defending the country is a duty of Hungarian citizens."])
+];
+
+/* ===== 6 · Európa és Magyarország a mindennapokban ===== */
+const T6=[
+ Tbl(["Magyarország röviden","Hungary at a glance"],[["",""],["",""]],[
+  [["Államforma","Form of state"],["[[köztársaság]]","[[republic]]"]],
+  [["Terület","Area"],["[[93 ezer km²]]","[[93,000 km²]]"]],
+  [["Népesség","Population"],["[[9,6 millió]]","[[9.6 million]]"]],
+  [["Főváros","Capital"],["[[Budapest]]",""]],
+  [["Pénznem","Currency"],["[[forint]]",""]],
+  [["Hivatalos nyelv","Official language"],["[[magyar]]","[[Hungarian]]"]],
+  [["Vármegyék","Counties"],["[[19]]",""]],
+  [["Szomszédos országok","Neighbouring countries"],["[[7]]",""]],
+  [["Elismert nemzetiségek","Recognised nationalities"],["[[13]]",""]]]),
+ Tbl(["A 7 szomszédos ország","The 7 neighbouring countries"],[["EU-tag (5)","EU members (5)"],["Nem EU-tag (2)","Not in the EU (2)"]],[
+  [["[[Ausztria]]","[[Austria]]"],["[[Ukrajna]]","[[Ukraine]]"]],
+  [["[[Szlovákia]]","[[Slovakia]]"],["[[Szerbia]]","[[Serbia]]"]],
+  [["[[Románia]]","[[Romania]]"],["",""]],
+  [["[[Horvátország]]","[[Croatia]]"],["",""]],
+  [["[[Szlovénia]]","[[Slovenia]]"],["",""]]]),
+ Lst(["Táj és víz","Landscape and water"],[
+  ["Tájegységek: [[Alföld]], [[Kisalföld]], [[Alpokalja]], [[Dunántúli-dombság]], [[Dunántúli-középhegység]], [[Északi-középhegység]]","Regions: [[Great Plain]], [[Little Plain]], [[Alpokalja]] (Alpine foothills), [[Transdanubian Hills]], [[Transdanubian Mountains]], [[North Hungarian Mountains]]"],
+  ["Legnagyobb tavak: [[Balaton]], [[Fertő tó]], [[Velencei-tó]]","Largest lakes: [[Balaton]], [[Lake Fertő]] (Neusiedl), [[Lake Velence]]"],
+  ["Legnagyobb folyók: [[Duna]], [[Tisza]], [[Dráva]], [[Rába]]","Largest rivers: [[Danube]], [[Tisza]], [[Drava]], [[Rába]]"]]),
+ Chp(["Elismert nemzetiségek (13)","Recognised nationalities (13)"],[["bolgár","Bulgarian"],["görög","Greek"],["horvát","Croatian"],["lengyel","Polish"],["német","German"],["örmény","Armenian"],["roma","Roma"],["román","Romanian"],["ruszin","Rusyn"],["szerb","Serbian"],["szlovák","Slovak"],["szlovén","Slovenian"],["ukrán","Ukrainian"]]),
+ Chp(["A 19 vármegye","The 19 counties"],[["Bács-Kiskun",""],["Baranya",""],["Békés",""],["Borsod-Abaúj-Zemplén",""],["Csongrád-Csanád",""],["Fejér",""],["Győr-Moson-Sopron",""],["Hajdú-Bihar",""],["Heves",""],["Jász-Nagykun-Szolnok",""],["Komárom-Esztergom",""],["Nógrád",""],["Pest",""],["Somogy",""],["Szabolcs-Szatmár-Bereg",""],["Tolna",""],["Vas",""],["Veszprém",""],["Zala",""]]),
+ Lst(["Budapest","Budapest"],[
+  ["Létrejött: [[1873. november 17.]] – a Duna bal partján fekvő [[Pest]], valamint a jobb parti [[Buda]] és [[Óbuda]] egyesítésével","Created [[17 November 1873]] by uniting [[Pest]] on the Danube's left bank with [[Buda]] and [[Óbuda]] on the right bank"],
+  ["[[23]] kerülete van (1994 óta)","It has [[23]] districts (since 1994)"]]),
+ Chp(["Budapesti nevezetességek","Budapest landmarks"],[["Budavári Palota","Buda Castle Palace"],["Citadella","Citadel"],["Gellért Gyógyfürdő","Gellért Baths"],["Halászbástya","Fisherman's Bastion"],["Hősök tere","Heroes' Square"],["Magyar Nemzeti Múzeum","Hungarian National Museum"],["Magyar Zene Háza","House of Hungarian Music"],["Magyar Állami Operaház","Hungarian State Opera"],["Mátyás-templom","Matthias Church"],["Parlament (Országház)","Parliament"],["Szent István Bazilika","St Stephen's Basilica"],["Széchenyi Lánchíd","Széchenyi Chain Bridge"],["Szépművészeti Múzeum","Museum of Fine Arts"],["Vajdahunyad vára","Vajdahunyad Castle"]]),
+ Tbl(["Hungarikumok","Hungarikums"],[["Csoport","Group"],["Példák","Examples"]],[
+  [["Ételek","Dishes"],["[[gulyásleves]], bajai és tiszai [[halászlé]], [[dobostorta]], Pick [[téliszalámi]]","[[goulash soup]], Baja and Tisza [[fisherman's soup]], [[Dobos cake]], Pick [[winter salami]]"]],
+  [["Alapanyagok","Ingredients"],["makói [[hagyma]], kalocsai és szegedi [[fűszerpaprika]]","Makó [[onion]], Kalocsa and Szeged [[ground paprika]]"]],
+  [["Italok","Drinks"],["[[tokaji aszú]], [[egri bikavér]], [[pálinka]]","[[Tokaji Aszú]], [[Egri Bikavér]], [[pálinka]]"]],
+  [["Kulturális örökség","Cultural heritage"],["mohácsi [[busójárás]], Pannonhalmi Bencés [[Főapátság]], [[Hollókő]], Füredi [[Anna-bál]]","the [[Busójárás]] of Mohács, Pannonhalma [[Archabbey]], [[Hollókő]], the [[Anna Ball]] of Balatonfüred"]],
+  [["Állatok","Animals"],["[[szürke szarvasmarha]]; pásztorkutyák: [[puli, komondor, kuvasz]]; vadászkutyák: [[magyar vizsla, erdélyi kopó]]","[[grey cattle]]; sheepdogs: [[Puli, Komondor, Kuvasz]]; hunting dogs: [[Vizsla, Transylvanian Hound]]"]],
+  [["Nép- és iparművészet","Folk and applied art"],["halasi [[csipke]], [[matyó]] népművészet, [[hollóházi]] és [[Zsolnay]]-porcelán","Halas [[lace]], [[Matyó]] folk art, [[Hollóháza]] and [[Zsolnay]] porcelain"]]]),
+ Note("hook",["A „hungarikum” szó Magyarország latin nevéből, a [[Hungaria]] szóból ered: tipikusan magyar alkotás, tárgy vagy szokás.","‘Hungarikum’ comes from Hungary's Latin name, [[Hungaria]]: a typically Hungarian creation, object or custom."]),
+ Lst(["Kereszténység és ünnepek","Christianity and holidays"],[
+  ["A legrégibb felekezetek: [[katolikus]] (latin és görög), [[református]], [[evangélikus]]","The oldest denominations: [[Catholic]] (Latin and Greek rite), [[Reformed]], [[Lutheran]]"],
+  ["Karácsony: [[december 24–26.]] – Jézus születése","Christmas: [[24–26 December]] – the birth of Jesus"],
+  ["Húsvét: Jézus [[kereszthalála]] és [[feltámadása]]","Easter: Jesus's [[death on the cross]] and [[resurrection]]"],
+  ["Augusztus 20.: [[Szent Jobb-körmenet]] (Szent István ereklyéje), este tűzijáték","20 August: the [[Holy Right Hand procession]] (St Stephen's relic), fireworks at night"],
+  ["Magyar szentek: [[István]], [[László]], [[Imre]], [[Gellért]], Árpád-házi [[Margit]] és [[Erzsébet]]","Hungarian saints: [[Stephen]], [[Ladislaus]], [[Emeric]], [[Gerard]], [[Margaret]] and [[Elizabeth]] of the Árpád house"]]),
+ Lst(["Magyarország és az EU","Hungary and the EU"],[
+  ["Csatlakozás az EU-hoz: [[2004. május 1.]]","Joined the EU: [[1 May 2004]]"],
+  ["Schengeni övezet: [[2007]] – a határok szabad átjárhatósága","Schengen Area: [[2007]] – free movement across borders"],
+  ["[[27]] tagállam, kb. [[450 millió]] polgár; központ: [[Brüsszel]]","[[27]] member states, about [[450 million]] citizens; headquarters: [[Brussels]]"],
+  ["Fő intézmények: [[Európai Bizottság]], [[Tanács]], [[Európai Parlament]], [[Európai Tanács]]","Main institutions: [[European Commission]], [[Council]], [[European Parliament]], [[European Council]]"],
+  ["EP-választás [[ötévente]]; Magyarország [[21]] képviselőt küld","European Parliament elections [[every 5 years]]; Hungary sends [[21]] MEPs"]]),
+ Chp(["Az EU 27 tagállama","The 27 EU member states"],[["Ausztria","Austria"],["Belgium","Belgium"],["Bulgária","Bulgaria"],["Ciprus","Cyprus"],["Csehország","Czechia"],["Dánia","Denmark"],["Észtország","Estonia"],["Finnország","Finland"],["Franciaország","France"],["Görögország","Greece"],["Hollandia","Netherlands"],["Horvátország","Croatia"],["Írország","Ireland"],["Lengyelország","Poland"],["Lettország","Latvia"],["Litvánia","Lithuania"],["Luxemburg","Luxembourg"],["Magyarország","Hungary"],["Málta","Malta"],["Németország","Germany"],["Olaszország","Italy"],["Portugália","Portugal"],["Románia","Romania"],["Spanyolország","Spain"],["Svédország","Sweden"],["Szlovákia","Slovakia"],["Szlovénia","Slovenia"]])
+];
+
+/* ===== Numbers drill (all topics) ===== */
+const NUMS=[
+ ["7","honfoglaló magyar törzs","conquering Hungarian tribes"],["895–896","honfoglalás","the conquest"],["1001","Szent István koronázása","St Stephen crowned"],["1222","Aranybulla","Golden Bull"],["1241–42","tatárjárás","Mongol invasion"],["1301","kihal az Árpád-ház","Árpád dynasty ends"],["1456","nándorfehérvári diadal","victory at Nándorfehérvár"],["1458–1490","Hunyadi Mátyás uralkodása","reign of Matthias"],["1526","mohácsi vereség","defeat at Mohács"],["1541","Buda török kézre kerül","the Ottomans take Buda"],["1552","Eger ostroma","siege of Eger"],["1686","Buda visszafoglalása","Buda retaken"],["1703–1711","Rákóczi-szabadságharc","Rákóczi's uprising"],["1823","a Himnusz születése","the anthem written"],["1825–1848","reformkor","Reform Era"],["1836","a Szózat születése","the Szózat written"],["1837","megnyílik a Pesti Magyar Színház","Pest Hungarian Theatre opens"],["1848. március 15.","forradalom Pesten","revolution in Pest"],["1848. április 11.","első felelős kormány","first responsible government"],["1849. október 6.","aradi vértanúk","Martyrs of Arad"],["1867","kiegyezés","the Compromise"],["1873","Budapest létrejötte","Budapest created"],["1885–1904","az Országház építése","Parliament building built"],["1914","az I. világháború kitörése","WWI breaks out"],["1920. június 4.","trianoni békeszerződés","Treaty of Trianon"],["1941","belépés a II. világháborúba","Hungary enters WWII"],["1944. március 19.","német megszállás","German occupation"],["1950","Emberi Jogok Európai Egyezménye","European Convention on Human Rights"],["1956. október 23.","forradalom és szabadságharc","revolution and war of independence"],["1956. november 4.","szovjet támadás","Soviet attack"],["1989. június 16.","Nagy Imre újratemetése","Imre Nagy reburied"],["1990","szabad választások; a halálbüntetés eltörlése","free elections; death penalty abolished"],["1991","a szovjet csapatok kivonulása","Soviet troops leave"],["2004. május 1.","EU-csatlakozás","EU accession"],["2007","schengeni csatlakozás","joins Schengen"],["2011. április 18.","az Alaptörvény elfogadása","Fundamental Law adopted"],["2012. január 1.","az Alaptörvény hatálybalépése","Fundamental Law in force"],
+ ["9,6 millió","Magyarország népessége","Hungary's population"],["93 ezer km²","Magyarország területe","Hungary's area"],["199","országgyűlési képviselők száma","number of MPs"],["4 év","az Országgyűlés megbízatása","term of Parliament"],["5 év","a köztársasági elnök megbízatása","term of the President"],["19","vármegye","counties"],["23","budapesti kerület","Budapest districts"],["7","szomszédos ország","neighbouring countries"],["13","elismert nemzetiség","recognised nationalities"],["27","EU-tagállam","EU member states"],["21","magyar EP-képviselő","Hungarian MEPs"],["450 millió","EU-polgár","EU citizens"],["2/3","Trianonnal elvesztett terület","territory lost at Trianon"],["3,3 millió","határon kívül rekedt magyar (1920)","Hungarians left outside the borders (1920)"],["500–600 ezer","magyarországi holokauszt-áldozat","Holocaust victims in Hungary"],["12","pont 1848-ban","the 12 Points of 1848"],["13","aradi vértanú","Martyrs of Arad"],["16 / 30","a vizsga ponthatára","the exam's pass mark"]
+];
+return {sections:[{n:1,blocks:T1},{n:2,blocks:T2},{n:3,blocks:T3},{n:4,blocks:T4},{n:5,blocks:T5},{n:6,blocks:T6}],nums:NUMS};
+})();
+</script>
+
 <script id="ui">
 (function(){
 "use strict";
 const LS="kiv-trainer-v1",LSRUN="kiv-trainer-run-v1",LSLANG="kiv-trainer-lang",LSPROF="kiv-trainer-profiles-v1",MAXPROF=20,DAY=864e5,IV=[0,0,1,3,7,16,35];
-const LANG_VER="2026-10-12";
+const LANG_VER="2026-10-12b";
 const CODES=["en","uk","hi"];
-const P={items:{},mocks:[]};
-const S={tab:"ready",run:null,flash:null,cardFilter:"all",drillTopic:1};
+const P={items:{},mocks:[],guide:null};
+const S={tab:"ready",run:null,flash:null,cardFilter:"all",drillTopic:1,gtest:false,gq:""};
 const $=id=>document.getElementById(id);
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 
@@ -697,7 +1117,26 @@ const EN={
  pBadFile:"This file can't be read. Choose a .json progress file saved from this trainer.",
  pTooMany:"You can keep up to 20 profiles. Delete one to add another.",
  pNoStorage:"This browser isn't keeping data (for example, in a private window), so profiles can't be saved. You can still save a progress file.",
- pRenamed:"Name saved.",pDeleted:"Profile deleted.",pSwitched:"Switched to “{name}”."
+ pRenamed:"Name saved.",pDeleted:"Profile deleted.",pSwitched:"Switched to “{name}”.",
+ tabLearn:"Learn",studyThis:"Study this topic",
+ gTitle:"Study guide",
+ gIntro:"The six official topics, condensed from the official study material. Bold words are the terms the exam can ask for. Turn on “Test me” to hide them, then tap a blank to check yourself. Tick ✓ what you know.",
+ gViewAria:"Text shown",gViewBoth:"HU + EN",gViewHu:"HU",gViewTr:"EN",
+ gTest:"Test me",gJumpAria:"Go to a topic",gJumpNum:"Numbers",
+ gSearchPh:"Search in Hungarian or English…",gSearchAria:"Search the study guide",
+ gHideKnown:"Hide learned",gMark:"Mark as learned",
+ gLearned:"{k}/{n} learned",gTotal:"{k} of {n} items marked as learned",
+ gMatches:{one:"{n} match for “{q}”",other:"{n} matches for “{q}”"},gNoMatch:"No matches for “{q}”",
+ gTwoQ:"2 questions on the exam",gRevealAll:"Reveal all",gHideAgain:"Hide again",gHideYears:"Hide years",
+ gTrap:"Trap",gHook:"Memory hook",gLaw:"Not in the handout",
+ gMatchHelp:"Tap an item on the left, then its match on the right.",
+ gTries:{one:"{n} try",other:"{n} tries"},gNewSet:"New set",gNextSet:"Next set",
+ gPractice:"Practice questions ({n})",
+ gNumTitle:"Numbers and dates",gNumMeta:"from all topics",gNumHides:"Test me hides:",gNumMeanings:"the meanings",gNumNumbers:"the numbers",
+ gWordsMeta:"question words and instructions",
+ gWriteTag:"Writing on the exam",
+ gWriteNote:"Names: family name first (Kölcsey Ferenc). Dates: year. month day. (1848. március 15.). Rulers: Roman numeral with a full stop (IV. Béla).",
+ gFootnote:"Facts follow the official BFKH study material (August 2026). Items marked “Not in the handout” come from Hungary's Fundamental Law. Officeholders change, so check them before your exam date."
 };
 const LANGS={en:{ui:EN,top:{},items:{}}};
 let LANG="en";
@@ -743,10 +1182,17 @@ function loadProfiles(){try{const d=JSON.parse(localStorage.getItem(LSPROF)||"nu
 function saveProfiles(){try{localStorage.setItem(LSPROF,JSON.stringify(PR));}catch(e){}}
 
 /* ---- persistence (this browser only) ---- */
-function loadLocal(){P.items={};P.mocks=[];S.run=null;const id=PR.active;
-  try{const raw=localStorage.getItem(PKEY(id));if(raw){const d=JSON.parse(raw);if(d&&d.items&&typeof d.items==="object")P.items=d.items;if(d&&Array.isArray(d.mocks))P.mocks=d.mocks;}}catch(e){}
+function loadLocal(){P.items={};P.mocks=[];P.guide=gDefault();S.run=null;const id=PR.active;
+  try{const raw=localStorage.getItem(PKEY(id));if(raw){const d=JSON.parse(raw);if(d&&d.items&&typeof d.items==="object")P.items=d.items;if(d&&Array.isArray(d.mocks))P.mocks=d.mocks;if(d&&d.guide)P.guide=gClean(d.guide);}}catch(e){}
   try{const r=localStorage.getItem(RKEY(id));if(r){const run=JSON.parse(r);if(run&&!run.done&&Array.isArray(run.ids))S.run=run;}}catch(e){}}
-function saveLocal(){try{localStorage.setItem(PKEY(PR.active),JSON.stringify({items:P.items,mocks:P.mocks.slice(0,80)}));}catch(e){}}
+function saveLocal(){try{localStorage.setItem(PKEY(PR.active),JSON.stringify({items:P.items,mocks:P.mocks.slice(0,80),guide:gSer(P.guide)}));}catch(e){}}
+/* Study-guide state per profile: ✓ marks (row ids), text view, hide-learned and the numbers-drill direction */
+const GID_RE=/^[a-z][0-9]?\.[a-z0-9]{1,12}$/;
+function gDefault(){return {known:new Set(),view:"both",hk:false,nd:"meaning"};}
+function gClean(g){const o=gDefault();if(!g||typeof g!=="object")return o;
+  if(Array.isArray(g.known))g.known.slice(0,4000).forEach(id=>{if(typeof id==="string"&&GID_RE.test(id))o.known.add(id);});
+  if(["both","hu","tr"].indexOf(g.view)>=0)o.view=g.view;o.hk=g.hk===true;if(g.nd==="number")o.nd="number";return o;}
+function gSer(g){g=g||gDefault();return {known:Array.from(g.known),view:g.view,hk:g.hk,nd:g.nd};}
 function saveRun(){try{if(S.run&&!S.run.done)localStorage.setItem(RKEY(PR.active),JSON.stringify(S.run));else localStorage.removeItem(RKEY(PR.active));}catch(e){}}
 let runSaveT=0;function saveRunSoon(){clearTimeout(runSaveT);runSaveT=setTimeout(saveRun,400);}
 function persist(){saveLocal();}
@@ -770,7 +1216,7 @@ function addProfile(name,data){
   if(PR.list.length>=MAXPROF){PS.msg=t("pTooMany");PS.err=true;return null;}
   const id="p"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
   const nm=uniqueName(name);
-  if(data){try{localStorage.setItem(PKEY(id),JSON.stringify({items:data.items,mocks:data.mocks}));}catch(e){PS.msg=t("pNoStorage");PS.err=true;return null;}}
+  if(data){try{localStorage.setItem(PKEY(id),JSON.stringify({items:data.items,mocks:data.mocks,guide:data.guide}));}catch(e){PS.msg=t("pNoStorage");PS.err=true;return null;}}
   PR.list.push({id,name:nm,lang:(data&&data.lang)||LANG});
   saveProfiles();switchProfile(id);return nm;
 }
@@ -787,7 +1233,7 @@ function fileName(nm){const d=new Date();const ds=d.getFullYear()+"-"+String(d.g
 function exportFile(){
   const p=activeProfile(),nm=pname(p);
   const data={app:"kiv-trainer",format:1,exportedAt:new Date().toISOString(),profile:{name:nm,lang:p.lang||LANG},items:P.items,
-    mocks:P.mocks.slice(0,80).map(m=>({id:m.id,at:m.at,kind:m.kind,topic:m.topic,score:m.score,max:m.max,hints:m.hints,dur:m.dur}))};
+    mocks:P.mocks.slice(0,80).map(m=>({id:m.id,at:m.at,kind:m.kind,topic:m.topic,score:m.score,max:m.max,hints:m.hints,dur:m.dur})),guide:gSer(P.guide)};
   try{const url=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:"application/json"}));const a=document.createElement("a");a.href=url;a.download=fileName(nm);
     document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},1500);PS.msg=t("pSaved",{file:a.download});PS.err=false;}
   catch(e){PS.msg=t("pSaveFail");PS.err=true;}
@@ -805,7 +1251,7 @@ function cleanFile(d){
     topic:Math.round(num(m.topic,0,6)),score:num(m.score,0,30),max:num(m.max,0,30),hints:Math.round(num(m.hints,0,12)),dur:Math.round(num(m.dur,0,1e7)),rows:[]}));
   mocks.sort((a,b)=>b.at-a.at);
   const p=d.profile&&typeof d.profile==="object"?d.profile:{};
-  return {items,mocks,name:cleanName(p.name),lang:CODES.indexOf(p.lang)>=0?p.lang:null};
+  return {items,mocks,guide:gSer(gClean(d.guide)),name:cleanName(p.name),lang:CODES.indexOf(p.lang)>=0?p.lang:null};
 }
 function importFile(file){
   if(!file)return;
@@ -940,7 +1386,7 @@ function viewReady(){
     <li class="gate"><span class="dot ${R.g1?"ok":"no"}">${R.g1?"✓":"1"}</span><span>${t("gate1")}<br><span class="small muted">${esc(t("gateNow",{v:pr.n>=12?pct:t("gateNeed"),n:plural("graded",pr.n)}))}</span></span></li>
     <li class="gate"><span class="dot ${R.g2?"ok":"no"}">${R.g2?"✓":"2"}</span><span>${t("gate2")}<br><span class="small muted">${esc(t("gateLast",{v:l2}))}</span></span></li></ul>`;
   const rows=R.pr.tops.map(tp=>{const pool=B.filter(it=>it.t===tp.t&&it.p).length;const mean=tp.n?Math.round(100*tp.x/tp.n):null;const isWeak=R.state!=="none"&&w&&w.t===tp.t;
-    return `<div class="trow${isWeak?" weak":""}"><span class="name"><b>${esc(topN(tp.t))}</b><span class="small muted">${esc(t("topicAnswered",{hu:TOP[tp.t].hu,n:tp.n,pool}))}</span></span><span class="val">${mean==null?"—":mean+"%"}</span><span class="bar"><i style="width:${mean==null?0:mean}%"></i></span><span class="small"><button class="btn ghost" data-act="startDrill" data-topic="${tp.t}">${esc(t("drillThis"))}</button></span></div>`;}).join("");
+    return `<div class="trow${isWeak?" weak":""}"><span class="name"><b>${esc(topN(tp.t))}</b><span class="small muted">${esc(t("topicAnswered",{hu:TOP[tp.t].hu,n:tp.n,pool}))}</span></span><span class="val">${mean==null?"—":mean+"%"}</span><span class="bar"><i style="width:${mean==null?0:mean}%"></i></span><span class="small"><button class="btn ghost" data-act="gotoGuide" data-topic="${tp.t}">${esc(t("studyThis"))}</button><button class="btn ghost" data-act="startDrill" data-topic="${tp.t}">${esc(t("drillThis"))}</button></span></div>`;}).join("");
   const chart=pr.n>=12?`<div class="panel"><div class="kpis"><div class="kpi"><span class="eyebrow">${esc(t("kChance"))}</span><span class="num">${pct}</span></div><div class="kpi"><span class="eyebrow">${esc(t("kExpected"))}</span><span class="num">${r1(pr.mean)}</span></div><div class="kpi"><span class="eyebrow">${esc(t("kGraded"))}</span><span class="num">${pr.n}</span></div></div><div class="chart">${distChart(pr.dist)}</div><p class="small muted">${esc(t("chartCaption"))}</p></div>`:"";
   return `<div class="verdict"><span class="eyebrow">${esc(t("verdictEyebrow"))}</span><span class="word ${R.state}">${esc(words[R.state][0])}</span><span class="hu" lang="hu">${words[R.state][1]}</span><p>${reason}</p><div class="row">${cta}</div></div>
   ${chart?`<section><h2>${esc(t("hChance"))}</h2>${chart}</section>`:""}
@@ -1031,6 +1477,100 @@ function viewFacts(){
   </ul></section>`;
 }
 
+/* ---- Learn tab: the study guide (content in <script id="guide">) ----
+   Each text is [Hungarian, English]; Ukrainian and Hindi come from lang/*.js "guide", keyed by the English text.
+   Row ids are hashes of the Hungarian text, so ✓ marks stay attached when other rows change. */
+function gtr(en){if(!en||LANG==="en")return en||"";const L=LANGS[LANG];return (L&&L.guide&&L.guide[en])||en;}
+function gnorm(s){return String(s==null?"":s).replace(/\[\[|\]\]/g,"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^\p{L}\p{M}\p{N}]+/gu," ").trim();}
+function gfmt(s){return esc(s).replace(/\[\[(.+?)\]\]/g,'<span class="gk">$1</span>');}
+function gpair(p){const hu=p[0]||"",tr=gtr(p[1]||"");return {hu,tr:tr&&gnorm(tr)!==gnorm(hu)?tr:""};}
+function gduo(hu,tr){if(!hu)return tr?`<span class="gt">${gfmt(tr)}</span>`:"";return `<span class="gh${tr?"":" gs"}" lang="hu">${gfmt(hu)}</span>`+(tr?`<span class="gt">${gfmt(tr)}</span>`:"");}
+function gbi(p){const x=gpair(p);return gduo(x.hu,x.tr);}
+function gtxt(p){const x=gpair(p);return x.hu+" "+x.tr;}
+function gsv(){return esc(gnorm([].slice.call(arguments).flat(Infinity).join(" ")));}
+function fnv(s){let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}return h.toString(36);}
+let GIDS={},GSTAT="",gSearchT=0;const GG={};
+function gid(prefix,parts){const base=prefix+"."+fnv(parts.map(gnorm).join("|"));GIDS[base]=(GIDS[base]||0)+1;return GIDS[base]>1?base+"x"+GIDS[base]:base;}
+function gkb(id){return `<button class="gkb" data-act="gknown" data-id="${id}" aria-pressed="${P.guide.known.has(id)}" title="${esc(t("gMark"))}" aria-label="${esc(t("gMark"))}"><span aria-hidden="true">✓</span></button>`;}
+function gkc(id){return P.guide.known.has(id)?" known":"";}
+function gBlock(b,n,bx){
+  const hHu=b.h?b.h[0]:"",h=b.h?`<h3>${gbi(b.h)}</h3>`:"";
+  if(b.t==="list")return `<div class="gblk">${h}<ul class="glst">${b.items.map(it=>{const id=gid("l"+n,[hHu,it[0]]);return `<li class="gr${gkc(id)}" data-kid="${id}" data-s="${gsv(gtxt(it))}"><div class="gc">${gbi(it)}</div>${gkb(id)}</li>`;}).join("")}</ul></div>`;
+  if(b.t==="table"){const head=b.cols.some(c=>c[0]||c[1])?`<thead><tr>${b.cols.map(c=>`<th>${gbi(c)}</th>`).join("")}<th></th></tr></thead>`:"";
+    return `<div class="gblk">${h}<div class="gtw"><table class="gtbl${b.cols.length>2?" three":""}">${head}<tbody>${b.rows.map(r=>{const id=gid("r"+n,[hHu].concat(r.map(c=>c[0])));return `<tr class="gr${gkc(id)}" data-kid="${id}" data-s="${gsv(r.map(gtxt))}">${r.map(c=>`<td><div class="gc">${gbi(c)}</div></td>`).join("")}<td class="gkc">${gkb(id)}</td></tr>`;}).join("")}</tbody></table></div></div>`;}
+  if(b.t==="chips")return `<div class="gblk">${h}<div class="gchips">${b.items.map(it=>`<span class="gchip gr" data-s="${gsv(gtxt(it))}">${gbi(it)}</span>`).join("")}</div></div>`;
+  if(b.t==="note")return `<div class="gblk gnote ${b.kind} gr" data-s="${gsv(gtxt(b.body))}"><span class="gtag">${esc(t({trap:"gTrap",hook:"gHook",law:"gLaw"}[b.kind]))}</span><div>${gbi(b.body)}</div></div>`;
+  if(b.t==="timeline")return `<div class="gblk gtlw"><div class="gdir"><button class="chip" data-act="gyears" aria-pressed="false">${esc(t("gHideYears"))}</button></div>${b.eras.map(era=>`<div class="gera gblk"><h4>${gbi(era.h)}</h4><ol class="gtl">${era.ev.map(ev=>{const id=gid("e"+n,[era.h[0],ev[0],ev[1]]);return `<li class="gr${gkc(id)}" data-kid="${id}" data-s="${gsv(ev[0],gtxt([ev[1],ev[2]]))}"><div class="gc"><span class="gyr">${esc(ev[0])}</span>${gbi([ev[1],ev[2]])}</div>${gkb(id)}</li>`;}).join("")}</ol></div>`).join("")}</div>`;
+  if(b.t==="compare")return `<div class="gblk">${h}<div class="gcmp">${b.cards.map(c=>{const id=gid("c"+n,[c.name[0]]);return `<div class="gcc gr${gkc(id)}" data-kid="${id}" data-s="${gsv(gtxt(c.name),c.rows.map(r=>gtxt(r[0])+" "+gtxt(r[1])))}"><div class="gcch"><h3>${gbi(c.name)}</h3>${gkb(id)}</div><dl class="gc">${c.rows.map(r=>`<dt>${gbi(r[0])}</dt><dd>${gbi(r[1])}</dd>`).join("")}</dl></div>`;}).join("")}</div></div>`;
+  if(b.t==="match"){const k="gg"+n+"-"+bx;GG[k]={pairs:b.pairs,n:b.n,cur:[],L:[],R:[],sel:null,ok:new Set(),tries:0,bad:null};return `<div class="gblk">${h}<p class="small muted">${esc(t("gMatchHelp"))}</p><div class="ggame" id="${k}"></div></div>`;}
+  return "";
+}
+function gProg(sid){return `<div class="gprog"><span class="mono" data-gp="${sid}"></span><span class="gpb"><i data-gpb="${sid}"></i></span><button class="btn ghost sm" data-act="greveal" data-sec="${sid}">${esc(t("gRevealAll"))}</button></div>`;}
+function gQuestions(n){
+  const qs=B.filter(it=>it.t===n&&it.p);
+  return `<details class="gqs"><summary>${esc(t("gPractice",{n:qs.length}))}</summary><ol class="gql">${qs.map((it,i)=>{const id="q."+it.id,tq=trQ(it),ta=tline(trA(it),it.a),src=it.x==="law"?t("srcLaw"):it.x==="gk"?t("srcGk"):"";
+    return `<li class="gr${gkc(id)}" data-kid="${id}" data-s="${gsv(it.q,tq,it.a,ta)}"><div class="gc"><div class="gqq"><span class="gqn">${i+1}.</span><div><span class="gh${tq?"":" gs"}" lang="hu">${esc(it.q)}</span>${tq?`<span class="gt">${esc(tq)}</span>`:""}</div></div><div class="gqa"><span class="gh${ta?"":" gs"}" lang="hu"><span class="gk">${esc(it.a)}</span></span>${ta?`<span class="gt"><span class="gk">${esc(ta)}</span></span>`:""}</div>${src?`<span class="gsrc">${esc(src)}</span>`:""}</div>${gkb(id)}</li>`;}).join("")}</ol></details>`;
+}
+function gSection(sec){const n=sec.n,sid="g-t"+n;
+  return `<section class="gsec" id="${sid}"><header class="gth"><span class="gtn" aria-hidden="true">${n}</span><div><h2>${gduo(TOP[n].hu,topN(n))}</h2><p class="meta">${esc(t("gTwoQ"))}</p></div>${gProg(sid)}</header>${sec.blocks.map((b,i)=>gBlock(b,n,i)).join("")}${gQuestions(n)}</section>`;}
+function gNumbers(){const sid="g-tn",nd=P.guide.nd;
+  return `<section class="gsec" id="${sid}"><header class="gth"><span class="gtn" aria-hidden="true">#</span><div><h2>${gduo("Számok és évszámok",t("gNumTitle"))}</h2><p class="meta">${esc(t("gNumMeta"))}</p></div>${gProg(sid)}</header>
+  <div class="gdir"><span>${esc(t("gNumHides"))}</span><button class="chip" data-act="gnumdir" data-dir="meaning" aria-pressed="${nd==="meaning"}">${esc(t("gNumMeanings"))}</button><button class="chip" data-act="gnumdir" data-dir="number" aria-pressed="${nd==="number"}">${esc(t("gNumNumbers"))}</button></div>
+  <div class="gblk"><div class="gtw"><table class="gtbl gnum" id="gnum" data-dir="${nd}"><tbody>${GUIDE.nums.map(r=>{const id=gid("n",[r[0],r[1]]);return `<tr class="gr${gkc(id)}" data-kid="${id}" data-s="${gsv(r[0],gtxt([r[1],r[2]]))}"><td><span class="gn mono">${esc(r[0])}</span></td><td><div class="gm">${gbi([r[1],r[2]])}</div></td><td class="gkc">${gkb(id)}</td></tr>`;}).join("")}</tbody></table></div></div></section>`;}
+function gWords(){const sid="g-tw",vs=B.filter(it=>it.t===0);
+  return `<section class="gsec" id="${sid}"><header class="gth"><span class="gtn" aria-hidden="true">?</span><div><h2>${gduo(TOP[0].hu,topN(0))}</h2><p class="meta">${esc(t("gWordsMeta"))}</p></div>${gProg(sid)}</header>
+  <div class="gblk"><div class="gtw"><table class="gtbl"><tbody>${vs.map(it=>{const id="w."+it.id,tr=trVocab(it);return `<tr class="gr${gkc(id)}" data-kid="${id}" data-s="${gsv(it.q,tr)}"><td><span class="gh gs" lang="hu">${esc(it.q)}</span></td><td><span class="gk">${esc(tr)}</span></td><td class="gkc">${gkb(id)}</td></tr>`;}).join("")}</tbody></table></div></div>
+  <div class="gblk gnote hook gr" data-s="${gsv(t("gWriteNote"))}"><span class="gtag">${esc(t("gWriteTag"))}</span><div>${esc(t("gWriteNote"))}</div></div></section>`;}
+function viewLearn(){
+  GIDS={};Object.keys(GG).forEach(k=>{delete GG[k];});
+  const g=P.guide;
+  const segs=[["both","gViewBoth"],["hu","gViewHu"],["tr","gViewTr"]].map(x=>`<button data-act="gview" data-v="${x[0]}" aria-pressed="${g.view===x[0]}">${esc(t(x[1]))}</button>`).join("");
+  const jump=[1,2,3,4,5,6].map(n=>`<button class="chip" data-act="gjump" data-to="g-t${n}"><b class="mono">${n}</b> ${esc(t("deck"+n))}</button>`).join("")+`<button class="chip" data-act="gjump" data-to="g-tn"><b class="mono">#</b> ${esc(t("gJumpNum"))}</button><button class="chip" data-act="gjump" data-to="g-tw"><b class="mono">?</b> ${esc(t("deck0"))}</button>`;
+  return `<div class="gd${S.gtest?" test":""}${g.hk?" hk":""}" id="gd" data-view="${g.view}">
+  <div class="gintro"><h2>${esc(t("gTitle"))}</h2><p class="muted">${esc(t("gIntro"))}</p></div>
+  <div class="gbar" id="gbar"><div class="r1"><div class="gseg" role="group" aria-label="${esc(t("gViewAria"))}">${segs}</div><button class="gtog" data-act="gtest" aria-pressed="${!!S.gtest}">${esc(t("gTest"))}</button></div><div class="chips" role="group" aria-label="${esc(t("gJumpAria"))}">${jump}</div></div>
+  <div class="gtools"><div class="row"><input type="search" id="gq" value="${esc(S.gq)}" placeholder="${esc(t("gSearchPh"))}" aria-label="${esc(t("gSearchAria"))}" autocomplete="off" spellcheck="false"><button class="gtog" data-act="ghk" aria-pressed="${g.hk}">${esc(t("gHideKnown"))}</button></div><p class="small muted" id="gstatus" role="status"></p></div>
+  ${GUIDE.sections.map(gSection).join("")}${gNumbers()}${gWords()}
+  <p class="small muted gend">${esc(t("gFootnote"))}</p></div>`;
+}
+function gAfter(){Object.keys(GG).forEach(gNewRound);gProgress();gSearch();gMeasure();}
+function gProgress(){
+  const root=$("gd");if(!root)return;
+  root.querySelectorAll(".gsec").forEach(sec=>{const rows=Array.from(sec.querySelectorAll(".gr[data-kid]")).filter(r=>!r.closest(".gql"));const k=rows.filter(r=>P.guide.known.has(r.dataset.kid)).length;
+    const p=sec.querySelector("[data-gp]"),pb=sec.querySelector("[data-gpb]");if(p)p.textContent=t("gLearned",{k,n:rows.length});if(pb)pb.style.width=(rows.length?Math.round(100*k/rows.length):0)+"%";});
+  const all=root.querySelectorAll(".gr[data-kid]");let k=0;all.forEach(r=>{if(P.guide.known.has(r.dataset.kid))k++;});
+  GSTAT=t("gTotal",{k,n:all.length});const st=$("gstatus");if(st&&!S.gq.trim())st.textContent=GSTAT;
+}
+function gSearch(){
+  const root=$("gd"),st=$("gstatus"),inp=$("gq");if(!root)return;S.gq=inp?inp.value:"";const q=gnorm(S.gq);
+  root.querySelectorAll(".gno").forEach(e=>e.classList.remove("gno"));
+  if(!q){if(st)st.textContent=GSTAT;return;}
+  let n=0;const vis=el=>Array.from(el.querySelectorAll(".gr")).some(r=>!r.classList.contains("gno"));
+  root.querySelectorAll(".gr").forEach(r=>{if((r.dataset.s||"").indexOf(q)>=0)n++;else r.classList.add("gno");});
+  root.querySelectorAll(".gblk").forEach(b=>{if(!b.classList.contains("gr")&&!vis(b))b.classList.add("gno");});
+  root.querySelectorAll("details.gqs").forEach(d=>{if(vis(d))d.open=true;else d.classList.add("gno");});
+  root.querySelectorAll(".gsec").forEach(s=>{if(!vis(s))s.classList.add("gno");});
+  const raw=S.gq.trim();if(st)st.textContent=n?plural("gMatches",n,{q:raw}):t("gNoMatch",{q:raw});
+}
+function gMasked(m,root){
+  if(m.classList.contains("gyr"))return !!m.closest(".gtl.hide-years");
+  if(!root.classList.contains("test"))return false;
+  if(m.classList.contains("gk"))return true;
+  const tb=m.closest(".gnum");return !!tb&&((m.classList.contains("gm")&&tb.dataset.dir==="meaning")||(m.classList.contains("gn")&&tb.dataset.dir==="number"));
+}
+function gNewRound(k){const g=GG[k];if(!g)return;g.cur=shuffle(g.pairs.slice()).slice(0,g.n);g.L=shuffle(g.cur.map((_,i)=>i));g.R=shuffle(g.cur.map((_,i)=>i));g.sel=null;g.ok=new Set();g.tries=0;g.bad=null;gDrawGame(k);}
+function gDrawGame(k){const g=GG[k],el=$(k);if(!g||!el)return;const yr=/^\d/.test(g.cur[0][0]);
+  const L=g.L.map(i=>`<button class="gmt${yr?" yearbtn":""}${g.ok.has(i)?" ok":""}${g.sel===i?" sel":""}" data-act="gpick" data-g="${k}" data-side="L" data-i="${i}"${g.ok.has(i)?" disabled":""}>${esc(g.cur[i][0])}</button>`).join("");
+  const R=g.R.map(i=>`<button class="gmt${g.ok.has(i)?" ok":""}${g.bad===i?" bad":""}" data-act="gpick" data-g="${k}" data-side="R" data-i="${i}"${g.ok.has(i)?" disabled":""}>${gbi(g.cur[i][1])}</button>`).join("");
+  const done=g.ok.size===g.cur.length;
+  el.innerHTML=`<div class="gmg"><div class="gcol">${L}</div><div class="gcol">${R}</div></div><div class="gfoot"><span class="small muted mono">${done?"✓ ":""}${g.ok.size}/${g.cur.length} · ${esc(plural("gTries",g.tries))}</span><button class="btn sm" data-act="ground" data-g="${k}">${esc(done?t("gNextSet"):t("gNewSet"))}</button></div>`;}
+function gRefocus(k,side,i){const nb=document.querySelector(`#${k} [data-side="${side}"][data-i="${i}"]:not([disabled])`)||document.querySelector(`#${k} [data-side="L"]:not([disabled])`)||document.querySelector(`#${k} [data-act="ground"]`);if(nb&&nb.focus)nb.focus();}
+function gMeasure(){const st=document.documentElement.style,nav=document.querySelector("nav.tabs"),gb=$("gbar");if(nav&&nav.offsetHeight)st.setProperty("--navh",nav.offsetHeight+"px");if(gb&&gb.offsetHeight)st.setProperty("--gbarh",gb.offsetHeight+"px");}
+function gScrollTo(id,smooth){const el=$(id);if(!el||!el.scrollIntoView)return;gMeasure();let rm=false;try{rm=window.matchMedia("(prefers-reduced-motion: reduce)").matches;}catch(e){}el.scrollIntoView({block:"start",behavior:smooth&&!rm?"smooth":"auto"});}
+function tabFade(){const w=document.querySelector("nav.tabs .wrap");if(!w)return;w.classList.toggle("more",w.scrollLeft+w.clientWidth<w.scrollWidth-4);w.classList.toggle("less",w.scrollLeft>4);}
+function tabsIntoView(){const w=document.querySelector("nav.tabs .wrap"),a=document.querySelector('.tab[aria-current="page"]');
+  if(w&&a){const wr=w.getBoundingClientRect(),ar=a.getBoundingClientRect();if(ar.width){if(ar.right>wr.right-8)w.scrollLeft+=ar.right-wr.right+32;else if(ar.left<wr.left+8)w.scrollLeft-=wr.left-ar.left+32;}}tabFade();}
+
 /* ---- render, static text, run bar ---- */
 function applyStatic(){
   document.documentElement.lang=LANG;
@@ -1042,9 +1582,11 @@ function applyStatic(){
 }
 function render(){
   document.querySelectorAll(".tab").forEach(b=>{if(b.dataset.tab===S.tab)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");});
-  const v={ready:viewReady,cards:viewCards,mock:viewMock,facts:viewFacts}[S.tab]||viewReady;
-  $("app").innerHTML=v();
-  updateRunbar();
+  const v={ready:viewReady,learn:viewLearn,cards:viewCards,mock:viewMock,facts:viewFacts}[S.tab]||viewReady;
+  const app=$("app");app.setAttribute("aria-live",S.tab==="learn"?"off":"polite");
+  app.innerHTML=v();
+  if(S.tab==="learn")gAfter();
+  updateRunbar();tabsIntoView();
 }
 function updateRunbar(){
   const bar=$("runbar"),R=S.run,active=!!(R&&!R.done);
@@ -1105,7 +1647,25 @@ const ACT={
   endCards:()=>{S.flash=null;render();},
   flip:()=>{if(S.flash){S.flash.flip=true;render();}},
   cardEn:()=>{if(S.flash){S.flash.en=true;render();}},
-  rate:b=>{const F=S.flash;if(!F)return;const id=F.queue[F.i],g=+b.dataset.g;rateFlash(id,g);F.stats[g]++;if(g===0&&(F.rq[id]||0)<2){F.rq[id]=(F.rq[id]||0)+1;F.queue.splice(Math.min(F.queue.length,F.i+4),0,id);}F.i++;F.flip=false;F.en=false;persist();render();}
+  rate:b=>{const F=S.flash;if(!F)return;const id=F.queue[F.i],g=+b.dataset.g;rateFlash(id,g);F.stats[g]++;if(g===0&&(F.rq[id]||0)<2){F.rq[id]=(F.rq[id]||0)+1;F.queue.splice(Math.min(F.queue.length,F.i+4),0,id);}F.i++;F.flip=false;F.en=false;persist();render();},
+  gotoGuide:b=>{S.tab="learn";render();gScrollTo("g-t"+(+b.dataset.topic||1),false);},
+  gview:b=>{const v=b.dataset.v;if(["both","hu","tr"].indexOf(v)<0)return;P.guide.view=v;persist();const r=$("gd");if(r)r.dataset.view=v;
+    document.querySelectorAll('[data-act="gview"]').forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.v===v)));gMeasure();},
+  gtest:b=>{S.gtest=!S.gtest;const r=$("gd");if(r){r.classList.toggle("test",S.gtest);r.querySelectorAll(".show").forEach(x=>x.classList.remove("show"));r.querySelectorAll('[data-act="greveal"]').forEach(x=>{x.dataset.on="";x.textContent=t("gRevealAll");});}b.setAttribute("aria-pressed",String(S.gtest));},
+  ghk:b=>{P.guide.hk=!P.guide.hk;persist();const r=$("gd");if(r)r.classList.toggle("hk",P.guide.hk);b.setAttribute("aria-pressed",String(P.guide.hk));},
+  gknown:b=>{const id=b.dataset.id;if(!GID_RE.test(id))return;const on=!P.guide.known.has(id);if(on)P.guide.known.add(id);else P.guide.known.delete(id);
+    b.setAttribute("aria-pressed",String(on));const row=b.closest(".gr");if(row)row.classList.toggle("known",on);persist();gProgress();},
+  gjump:b=>gScrollTo(b.dataset.to,true),
+  greveal:b=>{const sec=$(b.dataset.sec);if(!sec)return;const on=b.dataset.on!=="1";sec.querySelectorAll(".gk,.gm,.gn,.gyr").forEach(m=>m.classList.toggle("show",on));b.dataset.on=on?"1":"";b.textContent=on?t("gHideAgain"):t("gRevealAll");},
+  gyears:b=>{const w=b.closest(".gtlw");if(!w)return;const on=b.getAttribute("aria-pressed")!=="true";b.setAttribute("aria-pressed",String(on));w.querySelectorAll(".gtl").forEach(x=>x.classList.toggle("hide-years",on));w.querySelectorAll(".gyr.show").forEach(x=>x.classList.remove("show"));},
+  gnumdir:b=>{const d=b.dataset.dir==="number"?"number":"meaning";P.guide.nd=d;persist();const tb=$("gnum");if(tb){tb.dataset.dir=d;tb.querySelectorAll(".show").forEach(x=>x.classList.remove("show"));}
+    document.querySelectorAll('[data-act="gnumdir"]').forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.dir===d)));},
+  ground:b=>{gNewRound(b.dataset.g);gRefocus(b.dataset.g,"L",-1);},
+  gpick:b=>{const k=b.dataset.g,g=GG[k];if(!g)return;const i=+b.dataset.i,side=b.dataset.side;if(g.ok.has(i))return;
+    if(side==="L"){g.sel=i;g.bad=null;}
+    else{if(g.sel==null)return;g.tries++;if(g.sel===i){g.ok.add(i);g.sel=null;g.bad=null;}else g.bad=i;}
+    gDrawGame(k);gRefocus(k,side,i);
+    if(g.bad!=null){const bad=g.bad;setTimeout(()=>{if(GG[k]!==g||g.bad!==bad)return;const el=$(k),had=!!el&&el.contains(document.activeElement);g.bad=null;gDrawGame(k);if(had)gRefocus(k,"R",bad);},700);}}
 };
 document.addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(!b||b.disabled)return;const f=ACT[b.dataset.act];if(f){e.preventDefault();f(b,e);}});
 function onField(e){
@@ -1122,6 +1682,11 @@ document.addEventListener("submit",e=>{const f=e.target.closest("form[data-form]
   if(f.dataset.form==="padd"){const nm=addProfile(cleanName($("pAddName").value)||t("profileN",{n:PR.list.length+1}),null);if(nm){PS.msg=t("pSwitched",{name:nm});PS.err=false;}renderProfiles();}
   else if(f.dataset.form==="pren"){const v=cleanName($("pRename").value);if(v){activeProfile().name=v;saveProfiles();PS.msg=t("pRenamed");PS.err=false;}renderProfiles();}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&PS.open){PS.open=false;renderProfiles();const b=$("whoBtn");if(b)b.focus();}});
+/* Learn tab: tap a blank to reveal it, search as you type, keep sticky offsets and the tab-bar fade current */
+document.addEventListener("click",e=>{const m=e.target&&e.target.closest?e.target.closest(".gd .gk,.gd .gm,.gd .gn,.gd .gyr"):null;if(!m||e.target.closest("[data-act]"))return;const r=$("gd");if(r&&gMasked(m,r))m.classList.toggle("show");});
+document.addEventListener("input",e=>{if(e.target&&e.target.id==="gq"){clearTimeout(gSearchT);gSearchT=setTimeout(gSearch,150);}});
+window.addEventListener("resize",()=>{gMeasure();tabFade();});
+{const tw=document.querySelector("nav.tabs .wrap");if(tw)tw.addEventListener("scroll",tabFade,{passive:true});}
 setInterval(()=>{const R=S.run;if(!R||R.done||!R.end)return;const left=R.end-Date.now();if(left<=0){submitRun();return;}const el=$("timer");if(el)el.textContent=fmtClock(left);},1000);
 
 /* ---- boot: render in English at once, then switch if another language is preferred ---- */
