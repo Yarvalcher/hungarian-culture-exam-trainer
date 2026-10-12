@@ -190,6 +190,8 @@ footer.wrap{padding-block:0 32px;color:var(--muted);font-size:13px}
 .langbar button:focus-visible{outline:2px solid var(--green);outline-offset:-3px}
 html[lang="hi"] body{line-height:1.65}
 html[lang="hi"] .en,html[lang="hi"] .card .qe{font-style:normal}
+/* Monospace fonts have no Devanagari: keep translated labels in the proportional face so word spacing stays normal */
+html[lang="hi"] .sync,html[lang="hi"] .src,html[lang="hi"] .rv .yours,html[lang="hi"] .small.mono,html[lang="hi"] svg text{font-family:var(--f-body)}
 </style>
 </head>
 <body>
@@ -654,7 +656,7 @@ function D(){return (LANGS[LANG]||LANGS.en).ui;}
 function fill(s,v){return v?String(s).replace(/\{(\w+)\}/g,(m,k)=>v[k]!=null?v[k]:m):String(s);}
 function t(k,v){let s=D()[k];if(s==null||typeof s==="object")s=EN[k];if(s==null)return k;return fill(s,v);}
 const PRULES={};
-function plural(k,n,v){let f=D()[k];if(!f||typeof f!=="object")f=EN[k];let cat="other";try{cat=(PRULES[LANG]||(PRULES[LANG]=new Intl.PluralRules(LANG))).select(n);}catch(e){cat=n===1?"one":"other";}const s=f[cat]!=null?f[cat]:f.other;return fill(s,Object.assign({n:n},v||{}));}
+function plural(k,n,v){let f=D()[k];if(!f||typeof f!=="object")f=EN[k];let cat="other";try{cat=(PRULES[LANG]||(PRULES[LANG]=new Intl.PluralRules(LANG))).select(n);}catch(e){cat=n===1?"one":"other";}if(LANG==="hi"&&n===0)cat="other";const s=f[cat]!=null?f[cat]:f.other;return fill(s,Object.assign({n:n},v||{}));}
 function locale(){return {en:"en-GB",uk:"uk-UA",hi:"hi-IN"}[LANG]||"en-GB";}
 function normU(s){return String(s==null?"":s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^\p{L}\p{N}]+/gu," ").trim();}
 function tline(tr,hu){return tr&&normU(tr)!==normU(hu)?tr:"";}
