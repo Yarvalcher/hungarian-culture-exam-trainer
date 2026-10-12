@@ -192,6 +192,35 @@ html[lang="hi"] body{line-height:1.65}
 html[lang="hi"] .en,html[lang="hi"] .card .qe{font-style:normal}
 /* Monospace fonts have no Devanagari: keep translated labels in the proportional face so word spacing stays normal */
 html[lang="hi"] .sync,html[lang="hi"] .src,html[lang="hi"] .rv .yours,html[lang="hi"] .small.mono,html[lang="hi"] svg text{font-family:var(--f-body)}
+/* Profiles: a pill in the header opens a panel with the people on this device and the progress file */
+.row2{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-top:10px}
+.row2 .sync{margin-top:0}
+.who{appearance:none;display:inline-flex;align-items:center;gap:8px;max-width:100%;min-height:40px;padding:5px 12px 5px 5px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);font:700 14px/1 var(--f-body);cursor:pointer}
+.who[aria-expanded="true"]{border-color:var(--green);box-shadow:inset 0 0 0 1px var(--green)}
+.who .nm{min-width:0;max-width:18ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.av,.pav{flex:none;border-radius:50%;display:grid;place-items:center;font:700 14px/1 var(--f-body)}
+.av{width:28px;height:28px;background:var(--green);color:var(--on-green)}
+.pav{width:26px;height:26px;font-size:13px;background:var(--soft);color:var(--ink)}
+.pp{margin-top:12px}
+.pp h2{font-size:19px}
+.pp h3{margin-top:6px}
+.phead{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.plist{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.pbtn{appearance:none;width:100%;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;text-align:left;padding:8px 12px 8px 8px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);font:400 15px/1.3 var(--f-body);cursor:pointer}
+.pbtn[aria-current="true"]{border-color:var(--green);background:var(--green-tint)}
+.pbtn[aria-current="true"] .pav{background:var(--green);color:var(--on-green)}
+.pbtn .pn{font-weight:700;min-width:0;overflow-wrap:anywhere}
+.pbtn .pc{font-size:13px;color:var(--muted);white-space:nowrap}
+.ptag{font:700 11px/1 var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--green);margin-left:4px}
+.pform{display:grid;gap:6px}
+.pform label{font-weight:700;font-size:14px}
+.inl{display:flex;flex-wrap:wrap;gap:8px}
+.inl input[type="text"]{flex:1 1 180px;min-width:0;width:auto}
+.pmsg{color:var(--green);font-weight:700}
+.pmsg.err{color:var(--red)}
+.pmsg:empty{display:none}
+.pwarn{color:var(--amber)}
+.who:focus-visible,.pbtn:focus-visible{outline:2px solid var(--green);outline-offset:2px}
 </style>
 </head>
 <body>
@@ -206,7 +235,11 @@ html[lang="hi"] .sync,html[lang="hi"] .src,html[lang="hi"] .rv .yours,html[lang=
     </div>
   </div>
   <p class="sub" data-i18n="sub">Trainer for Hungary's cultural knowledge exam (permanent residence): 12 questions, 30 points, pass at 16.</p>
-  <span class="sync" id="sync" data-mode="device">Progress saved in this browser</span>
+  <div class="row2">
+    <button class="who" id="whoBtn" data-act="profiles" aria-expanded="false" aria-controls="profilesPanel"><span class="av" id="whoAv" aria-hidden="true">P</span><span class="nm" id="whoName">Profile 1</span><span aria-hidden="true">▾</span></button>
+    <span class="sync" id="sync" data-mode="device">Progress saved in this browser</span>
+  </div>
+  <div class="panel pp" id="profilesPanel" hidden></div>
 </header>
 <nav class="tabs" aria-label="Sections">
   <div class="wrap">
@@ -547,7 +580,7 @@ function predict(items){
 <script id="ui">
 (function(){
 "use strict";
-const LS="kiv-trainer-v1",LSRUN="kiv-trainer-run-v1",LSLANG="kiv-trainer-lang",DAY=864e5,IV=[0,0,1,3,7,16,35];
+const LS="kiv-trainer-v1",LSRUN="kiv-trainer-run-v1",LSLANG="kiv-trainer-lang",LSPROF="kiv-trainer-profiles-v1",MAXPROF=20,DAY=864e5,IV=[0,0,1,3,7,16,35];
 const LANG_VER="2026-10-12";
 const CODES=["en","uk","hi"];
 const P={items:{},mocks:[]};
@@ -647,7 +680,24 @@ const EN={
  src2:"BFKH information sheet on the exam (PDF, Hungarian)",
  src3:"Official study material, August 2026 version (PDF, Hungarian)",
  src4:"Exam application form (DOCX)",
- src5:"Fundamental Law of Hungary, English translation (2011 text)",src5b:": Articles O, XVI, XXX, XXXI, 24, 30"
+ src5:"Fundamental Law of Hungary, English translation (2011 text)",src5b:": Articles O, XVI, XXX, XXXI, 24, 30",
+ profBtn:"Profile: {name}. Open profiles and progress file",
+ hProfiles:"Profiles on this device",
+ profilesHelp:"Each person keeps their own progress and language. Profiles stay in this browser on this device.",
+ profileN:"Profile {n}",curTag:"current",
+ addLabel:"New profile",addPh:"Name",addBtn:"Add",
+ renameLabel:"Name of this profile",renameBtn:"Save name",
+ delBtn:"Delete this profile",delConfirm:"Tap again to delete “{name}” and its progress",
+ hFile:"Progress file",
+ fileHelp:"Save this profile's progress as a file to keep a backup or to move it to another device. Opening a file adds it here as a new profile, so nothing is overwritten.",
+ saveFileBtn:"Save progress file",openFileBtn:"Open progress file",
+ pSaved:"Saved {file}. Look for it in your Downloads.",
+ pSaveFail:"The file couldn't be saved in this browser.",
+ pImported:"Added profile “{name}” from the file.",
+ pBadFile:"This file can't be read. Choose a .json progress file saved from this trainer.",
+ pTooMany:"You can keep up to 20 profiles. Delete one to add another.",
+ pNoStorage:"This browser isn't keeping data (for example, in a private window), so profiles can't be saved. You can still save a progress file.",
+ pRenamed:"Name saved.",pDeleted:"Profile deleted.",pSwitched:"Switched to “{name}”."
 };
 const LANGS={en:{ui:EN,top:{},items:{}}};
 let LANG="en";
@@ -675,13 +725,120 @@ function fmtDate(x){try{return new Date(x).toLocaleDateString(locale(),{day:"num
 function r1(x){return Math.round(x*10)/10;}
 function srcTag(it){return it.t===0?t("srcVocab"):it.x==="law"?t("srcLaw"):it.x==="gk"?t("srcGk"):t("srcHandout");}
 
+/* ---- profiles: several people on one device, each with their own progress and language.
+   The first profile ("default") keeps the original storage keys, so existing progress needs no migration. ---- */
+const PR={active:"default",list:[{id:"default",name:null,lang:null}]};
+const PS={open:false,del:null,msg:"",err:false};
+let STORE=true;
+function storeOK(){try{const k="kiv-trainer-test";localStorage.setItem(k,"1");localStorage.removeItem(k);return true;}catch(e){return false;}}
+function PKEY(id){return id==="default"?LS:LS+":"+id;}
+function RKEY(id){return id==="default"?LSRUN:LSRUN+":"+id;}
+function activeProfile(){return PR.list.find(p=>p.id===PR.active)||PR.list[0];}
+function pname(p){return p.name||t("profileN",{n:1});}
+function cleanName(s){return String(s==null?"":s).replace(/[\u0000-\u001f\u007f<>]/g,"").replace(/\s+/g," ").trim().slice(0,30);}
+function initial(s){return (Array.from(s)[0]||"?").toUpperCase();}
+function loadProfiles(){try{const d=JSON.parse(localStorage.getItem(LSPROF)||"null");if(d&&Array.isArray(d.list)){
+  const list=d.list.filter(p=>p&&typeof p.id==="string"&&/^[a-z0-9]{1,24}$/i.test(p.id)).map(p=>({id:p.id,name:cleanName(p.name)||null,lang:CODES.indexOf(p.lang)>=0?p.lang:null}));
+  if(list.length){PR.list=list;PR.active=list.some(p=>p.id===d.active)?d.active:list[0].id;}}}catch(e){}}
+function saveProfiles(){try{localStorage.setItem(LSPROF,JSON.stringify(PR));}catch(e){}}
+
 /* ---- persistence (this browser only) ---- */
-function loadLocal(){try{const raw=localStorage.getItem(LS);if(raw){const d=JSON.parse(raw);if(d&&d.items&&typeof d.items==="object")P.items=d.items;if(d&&Array.isArray(d.mocks))P.mocks=d.mocks;}}catch(e){}
-  try{const r=localStorage.getItem(LSRUN);if(r){const run=JSON.parse(r);if(run&&!run.done&&Array.isArray(run.ids))S.run=run;}}catch(e){}}
-function saveLocal(){try{localStorage.setItem(LS,JSON.stringify({items:P.items,mocks:P.mocks.slice(0,80)}));}catch(e){}}
-function saveRun(){try{if(S.run&&!S.run.done)localStorage.setItem(LSRUN,JSON.stringify(S.run));else localStorage.removeItem(LSRUN);}catch(e){}}
+function loadLocal(){P.items={};P.mocks=[];S.run=null;const id=PR.active;
+  try{const raw=localStorage.getItem(PKEY(id));if(raw){const d=JSON.parse(raw);if(d&&d.items&&typeof d.items==="object")P.items=d.items;if(d&&Array.isArray(d.mocks))P.mocks=d.mocks;}}catch(e){}
+  try{const r=localStorage.getItem(RKEY(id));if(r){const run=JSON.parse(r);if(run&&!run.done&&Array.isArray(run.ids))S.run=run;}}catch(e){}}
+function saveLocal(){try{localStorage.setItem(PKEY(PR.active),JSON.stringify({items:P.items,mocks:P.mocks.slice(0,80)}));}catch(e){}}
+function saveRun(){try{if(S.run&&!S.run.done)localStorage.setItem(RKEY(PR.active),JSON.stringify(S.run));else localStorage.removeItem(RKEY(PR.active));}catch(e){}}
 let runSaveT=0;function saveRunSoon(){clearTimeout(runSaveT);runSaveT=setTimeout(saveRun,400);}
 function persist(){saveLocal();}
+
+function gradedCount(items){return Object.keys(items||{}).filter(k=>items[k]&&typeof items[k].qs==="number").length;}
+function profileCount(p){if(p.id===PR.active)return gradedCount(P.items);try{const d=JSON.parse(localStorage.getItem(PKEY(p.id))||"null");return d?gradedCount(d.items):0;}catch(e){return 0;}}
+function uniqueName(n){const used=new Set(PR.list.map(p=>pname(p).toLowerCase()));if(!used.has(n.toLowerCase()))return n;for(let i=2;i<100;i++){const c=n+" ("+i+")";if(!used.has(c.toLowerCase()))return c;}return n;}
+function switchProfile(id){
+  if(!PR.list.some(p=>p.id===id))return;
+  clearTimeout(runSaveT);saveRun();saveLocal();
+  const cur=activeProfile();if(!cur.lang)cur.lang=LANG;
+  PR.active=id;saveProfiles();
+  S.flash=null;S.tab="ready";
+  loadLocal();
+  if(S.run&&!S.run.done&&S.run.end&&S.run.end<=Date.now())submitRun();
+  if(S.run&&!S.run.done)S.tab="mock";
+  const p=activeProfile();
+  if(p.lang&&p.lang!==LANG)setLang(p.lang,false);else{applyStatic();render();}
+}
+function addProfile(name,data){
+  if(PR.list.length>=MAXPROF){PS.msg=t("pTooMany");PS.err=true;return null;}
+  const id="p"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  const nm=uniqueName(name);
+  if(data){try{localStorage.setItem(PKEY(id),JSON.stringify({items:data.items,mocks:data.mocks}));}catch(e){PS.msg=t("pNoStorage");PS.err=true;return null;}}
+  PR.list.push({id,name:nm,lang:(data&&data.lang)||LANG});
+  saveProfiles();switchProfile(id);return nm;
+}
+function deleteProfile(id){
+  if(PR.list.length<2)return;
+  if(id===PR.active)switchProfile(PR.list.find(p=>p.id!==id).id);
+  PR.list=PR.list.filter(p=>p.id!==id);saveProfiles();
+  try{localStorage.removeItem(PKEY(id));localStorage.removeItem(RKEY(id));}catch(e){}
+}
+
+/* ---- progress file: save one profile as JSON, open a file as a new profile ---- */
+function fileName(nm){const d=new Date();const ds=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  const slug=nm.normalize("NFKC").replace(/[^\p{L}\p{N}]+/gu,"-").replace(/^-+|-+$/g,"").slice(0,30)||"profile";return "kiv-progress-"+slug+"-"+ds+".json";}
+function exportFile(){
+  const p=activeProfile(),nm=pname(p);
+  const data={app:"kiv-trainer",format:1,exportedAt:new Date().toISOString(),profile:{name:nm,lang:p.lang||LANG},items:P.items,
+    mocks:P.mocks.slice(0,80).map(m=>({id:m.id,at:m.at,kind:m.kind,topic:m.topic,score:m.score,max:m.max,hints:m.hints,dur:m.dur}))};
+  try{const url=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:"application/json"}));const a=document.createElement("a");a.href=url;a.download=fileName(nm);
+    document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},1500);PS.msg=t("pSaved",{file:a.download});PS.err=false;}
+  catch(e){PS.msg=t("pSaveFail");PS.err=true;}
+  renderProfiles();
+}
+function num(v,lo,hi){v=Number(v);return Number.isFinite(v)?Math.max(lo,Math.min(hi,v)):lo;}
+function cleanFile(d){
+  if(!d||typeof d!=="object"||d.app!=="kiv-trainer"||d.format!==1)return null;
+  const items={},src=d.items&&typeof d.items==="object"?d.items:{};
+  Object.keys(src).forEach(id=>{const s=src[id];if(!BYID[id]||!s||typeof s!=="object")return;const o={};
+    ["d","fn","u","qa","qt"].forEach(k=>{if(s[k]!=null&&Number.isFinite(Number(s[k])))o[k]=Number(s[k]);});
+    if(s.b!=null)o.b=Math.round(num(s.b,0,6));if(s.qs!=null)o.qs=num(s.qs,0,1);if(s.qh===true)o.qh=true;items[id]=o;});
+  const mocks=(Array.isArray(d.mocks)?d.mocks:[]).slice(0,80).filter(m=>m&&typeof m==="object").map((m,i)=>({
+    id:String(m.id==null?"":m.id).replace(/[^a-z0-9]/gi,"").slice(0,24)||"i"+i,at:num(m.at,0,8.64e15),kind:m.kind==="drill"?"drill":"mock",
+    topic:Math.round(num(m.topic,0,6)),score:num(m.score,0,30),max:num(m.max,0,30),hints:Math.round(num(m.hints,0,12)),dur:Math.round(num(m.dur,0,1e7)),rows:[]}));
+  mocks.sort((a,b)=>b.at-a.at);
+  const p=d.profile&&typeof d.profile==="object"?d.profile:{};
+  return {items,mocks,name:cleanName(p.name),lang:CODES.indexOf(p.lang)>=0?p.lang:null};
+}
+function importFile(file){
+  if(!file)return;
+  const fail=()=>{PS.msg=t("pBadFile");PS.err=true;renderProfiles();};
+  if(file.size>2e6)return fail();
+  const r=new FileReader();
+  r.onload=()=>{let d=null;try{d=cleanFile(JSON.parse(String(r.result)));}catch(e){}if(!d)return fail();
+    const nm=addProfile(d.name||t("profileN",{n:PR.list.length+1}),d);if(nm){PS.msg=t("pImported",{name:nm});PS.err=false;}renderProfiles();};
+  r.onerror=fail;r.readAsText(file);
+}
+function renderProfiles(){
+  const p=activeProfile(),nm=pname(p);
+  const av=$("whoAv"),nmEl=$("whoName"),btn=$("whoBtn"),panel=$("profilesPanel");
+  if(av)av.textContent=initial(nm);
+  if(nmEl)nmEl.textContent=nm;
+  if(btn){btn.setAttribute("aria-expanded",String(PS.open));btn.setAttribute("aria-label",t("profBtn",{name:nm}));}
+  if(!panel)return;
+  panel.hidden=!PS.open;
+  if(!PS.open){panel.innerHTML="";return;}
+  const list=PR.list.map(q=>{const cur=q.id===PR.active,qn=pname(q);
+    return `<li><button class="pbtn" data-act="pswitch" data-id="${esc(q.id)}"${cur?' aria-current="true"':""}><span class="pav" aria-hidden="true">${esc(initial(qn))}</span><span class="pn">${esc(qn)}${cur?` <span class="ptag">${esc(t("curTag"))}</span>`:""}</span><span class="pc">${esc(plural("graded",profileCount(q)))}</span></button></li>`;}).join("");
+  const del=PR.list.length>1?`<div class="row"><button class="btn warn sm" data-act="pdel">${esc(PS.del===PR.active?t("delConfirm",{name:nm}):t("delBtn"))}</button></div>`:"";
+  panel.innerHTML=`<div class="phead"><h2>${esc(t("hProfiles"))}</h2><button class="btn ghost sm" data-act="profiles">${esc(t("close"))}</button></div>
+  <p class="muted small">${esc(t("profilesHelp"))}</p>
+  ${STORE?"":`<p class="small pwarn">${esc(t("pNoStorage"))}</p>`}
+  <ul class="plist">${list}</ul>
+  ${STORE?`<form class="pform" data-form="padd"><label for="pAddName">${esc(t("addLabel"))}</label><div class="inl"><input type="text" id="pAddName" maxlength="30" placeholder="${esc(t("addPh"))}" autocomplete="off"><button class="btn" type="submit">${esc(t("addBtn"))}</button></div></form>
+  <form class="pform" data-form="pren"><label for="pRename">${esc(t("renameLabel"))}</label><div class="inl"><input type="text" id="pRename" maxlength="30" value="${esc(nm)}" autocomplete="off"><button class="btn" type="submit">${esc(t("renameBtn"))}</button></div></form>${del}`:""}
+  <h3>${esc(t("hFile"))}</h3>
+  <p class="muted small">${esc(t("fileHelp"))}</p>
+  <div class="row"><button class="btn primary" data-act="pexport">${esc(t("saveFileBtn"))}</button>${STORE?`<button class="btn" data-act="pimport">${esc(t("openFileBtn"))}</button>`:""}<input type="file" id="importFile" accept=".json,application/json" hidden></div>
+  <p class="small pmsg${PS.err?" err":""}" role="status">${esc(PS.msg)}</p>`;
+}
 
 /* ---- flashcards ---- */
 function inFilter(it,f){return f==="all"?true:it.t===f;}
@@ -881,6 +1038,7 @@ function applyStatic(){
   document.querySelectorAll("[data-i18n]").forEach(el=>{el.textContent=t(el.dataset.i18n);});
   const sync=$("sync");if(sync)sync.textContent=t("syncDevice");
   const bar=$("langbar");if(bar){bar.setAttribute("aria-label",t("langAria"));bar.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.lang===LANG)));}
+  renderProfiles();
 }
 function render(){
   document.querySelectorAll(".tab").forEach(b=>{if(b.dataset.tab===S.tab)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");});
@@ -909,11 +1067,12 @@ function setLang(code,remember){
   return loadLang(code).then(ok=>{
     if(!ok)code="en";
     LANG=code;
-    if(remember){try{localStorage.setItem(LSLANG,code);}catch(e){}}
+    if(remember){try{localStorage.setItem(LSLANG,code);}catch(e){}activeProfile().lang=code;saveProfiles();}
     applyStatic();render();
   });
 }
 function initialLang(){
+  const p=activeProfile();if(p.lang)return p.lang;
   let c=null;try{c=localStorage.getItem(LSLANG);}catch(e){}
   if(c&&CODES.indexOf(c)>=0)return c;
   const nav=String((navigator.languages&&navigator.languages[0])||navigator.language||"en").toLowerCase();
@@ -925,6 +1084,13 @@ function initialLang(){
 /* ---- actions ---- */
 const ACT={
   lang:b=>{setLang(b.dataset.lang,true);},
+  profiles:()=>{PS.open=!PS.open;PS.msg="";PS.err=false;PS.del=null;renderProfiles();},
+  pswitch:b=>{const id=b.dataset.id;if(id===PR.active)return;switchProfile(id);PS.msg=t("pSwitched",{name:pname(activeProfile())});PS.err=false;renderProfiles();},
+  pdel:()=>{const id=PR.active;if(PR.list.length<2)return;
+    if(PS.del!==id){PS.del=id;renderProfiles();setTimeout(()=>{if(PS.del===id){PS.del=null;renderProfiles();}},4000);return;}
+    PS.del=null;deleteProfile(id);PS.msg=t("pDeleted");PS.err=false;renderProfiles();},
+  pexport:()=>exportFile(),
+  pimport:()=>{const f=$("importFile");if(f){f.value="";f.click();}},
   tab:b=>{S.tab=b.dataset.tab;render();window.scrollTo(0,0);},
   startMock:()=>{if(S.run&&!S.run.done){S.tab="mock";render();return;}startRun("mock",0);},
   startDrill:b=>{if(S.run&&!S.run.done){S.tab="mock";render();return;}const n=+b.dataset.topic||S.drillTopic;S.drillTopic=n;startRun("drill",n);},
@@ -951,9 +1117,16 @@ function onField(e){
 }
 document.addEventListener("input",onField);
 document.addEventListener("change",onField);
+document.addEventListener("change",e=>{if(e.target&&e.target.id==="importFile")importFile(e.target.files&&e.target.files[0]);});
+document.addEventListener("submit",e=>{const f=e.target.closest("form[data-form]");if(!f)return;e.preventDefault();
+  if(f.dataset.form==="padd"){const nm=addProfile(cleanName($("pAddName").value)||t("profileN",{n:PR.list.length+1}),null);if(nm){PS.msg=t("pSwitched",{name:nm});PS.err=false;}renderProfiles();}
+  else if(f.dataset.form==="pren"){const v=cleanName($("pRename").value);if(v){activeProfile().name=v;saveProfiles();PS.msg=t("pRenamed");PS.err=false;}renderProfiles();}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&PS.open){PS.open=false;renderProfiles();const b=$("whoBtn");if(b)b.focus();}});
 setInterval(()=>{const R=S.run;if(!R||R.done||!R.end)return;const left=R.end-Date.now();if(left<=0){submitRun();return;}const el=$("timer");if(el)el.textContent=fmtClock(left);},1000);
 
 /* ---- boot: render in English at once, then switch if another language is preferred ---- */
+STORE=storeOK();
+loadProfiles();
 loadLocal();
 if(S.run&&!S.run.done&&S.run.end&&S.run.end<=Date.now())submitRun();
 if(S.run&&!S.run.done)S.tab="mock";
