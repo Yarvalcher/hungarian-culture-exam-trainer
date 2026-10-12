@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="Unofficial trainer for Hungary's cultural knowledge exam (magyar kulturális ismereti vizsga): flashcards, timed mock exams and a readiness estimate.">
+<meta name="description" content="Unofficial trainer for Hungary's cultural knowledge exam (magyar kulturális ismereti vizsga): flashcards, timed mock exams and a readiness estimate. Translations in English, Ukrainian and Hindi.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 3 3'%3E%3Crect width='3' height='1' fill='%23cd2a3e'/%3E%3Crect y='1' width='3' height='1' fill='%23ffffff'/%3E%3Crect y='2' width='3' height='1' fill='%23436f4d'/%3E%3C/svg%3E">
 <style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.4 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
 <link rel="stylesheet" href="fonts/fonts.css">
@@ -17,9 +17,9 @@
   --green:#2b6a42; --on-green:#ffffff; --green-tint:#dfede3;
   --red:#ad3539; --red-tint:#f6e1df; --amber:#94600c; --amber-tint:#f4e8d2;
   --flag-red:#cd2a3e; --flag-white:#ffffff; --flag-green:#436f4d;
-  --f-display:"Bricolage Grotesque","Atkinson Hyperlegible Next",system-ui,sans-serif;
-  --f-body:"Atkinson Hyperlegible Next","Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  --f-mono:"Atkinson Hyperlegible Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --f-display:"Bricolage Grotesque","Noto Sans","Noto Sans Devanagari","Atkinson Hyperlegible Next",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible Next","Noto Sans","Noto Sans Devanagari","Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"Atkinson Hyperlegible Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,"Noto Sans","Noto Sans Devanagari",monospace;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
@@ -181,25 +181,41 @@ footer.wrap{padding-block:0 32px;color:var(--muted);font-size:13px}
   .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (prefers-reduced-motion: reduce){*{scroll-behavior:auto!important;transition:none!important}}
+/* Language switch (English · Ukrainian · Hindi). Hungarian exam text never changes. */
+.top .row1{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+.langbar{display:inline-flex;flex:none;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--surface)}
+.langbar button{appearance:none;border:0;background:none;color:var(--muted);font:700 14px/1 var(--f-body);padding:10px 11px;min-height:40px;cursor:pointer}
+.langbar button+button{border-left:1px solid var(--line)}
+.langbar button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.langbar button:focus-visible{outline:2px solid var(--green);outline-offset:-3px}
+html[lang="hi"] body{line-height:1.65}
+html[lang="hi"] .en,html[lang="hi"] .card .qe{font-style:normal}
 </style>
 </head>
 <body>
 <div class="flag" aria-hidden="true"><i></i><i></i><i></i></div>
 <header class="top wrap">
-  <h1>Kulturális vizsga</h1>
-  <p class="sub">Trainer for Hungary's cultural knowledge exam (permanent residence): 12 questions, 30 points, pass at 16.</p>
+  <div class="row1">
+    <h1 lang="hu">Kulturális vizsga</h1>
+    <div class="langbar" role="group" id="langbar" aria-label="Translation language">
+      <button data-act="lang" data-lang="en" lang="en" aria-pressed="true">English</button>
+      <button data-act="lang" data-lang="uk" lang="uk" aria-pressed="false">Українська</button>
+      <button data-act="lang" data-lang="hi" lang="hi" aria-pressed="false">हिन्दी</button>
+    </div>
+  </div>
+  <p class="sub" data-i18n="sub">Trainer for Hungary's cultural knowledge exam (permanent residence): 12 questions, 30 points, pass at 16.</p>
   <span class="sync" id="sync" data-mode="device">Progress saved in this browser</span>
 </header>
 <nav class="tabs" aria-label="Sections">
   <div class="wrap">
-    <button class="tab" data-act="tab" data-tab="ready" id="tab-ready">Readiness</button>
-    <button class="tab" data-act="tab" data-tab="cards" id="tab-cards">Cards</button>
-    <button class="tab" data-act="tab" data-tab="mock" id="tab-mock">Mock exam</button>
-    <button class="tab" data-act="tab" data-tab="facts" id="tab-facts">Exam facts</button>
+    <button class="tab" data-act="tab" data-tab="ready" id="tab-ready" data-i18n="tabReady">Readiness</button>
+    <button class="tab" data-act="tab" data-tab="cards" id="tab-cards" data-i18n="tabCards">Cards</button>
+    <button class="tab" data-act="tab" data-tab="mock" id="tab-mock" data-i18n="tabMock">Mock exam</button>
+    <button class="tab" data-act="tab" data-tab="facts" id="tab-facts" data-i18n="tabFacts">Exam facts</button>
   </div>
 </nav>
 <main class="wrap" id="app" aria-live="polite"></main>
-<footer class="wrap">Content follows the official BFKH study material (August 2026 version). Question wording is the trainer's own; the real exam words its questions differently. Unofficial study aid, not affiliated with BFKH or OIF. Your progress is stored only in this browser; nothing is sent to a server.</footer>
+<footer class="wrap" data-i18n="footer">Content follows the official BFKH study material (August 2026 version). Question wording is the trainer's own; the real exam words its questions differently. Unofficial study aid, not affiliated with BFKH or OIF. Your progress is stored only in this browser; nothing is sent to a server.</footer>
 <div class="runbar" id="runbar" hidden>
   <div class="wrap">
     <div><div class="timer" id="timer">60:00</div><div class="meta" id="runmeta"></div></div>
@@ -529,52 +545,141 @@ function predict(items){
 <script id="ui">
 (function(){
 "use strict";
-const LS="kiv-trainer-v1",LSRUN="kiv-trainer-run-v1",DAY=864e5,IV=[0,0,1,3,7,16,35];
+const LS="kiv-trainer-v1",LSRUN="kiv-trainer-run-v1",LSLANG="kiv-trainer-lang",DAY=864e5,IV=[0,0,1,3,7,16,35];
+const LANG_VER="2026-10-12";
+const CODES=["en","uk","hi"];
 const P={items:{},mocks:[]};
 const S={tab:"ready",run:null,flash:null,cardFilter:"all",drillTopic:1};
-const SYNC={db:null,uid:null,busy:false,again:false,timer:0,retried:false};
 const $=id=>document.getElementById(id);
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+
+/* ===== Interface text. English is built in; Ukrainian and Hindi load from lang/*.js on demand. =====
+   Keys whose value contains <b>/<i> markup are trusted constants and are inserted as HTML. */
+const EN={
+ title:"Hungarian Culture Exam Trainer",
+ sub:"Trainer for Hungary's cultural knowledge exam (permanent residence): 12 questions, 30 points, pass at 16.",
+ syncDevice:"Progress saved in this browser",
+ tabReady:"Readiness",tabCards:"Cards",tabMock:"Mock exam",tabFacts:"Exam facts",
+ footer:"Content follows the official BFKH study material (August 2026 version). Question wording is the trainer's own; the real exam words its questions differently. Unofficial study aid, not affiliated with BFKH or OIF. Your progress is stored only in this browser; nothing is sent to a server.",
+ langAria:"Translation language",
+ verdictEyebrow:"Readiness verdict",
+ vNone:"Not assessed",vNotyet:"Not yet",vAlmost:"Almost",vReady:"Ready",
+ reasonNone:"The verdict uses only auto-graded answers from mock exams and topic drills. One mock exam (12 questions) gives a first estimate.",
+ ctaBaseline:"Take a baseline mock exam",ctaStudyFirst:"Study flashcards first",
+ reasonNotyet:"Estimated chance of scoring 16 or more: {pct}. The bar is 95%. Weakest area: {topic}.",
+ ctaDrill:"Drill {topic}",ctaFlash:"Flashcards",
+ reasonAlmostG1:"Your knowledge estimate clears the bar ({pct}). To finish: two full mock exams in a row at 20/30 or more, with at most 2 English hints each.",
+ reasonAlmost:"Estimated chance of scoring 16 or more: {pct}, close to the 95% bar. Weakest area: {topic}.",
+ ctaStartMock:"Start a mock exam",ctaMock:"Mock exam",
+ reasonReady:"Estimated chance of scoring 16 or more: {pct}, and your last two mock exams were 20/30 or better in Hungarian-only conditions. You can apply for an exam date; BFKH notifies you at least 15 working days before it. Keep one mock a week until then.",
+ ctaHowApply:"How to apply",ctaAnotherMock:"Another mock exam",
+ gate1:"<b>Knowledge:</b> chance of 16+ is at least 95%",
+ gateNow:"Now: {v} · {n}",
+ gateNeed:"needs 12+ graded answers",
+ gate2:"<b>Exam conditions:</b> last two full mocks at 20/30 or more, each with at most 2 English hints",
+ gateLast:"Last two: {v}",noneYet:"none yet",lastFmt:"{s}/30 ({h} EN)",
+ graded:{one:"{n} graded answer",other:"{n} graded answers"},
+ topicAnswered:"{hu} · {n} of {pool} questions answered",
+ drillThis:"Drill this topic",
+ kChance:"Chance of 16+",kExpected:"Expected score",kGraded:"Graded answers",
+ chartCaption:"Predicted distribution of your score on a 12-question exam. Green bars are passing scores.",
+ hChance:"Chance of passing",hBoth:"Both conditions are needed for “Ready”",hByTopic:"By topic",hResults:"Results",
+ howTitle:"How the verdict is calculated",
+ how1:"Each topic's skill is modelled as Beta(1 + points earned, 1 + points missed), counting only your latest auto-graded attempt at each question. Flashcard self-ratings are left out, because people tend to overrate their own recall when they grade themselves (Dunlosky & Rawson, 2012).",
+ how2:"The exam is simulated as six topics, each with one 2-point and one 3-point question, every question scored all-or-nothing. That is a cautious assumption: the real exam can give partial points, which makes scores less spread out. The chart is the exact predicted distribution of your total; “chance of 16+” is its share at 16 points or above.",
+ how3:"Limitation: this question bank approximates the six official topics. The real exam uses its own wording, so treat the estimate as a lower bar, not a guarantee.",
+ chartAria:"Predicted exam score distribution from 0 to 30 points, pass mark 16",chartTitle:"Predicted score distribution",
+ chartPass:"16 = megfelelt (pass)",chartAxis:"points (0–30)",
+ rulerAria:"Score {s} of 30; pass mark 16",rulerTitle:"Score on the 30-point scale",
+ noResults:"No results yet.",histMock:"Mock exam",histDrill:"Drill · {topic}",
+ hints:{one:"{n} English hint",other:"{n} English hints"},
+ hCards:"Flashcards",deckAria:"Deck",deckAll:"All",deck1:"Symbols",deck2:"History",deck3:"Literature & music",deck4:"Institutions",deck5:"Rights",deck6:"Everyday",deck0:"Exam Hungarian",
+ deckStatus:"{due} due · {fresh} new · {n} cards in this deck",
+ sessionHelp:"A session is up to 20 cards: due reviews first, then new cards mixed across topics. Read the Hungarian, answer in your head, then check. Rate honestly: “Again” brings the card back in a few minutes.",
+ startSession:"Start session",
+ nothingDue:"Nothing due in this deck. Next reviews arrive on their scheduled days; try a mock exam meanwhile.",
+ sessionDone:"Session done",sessionStats:"Again {a} · Hard {h} · Good {g}",nextSession:"Next session",close:"Close",
+ cardOf:"Card {i} of {n}",endSession:"End session",showTr:"Show English",showAnswer:"Show answer",
+ again:"Again",hard:"Hard",good:"Good",ivNow:"now",days:{one:"{n} day",other:"{n} days"},
+ srcVocab:"Exam Hungarian",srcLaw:"Fundamental Law",srcGk:"Beyond the handout",srcHandout:"Official handout (Aug 2026)",
+ optsAria:"Options for question {n}",sepCommas:"Separate items with commas.",ansAria:"Answer to question {n}",
+ hintBtn:"EN · show English",hintShown:"English shown (hint counted)",
+ mockTitle:"Mock exam",
+ mockRunHelp:"12 questions · 30 points · pass at 16 · 60 minutes. Hungarian only, as on the day. Each “EN” tap is counted as a hint.",
+ drillTitle:"Drill · {topic}",drillRunHelp:{one:"{n} question from one topic, untimed.",other:"{n} questions from one topic, untimed."},
+ handIn:"Hand in",handInBlank:{one:"Hand in with {n} blank?",other:"Hand in with {n} blanks?"},
+ discard:"Discard",discardConfirm:"Tap again to discard",
+ passOfficial:"Pass on the official scale (16 needed).",failOfficial:"Fail on the official scale (16 needed).",
+ usedTime:"{t} used.",newMock:"New mock exam",seeReadiness:"See readiness",hReview:"Review",
+ hintTag:"EN hint",yourAnswer:"Your answer:",countIt:"My answer was right: count it",
+ hFullMock:"Full mock exam",
+ fullMockP1:"12 questions, two from each of the six official topics: one worth 2 points and one worth 3. Total 30 points; 16 passes. 60-minute timer.",
+ fullMockP2:"Questions appear in Hungarian only, as on the day. You can tap “EN” for the English, but each tap is counted as a hint and the readiness verdict needs your last two mocks with at most 2 hints. Typed answers are checked without accents, so “Kolcsey” counts for “Kölcsey”.",
+ startMockBtn:"Start mock exam",hDrill:"Topic drill",
+ drillP:"Six questions from one topic, untimed. Drill results also feed the readiness estimate.",
+ topicAria:"Topic",startDrillBtn:"Start drill: {topic}",
+ untimed:"Untimed",runAnswered:"{n}/{total} answered",runHints:{one:"{n} EN hint",other:"{n} EN hints"},backToExam:"Back to exam",
+ hBrief:"The exam in brief",
+ briefP:"The <b>magyar kulturális ismereti vizsga</b> (Hungarian cultural knowledge exam) is how you prove the “social coexistence” condition when applying for a <b>national residence card</b> or an <b>EU residence card</b>. It applies to applications submitted on or after 1 January 2025.",
+ dtFormat:"Format",ddFormat:"Written, in Hungarian, in Budapest. 12 questions, 2 from each of 6 topics, 60 minutes.",
+ dtScoring:"Scoring",ddScoring:"30 points. 16 points (50% + 1) is <i>megfelelt</i> (pass); 0–15 is <i>nem megfelelt</i> (fail).",
+ dtFee:"Fee",ddFee:"HUF 20,000 per attempt, by bank transfer only, to BFKH's Hungarian State Treasury account {acct}. Reference: {ref}.",
+ refText:"your name, magyar kulturális ismereti vizsga",
+ dtApply:"Applying",ddApply:"Application form, a copy of your passport and proof of payment, by email to {email} or by post to Budapest Főváros Kormányhivatala, 1364 Budapest, Pf. 234. Only complete, paid applications receive dates.",
+ dtDate:"Exam date",ddDate:"Assigned in order of application; written notice at least 15 working days before.",
+ dtPlace:"Place",ddPlace:"1138 Budapest, Váci út 174. No parking on site.",
+ dtDay:"On the day",ddDay:"08:30–09:00 document check · 09:00–10:00 written exam · 12:00 results and the exam record (vizsgajegyzőkönyv). Bring your valid passport.",
+ dtFail:"Failing",ddFail:"After three failed results, a new application is refused. Not attending without official proof by the 2nd working day counts as a fail and the fee is lost.",
+ dtExempt:"Exemptions",ddExempt:"Already passed in another aliens-policing procedure; under 14; under guardianship by final court judgment; national residence card issued in the national interest. No exemption for age, origin, family ties or qualifications.",
+ dtProof:"Proof",ddProof:"The exam record you receive on the day is the proof you submit with the residence card application.",
+ hTopics:"The six official topics",
+ hChanged:"What changed in 2026",
+ changedP:"The January 2025 study material named Orbán Viktor as Prime Minister and Sulyok Tamás as President. The August 2026 version names <b>Magyar Péter</b> and <b>Baka András</b> (President since 19 August 2026) and lists 16 new ministries. This trainer follows the August 2026 version. Check officeholders again before your exam date.",
+ hStudy:"How to study with this trainer",
+ study1:"<b>Test yourself instead of rereading.</b> Retrieval practice produces better long-term retention than restudying (Roediger &amp; Karpicke, 2006).",
+ study2:"<b>Spread sessions over days.</b> Distributed practice beats cramming (Cepeda et al., 2006). The flashcard scheduler spaces reviews at 1, 3, 7, 16 and 35 days.",
+ study3:"Both techniques are rated “high utility” in the review by Dunlosky et al. (2013).",
+ study4:"<b>Read the Hungarian first.</b> The exam has no English. Use the “Exam Hungarian” deck for question words such as <i>Soroljon fel</i> (list) and <i>Nevezze meg</i> (name).",
+ hSources:"Sources",
+ src1:"OIF factsheet: Hungarian cultural knowledge exam",src1b:"(last edited 24 Sep 2026)",
+ src2:"BFKH information sheet on the exam (PDF, Hungarian)",
+ src3:"Official study material, August 2026 version (PDF, Hungarian)",
+ src4:"Exam application form (DOCX)",
+ src5:"Fundamental Law of Hungary, English translation (2011 text)",src5b:": Articles O, XVI, XXX, XXXI, 24, 30"
+};
+const LANGS={en:{ui:EN,top:{},items:{}}};
+let LANG="en";
+window.KIV_REGISTER_LANG=function(code,data){if(CODES.indexOf(code)>0&&data&&data.ui)LANGS[code]=data;};
+function D(){return (LANGS[LANG]||LANGS.en).ui;}
+function fill(s,v){return v?String(s).replace(/\{(\w+)\}/g,(m,k)=>v[k]!=null?v[k]:m):String(s);}
+function t(k,v){let s=D()[k];if(s==null||typeof s==="object")s=EN[k];if(s==null)return k;return fill(s,v);}
+const PRULES={};
+function plural(k,n,v){let f=D()[k];if(!f||typeof f!=="object")f=EN[k];let cat="other";try{cat=(PRULES[LANG]||(PRULES[LANG]=new Intl.PluralRules(LANG))).select(n);}catch(e){cat=n===1?"one":"other";}const s=f[cat]!=null?f[cat]:f.other;return fill(s,Object.assign({n:n},v||{}));}
+function locale(){return {en:"en-GB",uk:"uk-UA",hi:"hi-IN"}[LANG]||"en-GB";}
+function normU(s){return String(s==null?"":s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^\p{L}\p{N}]+/gu," ").trim();}
+function tline(tr,hu){return tr&&normU(tr)!==normU(hu)?tr:"";}
+function TI(it){const L=LANGS[LANG];return (L&&L.items&&L.items[it.id])||null;}
+function trQ(it){if(LANG==="en")return it.qe;const x=TI(it);return (x&&x.q)||"";}
+function trA(it){if(LANG==="en")return it.ae;const x=TI(it);if(x&&x.a)return x.a;if(it.ty==="m"&&x&&x.o)return cap(x.o[0]);return "";}
+function trVocab(it){if(LANG==="en")return it.a;const x=TI(it);return (x&&x.a)||it.a;}
+function trO(it,i){if(LANG==="en")return it.oe[i];const x=TI(it);return x&&x.o?(x.o[i]||""):"";}
+function trN(it){if(!it.n)return "";if(LANG==="en")return it.n;const x=TI(it);return (x&&x.n)||it.n;}
+function trLE(it,pi){if(LANG==="en")return it.parts[pi].le||"";const x=TI(it);return x&&x.le?(x.le[pi]||""):"";}
+function topN(n){const L=LANGS[LANG];return (L&&L.top&&L.top[n])||TOP[n].en;}
+
 function fmtPct(p){if(p>=0.995)return ">99%";if(p<0.005)return "<1%";return Math.round(p*100)+"%";}
 function fmtClock(ms){const s=Math.max(0,Math.ceil(ms/1000));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");}
-function fmtDate(t){try{return new Date(t).toLocaleDateString("en-GB",{day:"numeric",month:"short"});}catch(e){return "";}}
+function fmtDate(x){try{return new Date(x).toLocaleDateString(locale(),{day:"numeric",month:"short"});}catch(e){return "";}}
 function r1(x){return Math.round(x*10)/10;}
-function srcTag(it){return it.t===0?"Exam Hungarian":it.x==="law"?"Fundamental Law":it.x==="gk"?"Beyond the handout":"Official handout (Aug 2026)";}
+function srcTag(it){return it.t===0?t("srcVocab"):it.x==="law"?t("srcLaw"):it.x==="gk"?t("srcGk"):t("srcHandout");}
 
-/* ---- persistence ---- */
+/* ---- persistence (this browser only) ---- */
 function loadLocal(){try{const raw=localStorage.getItem(LS);if(raw){const d=JSON.parse(raw);if(d&&d.items&&typeof d.items==="object")P.items=d.items;if(d&&Array.isArray(d.mocks))P.mocks=d.mocks;}}catch(e){}
   try{const r=localStorage.getItem(LSRUN);if(r){const run=JSON.parse(r);if(run&&!run.done&&Array.isArray(run.ids))S.run=run;}}catch(e){}}
 function saveLocal(){try{localStorage.setItem(LS,JSON.stringify({items:P.items,mocks:P.mocks.slice(0,80)}));}catch(e){}}
 function saveRun(){try{if(S.run&&!S.run.done)localStorage.setItem(LSRUN,JSON.stringify(S.run));else localStorage.removeItem(LSRUN);}catch(e){}}
 let runSaveT=0;function saveRunSoon(){clearTimeout(runSaveT);runSaveT=setTimeout(saveRun,400);}
-function setSync(mode){const el=$("sync");if(!el)return;el.dataset.mode=mode;el.textContent=mode==="account"?"Progress synced to your Claude account":"Progress saved in this browser";}
-function persist(){saveLocal();queueSave();}
-function queueSave(){if(!SYNC.db)return;clearTimeout(SYNC.timer);SYNC.timer=setTimeout(flush,1500);}
-async function flush(){
-  if(!SYNC.db)return;if(SYNC.busy){SYNC.again=true;return;}SYNC.busy=true;
-  try{await SYNC.db.doc("progress/"+SYNC.uid).set({v:1,items:P.items,updatedAt:Date.now()});SYNC.retried=false;}
-  catch(e){if(e&&e.code==="unavailable"&&!SYNC.retried){SYNC.retried=true;setTimeout(queueSave,2000+Math.random()*2000);}else{SYNC.db=null;setSync("device");}}
-  finally{SYNC.busy=false;if(SYNC.again){SYNC.again=false;queueSave();}}
-}
-async function pushMock(m){if(!SYNC.db)return;try{const body=JSON.parse(JSON.stringify(m));delete body.synced;body.uid=SYNC.uid;await SYNC.db.collection("mocks").doc(m.id).set(body);m.synced=true;saveLocal();}catch(e){}}
-async function connect(){
-  try{
-    const C=window.claude;if(!C||typeof C.use!=="function")return;
-    const res=await Promise.all([C.use("db"),C.use("user")]);const db=res[0],user=res[1];
-    if(!db||!user)return;
-    const uid=await user.id();if(!uid)return;
-    let cw=null;try{cw=await user.can("data.write");}catch(e){}
-    if(cw===false)return;
-    const snap=await db.doc("progress/"+uid).get();
-    if(snap.exists){const items=(snap.data()||{}).items||{};for(const id in items){const r=items[id],l=P.items[id];if(r&&(!l||(r.u||0)>(l.u||0)))P.items[id]=r;}}
-    const qs=await db.collection("mocks").where("uid","==",uid).orderBy("at","desc").limit(80).get();
-    const have=new Map(P.mocks.map(m=>[m.id,m]));
-    qs.docs.forEach(d=>{const m=Object.assign({},d.data(),{id:d.id,synced:true});delete m.uid;if(have.has(m.id))have.get(m.id).synced=true;else P.mocks.push(m);});
-    P.mocks.sort((a,b)=>b.at-a.at);
-    SYNC.db=db;SYNC.uid=uid;setSync("account");saveLocal();render();
-    queueSave();P.mocks.filter(m=>!m.synced).forEach(pushMock);
-  }catch(e){SYNC.db=null;setSync("device");}
-}
+function persist(){saveLocal();}
 
 /* ---- flashcards ---- */
 function inFilter(it,f){return f==="all"?true:it.t===f;}
@@ -583,13 +688,13 @@ function buildSession(f){
   const due=pool.filter(it=>{const s=P.items[it.id];return s&&s.b&&s.d<=now;}).sort((a,b)=>P.items[a.id].d-P.items[b.id].d);
   const fresh=pool.filter(it=>!(P.items[it.id]&&P.items[it.id].b));
   const byT={};fresh.forEach(it=>{(byT[it.t]=byT[it.t]||[]).push(it);});
-  const order=[];let added=true;while(added){added=false;for(const t of [0,1,2,3,4,5,6]){const arr=byT[t];if(arr&&arr.length){order.push(arr.shift());added=true;}}}
+  const order=[];let added=true;while(added){added=false;for(const tp of [0,1,2,3,4,5,6]){const arr=byT[tp];if(arr&&arr.length){order.push(arr.shift());added=true;}}}
   const queue=due.concat(order).slice(0,20).map(it=>it.id);
   return {queue,i:0,flip:false,en:false,rq:{},stats:[0,0,0]};
 }
 function nextBox(id,g){const s=P.items[id]||{};const b=s.b||0;if(g===0)return {b:1,days:0};if(g===1){const nb=Math.max(1,b);return {b:nb,days:Math.max(1,Math.round(IV[nb]/2))};}const nb=b<1?2:Math.min(6,b+1);return {b:nb,days:IV[nb]};}
 function rateFlash(id,g){const nb=nextBox(id,g),now=Date.now();const s=P.items[id]||(P.items[id]={});s.b=nb.b;s.d=now+nb.days*DAY;s.fn=(s.fn||0)+1;s.u=now;}
-function dayLabel(d){return d===0?"now":d===1?"1 day":d+" days";}
+function dayLabel(d){return d===0?t("ivNow"):plural("days",d);}
 
 /* ---- mock & drill ---- */
 function pickFrom(arr,exclude){
@@ -598,10 +703,10 @@ function pickFrom(arr,exclude){
   const unseen=sorted.filter(z=>!z.k);const pool=unseen.length?unseen:sorted.slice(0,Math.max(1,Math.ceil(sorted.length*0.4)));
   return pool[Math.floor(Math.random()*pool.length)].it.id;
 }
-function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const x=a[i];a[i]=a[j];a[j]=x;}return a;}
 function startRun(kind,topic){
   const ex=new Set(),ids=[];
-  if(kind==="mock"){for(let t=1;t<=6;t++){const a=pickFrom(B.filter(it=>it.t===t&&it.p===2),ex);ex.add(a);ids.push(a);const b=pickFrom(B.filter(it=>it.t===t&&it.p===3),ex);ex.add(b);ids.push(b);}}
+  if(kind==="mock"){for(let tp=1;tp<=6;tp++){const a=pickFrom(B.filter(it=>it.t===tp&&it.p===2),ex);ex.add(a);ids.push(a);const b=pickFrom(B.filter(it=>it.t===tp&&it.p===3),ex);ex.add(b);ids.push(b);}}
   else{const pool=B.filter(it=>it.t===topic&&it.p>0);while(ids.length<6){const id=pickFrom(pool,ex);if(!id)break;ex.add(id);ids.push(id);}}
   const perm={};ids.forEach(id=>{if(BYID[id].ty==="m")perm[id]=shuffle([0,1,2,3]);});
   const now=Date.now();
@@ -615,7 +720,7 @@ function submitRun(){
   rows.forEach(x=>{const s=P.items[x.id]||(P.items[x.id]={});s.qa=(s.qa||0)+1;s.qs=x.f;s.qt=now;s.qh=x.h;s.u=now;});
   const score=r1(rows.reduce((s,x)=>s+x.f*x.p,0)),max=rows.reduce((s,x)=>s+x.p,0);
   const m={id:R.id,at:now,kind:R.kind,topic:R.topic,score,max,hints:rows.filter(x=>x.h).length,dur:Math.round((now-R.start)/1000),rows};
-  P.mocks.unshift(m);R.done=true;R.mid=m.id;saveRun();persist();pushMock(m);render();window.scrollTo(0,0);
+  P.mocks.unshift(m);R.done=true;R.mid=m.id;saveRun();persist();render();window.scrollTo(0,0);
 }
 
 /* ---- readiness ---- */
@@ -632,19 +737,19 @@ function readiness(){
 function distChart(dist){
   const W=360,H=150,L=6,R=6,T=14,BT=116,step=(W-L-R)/31,bw=step*0.7,max=Math.max.apply(null,dist.concat([1e-9]));
   const xc=i=>L+i*step+step/2;
-  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Predicted exam score distribution from 0 to 30 points, pass mark 16"><title>Predicted score distribution</title>`;
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(t("chartAria"))}"><title>${esc(t("chartTitle"))}</title>`;
   s+=`<rect class="zone" x="${(L+16*step).toFixed(1)}" y="${T}" width="${(15*step).toFixed(1)}" height="${BT-T}" rx="3"/>`;
   dist.forEach((v,i)=>{const h=(BT-T-6)*v/max;s+=`<rect class="${i>=16?"b-pass":"b-fail"}" x="${(xc(i)-bw/2).toFixed(1)}" y="${(BT-h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="1"/>`;});
   s+=`<line class="axis" x1="${L}" x2="${W-R}" y1="${BT}" y2="${BT}"/>`;
-  [0,5,10,16,20,25,30].forEach(t=>{const x=xc(t).toFixed(1);s+=`<line class="axis" x1="${x}" x2="${x}" y1="${BT}" y2="${BT+4}"/><text x="${x}" y="${BT+16}" text-anchor="middle"${t===16?' class="lbl"':""}>${t}</text>`;});
+  [0,5,10,16,20,25,30].forEach(tk=>{const x=xc(tk).toFixed(1);s+=`<line class="axis" x1="${x}" x2="${x}" y1="${BT}" y2="${BT+4}"/><text x="${x}" y="${BT+16}" text-anchor="middle"${tk===16?' class="lbl"':""}>${tk}</text>`;});
   const px=(L+16*step).toFixed(1);
-  s+=`<line class="passline" x1="${px}" x2="${px}" y1="${T-6}" y2="${BT}"/><text class="lbl" x="${(+px+5).toFixed(1)}" y="${T+4}">16 = megfelelt (pass)</text>`;
-  s+=`<text x="${W-R}" y="${H-4}" text-anchor="end">points (0–30)</text></svg>`;
+  s+=`<line class="passline" x1="${px}" x2="${px}" y1="${T-6}" y2="${BT}"/><text class="lbl" x="${(+px+5).toFixed(1)}" y="${T+4}">${esc(t("chartPass"))}</text>`;
+  s+=`<text x="${W-R}" y="${H-4}" text-anchor="end">${esc(t("chartAxis"))}</text></svg>`;
   return s;
 }
 function scoreRuler(score){
   const W=360,H=52,L=10,R=10,x=v=>L+v*(W-L-R)/30;
-  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Score ${score} of 30; pass mark 16"><title>Score on the 30-point scale</title>`;
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(t("rulerAria",{s:score}))}"><title>${esc(t("rulerTitle"))}</title>`;
   s+=`<rect class="zone" x="${x(16).toFixed(1)}" y="10" width="${(x(30)-x(16)).toFixed(1)}" height="20" rx="3"/>`;
   for(let i=0;i<=30;i++){const big=i%5===0||i===16;const xx=x(i).toFixed(1);s+=`<line class="axis" x1="${xx}" x2="${xx}" y1="${big?12:20}" y2="30"/>`;if(big)s+=`<text x="${xx}" y="44" text-anchor="middle"${i===16?' class="lbl"':""}>${i}</text>`;}
   const sx=x(Math.max(0,Math.min(30,score))).toFixed(1);
@@ -652,136 +757,129 @@ function scoreRuler(score){
   return s;
 }
 function histList(list){
-  if(!list.length)return `<p class="muted small">No results yet.</p>`;
+  if(!list.length)return `<p class="muted small">${esc(t("noResults"))}</p>`;
   return `<ul class="hist">`+list.slice(0,8).map(m=>{
     const isMock=m.kind==="mock",pass=isMock&&m.score>=16;
-    const label=isMock?"Mock exam":"Drill · "+esc(TOP[m.topic].en);
-    const pill=isMock?`<span class="pill ${pass?"pass":"fail"}">${pass?"megfelelt":"nem megfelelt"}</span>`:`<span class="pill drill">${Math.round(100*m.score/Math.max(1,m.max))}%</span>`;
-    return `<li><span><b>${label}</b><br><span class="small muted">${fmtDate(m.at)} · ${m.hints} English hint${m.hints===1?"":"s"}</span></span><span style="text-align:right"><span class="mono"><b>${m.score}</b>/${m.max}</span><br>${pill}</span></li>`;
+    const label=isMock?esc(t("histMock")):esc(t("histDrill",{topic:topN(m.topic)}));
+    const pill=isMock?`<span class="pill ${pass?"pass":"fail"}" lang="hu">${pass?"megfelelt":"nem megfelelt"}</span>`:`<span class="pill drill">${Math.round(100*m.score/Math.max(1,m.max))}%</span>`;
+    return `<li><span><b>${label}</b><br><span class="small muted">${esc(fmtDate(m.at))} · ${esc(plural("hints",m.hints))}</span></span><span style="text-align:right"><span class="mono"><b>${m.score}</b>/${m.max}</span><br>${pill}</span></li>`;
   }).join("")+`</ul>`;
 }
 
 /* ---- views ---- */
 function viewReady(){
   const R=readiness(),pr=R.pr,w=R.weak,pct=fmtPct(pr.pass);
-  const words={none:["Not assessed","Még nincs adat"],notyet:["Not yet","Még nem"],almost:["Almost","Majdnem"],ready:["Ready","Felkészült"]};
+  const words={none:[t("vNone"),"Még nincs adat"],notyet:[t("vNotyet"),"Még nem"],almost:[t("vAlmost"),"Majdnem"],ready:[t("vReady"),"Felkészült"]};
+  const wt=w?topN(w.t):"";
   let reason="",cta="";
-  if(R.state==="none"){reason="The verdict uses only auto-graded answers from mock exams and topic drills. One mock exam (12 questions) gives a first estimate.";cta=`<button class="btn primary" data-act="startMock">Take a baseline mock exam</button><button class="btn" data-act="tab" data-tab="cards">Study flashcards first</button>`;}
-  else if(R.state==="notyet"){reason=`Estimated chance of scoring 16 or more: ${pct}. The bar is 95%. Weakest area: ${esc(TOP[w.t].en)}.`;cta=`<button class="btn primary" data-act="startDrill" data-topic="${w.t}">Drill ${esc(TOP[w.t].en)}</button><button class="btn" data-act="tab" data-tab="cards">Flashcards</button>`;}
-  else if(R.state==="almost"){reason=R.g1?`Your knowledge estimate clears the bar (${pct}). To finish: two full mock exams in a row at 20/30 or more, with at most 2 English hints each.`:`Estimated chance of scoring 16 or more: ${pct}, close to the 95% bar. Weakest area: ${esc(TOP[w.t].en)}.`;cta=R.g1?`<button class="btn primary" data-act="startMock">Start a mock exam</button>`:`<button class="btn primary" data-act="startDrill" data-topic="${w.t}">Drill ${esc(TOP[w.t].en)}</button><button class="btn" data-act="startMock">Mock exam</button>`;}
-  else{reason=`Estimated chance of scoring 16 or more: ${pct}, and your last two mock exams were 20/30 or better in Hungarian-only conditions. You can apply for an exam date; BFKH notifies you at least 15 working days before it. Keep one mock a week until then.`;cta=`<button class="btn primary" data-act="tab" data-tab="facts">How to apply</button><button class="btn" data-act="startMock">Another mock exam</button>`;}
-  const l2=R.last2.map(m=>`${m.score}/30 (${m.hints} EN)`).join(" · ")||"none yet";
+  if(R.state==="none"){reason=esc(t("reasonNone"));cta=`<button class="btn primary" data-act="startMock">${esc(t("ctaBaseline"))}</button><button class="btn" data-act="tab" data-tab="cards">${esc(t("ctaStudyFirst"))}</button>`;}
+  else if(R.state==="notyet"){reason=esc(t("reasonNotyet",{pct,topic:wt}));cta=`<button class="btn primary" data-act="startDrill" data-topic="${w.t}">${esc(t("ctaDrill",{topic:wt}))}</button><button class="btn" data-act="tab" data-tab="cards">${esc(t("ctaFlash"))}</button>`;}
+  else if(R.state==="almost"){reason=esc(R.g1?t("reasonAlmostG1",{pct}):t("reasonAlmost",{pct,topic:wt}));cta=R.g1?`<button class="btn primary" data-act="startMock">${esc(t("ctaStartMock"))}</button>`:`<button class="btn primary" data-act="startDrill" data-topic="${w.t}">${esc(t("ctaDrill",{topic:wt}))}</button><button class="btn" data-act="startMock">${esc(t("ctaMock"))}</button>`;}
+  else{reason=esc(t("reasonReady",{pct}));cta=`<button class="btn primary" data-act="tab" data-tab="facts">${esc(t("ctaHowApply"))}</button><button class="btn" data-act="startMock">${esc(t("ctaAnotherMock"))}</button>`;}
+  const l2=R.last2.map(m=>t("lastFmt",{s:m.score,h:m.hints})).join(" · ")||t("noneYet");
   const gates=`<ul class="gates">
-    <li class="gate"><span class="dot ${R.g1?"ok":"no"}">${R.g1?"✓":"1"}</span><span><b>Knowledge:</b> chance of 16+ is at least 95%<br><span class="small muted">Now: ${pr.n>=12?pct:"needs 12+ graded answers"} · ${pr.n} graded answers</span></span></li>
-    <li class="gate"><span class="dot ${R.g2?"ok":"no"}">${R.g2?"✓":"2"}</span><span><b>Exam conditions:</b> last two full mocks at 20/30 or more, each with at most 2 English hints<br><span class="small muted">Last two: ${l2}</span></span></li></ul>`;
+    <li class="gate"><span class="dot ${R.g1?"ok":"no"}">${R.g1?"✓":"1"}</span><span>${t("gate1")}<br><span class="small muted">${esc(t("gateNow",{v:pr.n>=12?pct:t("gateNeed"),n:plural("graded",pr.n)}))}</span></span></li>
+    <li class="gate"><span class="dot ${R.g2?"ok":"no"}">${R.g2?"✓":"2"}</span><span>${t("gate2")}<br><span class="small muted">${esc(t("gateLast",{v:l2}))}</span></span></li></ul>`;
   const rows=R.pr.tops.map(tp=>{const pool=B.filter(it=>it.t===tp.t&&it.p).length;const mean=tp.n?Math.round(100*tp.x/tp.n):null;const isWeak=R.state!=="none"&&w&&w.t===tp.t;
-    return `<div class="trow${isWeak?" weak":""}"><span class="name"><b>${esc(TOP[tp.t].en)}</b><span class="small muted">${esc(TOP[tp.t].hu)} · ${tp.n} of ${pool} questions answered</span></span><span class="val">${mean==null?"—":mean+"%"}</span><span class="bar"><i style="width:${mean==null?0:mean}%"></i></span><span class="small"><button class="btn ghost" data-act="startDrill" data-topic="${tp.t}">Drill this topic</button></span></div>`;}).join("");
-  const chart=pr.n>=12?`<div class="panel"><div class="kpis"><div class="kpi"><span class="eyebrow">Chance of 16+</span><span class="num">${pct}</span></div><div class="kpi"><span class="eyebrow">Expected score</span><span class="num">${r1(pr.mean)}</span></div><div class="kpi"><span class="eyebrow">Graded answers</span><span class="num">${pr.n}</span></div></div><div class="chart">${distChart(pr.dist)}</div><p class="small muted">Predicted distribution of your score on a 12-question exam. Green bars are passing scores.</p></div>`:"";
-  return `<div class="verdict"><span class="eyebrow">Readiness verdict</span><span class="word ${R.state}">${words[R.state][0]}</span><span class="hu">${words[R.state][1]}</span><p>${reason}</p><div class="row">${cta}</div></div>
-  ${chart?`<section><h2>Chance of passing</h2>${chart}</section>`:""}
-  <section><h2>Both conditions are needed for “Ready”</h2>${gates}</section>
-  <section><h2>By topic</h2><div class="topics">${rows}</div></section>
-  <section><h2>Results</h2>${histList(P.mocks)}</section>
-  <details><summary>How the verdict is calculated</summary><div class="body">
-    <p>Each topic's skill is modelled as Beta(1 + points earned, 1 + points missed), counting only your latest auto-graded attempt at each question. Flashcard self-ratings are left out, because people tend to overrate their own recall when they grade themselves (Dunlosky &amp; Rawson, 2012).</p>
-    <p>The exam is simulated as six topics, each with one 2-point and one 3-point question, every question scored all-or-nothing. That is a cautious assumption: the real exam can give partial points, which makes scores less spread out. The chart is the exact predicted distribution of your total; “chance of 16+” is its share at 16 points or above.</p>
-    <p>Limitation: this question bank approximates the six official topics. The real exam uses its own wording, so treat the estimate as a lower bar, not a guarantee.</p>
-  </div></details>`;
+    return `<div class="trow${isWeak?" weak":""}"><span class="name"><b>${esc(topN(tp.t))}</b><span class="small muted">${esc(t("topicAnswered",{hu:TOP[tp.t].hu,n:tp.n,pool}))}</span></span><span class="val">${mean==null?"—":mean+"%"}</span><span class="bar"><i style="width:${mean==null?0:mean}%"></i></span><span class="small"><button class="btn ghost" data-act="startDrill" data-topic="${tp.t}">${esc(t("drillThis"))}</button></span></div>`;}).join("");
+  const chart=pr.n>=12?`<div class="panel"><div class="kpis"><div class="kpi"><span class="eyebrow">${esc(t("kChance"))}</span><span class="num">${pct}</span></div><div class="kpi"><span class="eyebrow">${esc(t("kExpected"))}</span><span class="num">${r1(pr.mean)}</span></div><div class="kpi"><span class="eyebrow">${esc(t("kGraded"))}</span><span class="num">${pr.n}</span></div></div><div class="chart">${distChart(pr.dist)}</div><p class="small muted">${esc(t("chartCaption"))}</p></div>`:"";
+  return `<div class="verdict"><span class="eyebrow">${esc(t("verdictEyebrow"))}</span><span class="word ${R.state}">${esc(words[R.state][0])}</span><span class="hu" lang="hu">${words[R.state][1]}</span><p>${reason}</p><div class="row">${cta}</div></div>
+  ${chart?`<section><h2>${esc(t("hChance"))}</h2>${chart}</section>`:""}
+  <section><h2>${esc(t("hBoth"))}</h2>${gates}</section>
+  <section><h2>${esc(t("hByTopic"))}</h2><div class="topics">${rows}</div></section>
+  <section><h2>${esc(t("hResults"))}</h2>${histList(P.mocks)}</section>
+  <details><summary>${esc(t("howTitle"))}</summary><div class="body"><p>${esc(t("how1"))}</p><p>${esc(t("how2"))}</p><p>${esc(t("how3"))}</p></div></details>`;
 }
 function viewCards(){
   const f=S.cardFilter,now=Date.now();
-  const chipsArr=[["all","All"],[1,"Symbols"],[2,"History"],[3,"Literature & music"],[4,"Institutions"],[5,"Rights"],[6,"Everyday"],[0,"Exam Hungarian"]];
-  const chips=`<div class="chips" role="group" aria-label="Deck">`+chipsArr.map(c=>`<button class="chip" data-act="filter" data-f="${c[0]}" aria-pressed="${String(c[0])===String(f)}">${c[1]}</button>`).join("")+`</div>`;
+  const chipsArr=[["all","deckAll"],[1,"deck1"],[2,"deck2"],[3,"deck3"],[4,"deck4"],[5,"deck5"],[6,"deck6"],[0,"deck0"]];
+  const chips=`<div class="chips" role="group" aria-label="${esc(t("deckAria"))}">`+chipsArr.map(c=>`<button class="chip" data-act="filter" data-f="${c[0]}" aria-pressed="${String(c[0])===String(f)}">${esc(t(c[1]))}</button>`).join("")+`</div>`;
   const pool=B.filter(it=>inFilter(it,f));
   const due=pool.filter(it=>{const s=P.items[it.id];return s&&s.b&&s.d<=now;}).length;
   const fresh=pool.filter(it=>!(P.items[it.id]&&P.items[it.id].b)).length;
   const F=S.flash;
   let body="";
   if(!F){
-    body=`<div class="panel"><h3>${due} due · ${fresh} new · ${pool.length} cards in this deck</h3><p class="muted small">A session is up to 20 cards: due reviews first, then new cards mixed across topics. Read the Hungarian, answer in your head, then check. Rate honestly: “Again” brings the card back in a few minutes.</p><div class="row"><button class="btn primary" data-act="startCards" ${due+fresh?"":"disabled"}>Start session</button></div></div>`;
-    if(!due&&!fresh)body+=`<p class="muted small">Nothing due in this deck. Next reviews arrive on their scheduled days; try a mock exam meanwhile.</p>`;
+    body=`<div class="panel"><h3>${esc(t("deckStatus",{due,fresh,n:pool.length}))}</h3><p class="muted small">${esc(t("sessionHelp"))}</p><div class="row"><button class="btn primary" data-act="startCards" ${due+fresh?"":"disabled"}>${esc(t("startSession"))}</button></div></div>`;
+    if(!due&&!fresh)body+=`<p class="muted small">${esc(t("nothingDue"))}</p>`;
   }else if(F.i>=F.queue.length){
-    body=`<div class="panel"><h3>Session done</h3><p class="muted">Again ${F.stats[0]} · Hard ${F.stats[1]} · Good ${F.stats[2]}</p><div class="row"><button class="btn primary" data-act="startCards">Next session</button><button class="btn" data-act="endCards">Close</button></div></div>`;
+    body=`<div class="panel"><h3>${esc(t("sessionDone"))}</h3><p class="muted">${esc(t("sessionStats",{a:F.stats[0],h:F.stats[1],g:F.stats[2]}))}</p><div class="row"><button class="btn primary" data-act="startCards">${esc(t("nextSession"))}</button><button class="btn" data-act="endCards">${esc(t("close"))}</button></div></div>`;
   }else{
     const it=BYID[F.queue[F.i]];const ivs=[0,1,2].map(g=>dayLabel(nextBox(it.id,g).days));
-    const isVocab=it.t===0;
-    body=`<div class="row" style="justify-content:space-between"><span class="small muted mono">Card ${F.i+1} of ${F.queue.length}</span><button class="btn ghost" data-act="endCards">End session</button></div>
+    const isVocab=it.t===0,tq=isVocab?"":trQ(it),note=trN(it);
+    const ans=isVocab?`<div class="a">${esc(trVocab(it))}</div>`:(()=>{const ta=tline(trA(it),it.a);return `<div class="a" lang="hu">${esc(it.a)}</div>${ta?`<div class="muted">${esc(ta)}</div>`:""}`;})();
+    body=`<div class="row" style="justify-content:space-between"><span class="small muted mono">${esc(t("cardOf",{i:F.i+1,n:F.queue.length}))}</span><button class="btn ghost" data-act="endCards">${esc(t("endSession"))}</button></div>
     <div class="progress"><i style="width:${Math.round(100*F.i/F.queue.length)}%"></i></div>
-    <div class="card"><span class="eyebrow">${esc(TOP[it.t].en)} · ${esc(TOP[it.t].hu)}</span>
-      <div class="q">${esc(it.q)}</div>
-      ${isVocab?"":(F.en?`<div class="qe">${esc(it.qe)}</div>`:`<div><button class="btn ghost" data-act="cardEn">Show English</button></div>`)}
-      ${F.flip?`<div class="ans"><div class="a">${esc(it.a)}</div>${it.ae?`<div class="muted">${esc(it.ae)}</div>`:""}${it.n?`<div class="note">${esc(it.n)}</div>`:""}<div class="src">${esc(srcTag(it))}</div></div>`:""}
+    <div class="card"><span class="eyebrow">${esc(topN(it.t))} · <span lang="hu">${esc(TOP[it.t].hu)}</span></span>
+      <div class="q" lang="hu">${esc(it.q)}</div>
+      ${isVocab||!tq?"":(F.en?`<div class="qe">${esc(tq)}</div>`:`<div><button class="btn ghost" data-act="cardEn">${esc(t("showTr"))}</button></div>`)}
+      ${F.flip?`<div class="ans">${ans}${note?`<div class="note">${esc(note)}</div>`:""}<div class="src">${esc(srcTag(it))}</div></div>`:""}
     </div>
-    ${F.flip?`<div class="rate"><button class="btn warn" data-act="rate" data-g="0">Again<span>${ivs[0]}</span></button><button class="btn" data-act="rate" data-g="1">Hard<span>${ivs[1]}</span></button><button class="btn primary" data-act="rate" data-g="2">Good<span>${ivs[2]}</span></button></div>`:`<button class="btn primary" data-act="flip">Show answer</button>`}`;
+    ${F.flip?`<div class="rate"><button class="btn warn" data-act="rate" data-g="0">${esc(t("again"))}<span>${esc(ivs[0])}</span></button><button class="btn" data-act="rate" data-g="1">${esc(t("hard"))}<span>${esc(ivs[1])}</span></button><button class="btn primary" data-act="rate" data-g="2">${esc(t("good"))}<span>${esc(ivs[2])}</span></button></div>`:`<button class="btn primary" data-act="flip">${esc(t("showAnswer"))}</button>`}`;
   }
-  return `<section><h2>Flashcards</h2>${chips}${body}</section>`;
+  return `<section><h2>${esc(t("hCards"))}</h2>${chips}${body}</section>`;
 }
 function qBlock(it,i,R){
-  const h=!!R.hint[it.id];let body="";
-  if(it.ty==="m"){const perm=R.perm[it.id]||[0,1,2,3];body=`<div class="opts" role="radiogroup" aria-label="Options for question ${i+1}">`+perm.map(oi=>`<label class="opt"><input type="radio" name="q-${it.id}" id="q-${it.id}-${oi}" data-q="${it.id}" value="${oi}"${R.resp[it.id]===oi?" checked":""}><span><span>${esc(it.o[oi])}</span><span class="en">${esc(it.oe[oi])}</span></span></label>`).join("")+`</div>`;}
-  else if(isLabeled(it)){body=it.parts.map((pt,pi)=>`<label class="part" for="q-${it.id}-${pi}"><span class="plabel">${esc(pt.l)}${pt.le?` <span class="en">(${esc(pt.le)})</span>`:""}</span><input type="text" id="q-${it.id}-${pi}" data-q="${it.id}" data-part="${pi}" value="${esc((R.resp[it.id]||[])[pi]||"")}" autocomplete="off" autocapitalize="off" spellcheck="false"></label>`).join("");}
-  else{body=`<input type="text" id="q-${it.id}" data-q="${it.id}" value="${esc(R.resp[it.id]||"")}" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Answer to question ${i+1}">${it.ty==="l"?`<span class="small muted">Separate items with commas.</span>`:""}`;}
-  return `<div class="qb${h?" hinted":""}" id="b-${it.id}"><div class="qhead"><span class="qnum">${i+1}.</span><span class="qtop">${esc(TOP[it.t].hu)}</span><span class="qpts">${it.p} pont</span></div><div class="qtext">${esc(it.q)}</div><div class="en">${esc(it.qe)}</div>${body}<div><button class="btn ghost" data-act="hint" data-id="${it.id}"${h?' aria-pressed="true"':""}>${h?"English shown (hint counted)":"EN · show English"}</button></div></div>`;
+  const h=!!R.hint[it.id],tq=trQ(it);let body="";
+  if(it.ty==="m"){const perm=R.perm[it.id]||[0,1,2,3];body=`<div class="opts" role="radiogroup" aria-label="${esc(t("optsAria",{n:i+1}))}">`+perm.map(oi=>{const tro=tline(trO(it,oi),it.o[oi]);return `<label class="opt"><input type="radio" name="q-${it.id}" id="q-${it.id}-${oi}" data-q="${it.id}" value="${oi}"${R.resp[it.id]===oi?" checked":""}><span><span lang="hu">${esc(it.o[oi])}</span>${tro?`<span class="en">${esc(tro)}</span>`:""}</span></label>`;}).join("")+`</div>`;}
+  else if(isLabeled(it)){body=it.parts.map((pt,pi)=>{const le=trLE(it,pi);return `<label class="part" for="q-${it.id}-${pi}"><span class="plabel"><span lang="hu">${esc(pt.l)}</span>${le?` <span class="en">(${esc(le)})</span>`:""}</span><input type="text" id="q-${it.id}-${pi}" data-q="${it.id}" data-part="${pi}" value="${esc((R.resp[it.id]||[])[pi]||"")}" autocomplete="off" autocapitalize="off" spellcheck="false"></label>`;}).join("");}
+  else{body=`<input type="text" id="q-${it.id}" data-q="${it.id}" value="${esc(R.resp[it.id]||"")}" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="${esc(t("ansAria",{n:i+1}))}">${it.ty==="l"?`<span class="small muted">${esc(t("sepCommas"))}</span>`:""}`;}
+  return `<div class="qb${h?" hinted":""}" id="b-${it.id}"><div class="qhead"><span class="qnum">${i+1}.</span><span class="qtop" lang="hu">${esc(TOP[it.t].hu)}</span><span class="qpts" lang="hu">${it.p} pont</span></div><div class="qtext" lang="hu">${esc(it.q)}</div>${tq?`<div class="en">${esc(tq)}</div>`:""}${body}<div><button class="btn ghost" data-act="hint" data-id="${it.id}"${h?' aria-pressed="true"':""}>${esc(h?t("hintShown"):t("hintBtn"))}</button></div></div>`;
 }
 function viewMock(){
   const R=S.run;
   if(R&&!R.done){
-    const head=R.kind==="mock"?`<h2>Mock exam</h2><p class="muted small">12 questions · 30 points · pass at 16 · 60 minutes. Hungarian only, as on the day. Each “EN” tap is counted as a hint.</p>`:`<h2>Drill · ${esc(TOP[R.topic].en)}</h2><p class="muted small">${R.ids.length} questions from one topic, untimed.</p>`;
-    return `<section>${head}<div class="sheet">${R.ids.map((id,i)=>qBlock(BYID[id],i,R)).join("")}</div><div class="row"><button class="btn primary" data-act="submit">Hand in</button><button class="btn ghost" data-act="discard">${R.discard?"Tap again to discard":"Discard"}</button></div></section>`;
+    const head=R.kind==="mock"?`<h2>${esc(t("mockTitle"))}</h2><p class="muted small">${esc(t("mockRunHelp"))}</p>`:`<h2>${esc(t("drillTitle",{topic:topN(R.topic)}))}</h2><p class="muted small">${esc(plural("drillRunHelp",R.ids.length))}</p>`;
+    return `<section>${head}<div class="sheet">${R.ids.map((id,i)=>qBlock(BYID[id],i,R)).join("")}</div><div class="row"><button class="btn primary" data-act="submit">${esc(t("handIn"))}</button><button class="btn ghost" data-act="discard">${esc(R.discard?t("discardConfirm"):t("discard"))}</button></div></section>`;
   }
   if(R&&R.done){
     const m=P.mocks.find(x=>x.id===R.mid);if(!m){S.run=null;return viewMock();}
     const isMock=m.kind==="mock",pass=m.score>=16;
-    const head=isMock?`<span class="stamp ${pass?"pass":"fail"}">${pass?"Megfelelt":"Nem megfelelt"}</span><div class="score">${m.score}<span class="muted" style="font-size:.5em"> / 30 pont</span></div><div class="chart">${scoreRuler(m.score)}</div><p class="small muted">${pass?"Pass":"Fail"} on the official scale (16 needed). ${m.hints} English hint${m.hints===1?"":"s"} · ${fmtClock(m.dur*1000)} used.</p>`
-      :`<h2>Drill · ${esc(TOP[m.topic].en)}</h2><div class="score">${m.score}<span class="muted" style="font-size:.5em"> / ${m.max} pont</span></div><p class="small muted">${Math.round(100*m.score/Math.max(1,m.max))}% · ${m.hints} English hint${m.hints===1?"":"s"}</p>`;
+    const head=isMock?`<span class="stamp ${pass?"pass":"fail"}" lang="hu">${pass?"Megfelelt":"Nem megfelelt"}</span><div class="score">${m.score}<span class="muted" style="font-size:.5em" lang="hu"> / 30 pont</span></div><div class="chart">${scoreRuler(m.score)}</div><p class="small muted">${esc(pass?t("passOfficial"):t("failOfficial"))} ${esc(plural("hints",m.hints))} · ${esc(t("usedTime",{t:fmtClock(m.dur*1000)}))}</p>`
+      :`<h2>${esc(t("drillTitle",{topic:topN(m.topic)}))}</h2><div class="score">${m.score}<span class="muted" style="font-size:.5em" lang="hu"> / ${m.max} pont</span></div><p class="small muted">${Math.round(100*m.score/Math.max(1,m.max))}% · ${esc(plural("hints",m.hints))}</p>`;
     const rev=m.rows.map((x,i)=>{const it=BYID[x.id];if(!it)return "";const got=r1(x.f*x.p);const cls=x.f>=1?"ok":x.f>0?"part":"no";
       let yours="";if(it.ty==="m")yours=x.r==null||x.r<0?"—":esc(it.o[x.r]);else if(Array.isArray(x.r))yours=x.r.map((v,pi)=>esc((it.parts[pi]&&it.parts[pi].l?it.parts[pi].l+" ":"")+(v||"—"))).join(" · ");else yours=x.r?esc(x.r):"—";
       const canOv=it.ty!=="m"&&x.f<1&&x.r!=null&&String(Array.isArray(x.r)?x.r.join(""):x.r).trim();
-      return `<div class="rv"><div class="qhead"><span class="qnum">${i+1}.</span><span class="qtop">${esc(TOP[it.t].hu)}${x.h?" · EN hint":""}</span><span class="got ${cls}">${got}/${x.p}${x.ov?" ✎":""}</span></div><div class="qtext" style="font-size:16px">${esc(it.q)}</div><div class="en">${esc(it.qe)}</div><div class="yours">Your answer: ${yours}</div><div><b class="pts-ok">${esc(it.a)}</b><br><span class="muted small">${esc(it.ae)}</span></div>${it.n?`<div class="small muted">${esc(it.n)}</div>`:""}${canOv?`<div><button class="btn ghost" data-act="ov" data-i="${i}">My answer was right: count it</button></div>`:""}</div>`;}).join("");
-    return `<section>${head}<div class="row"><button class="btn primary" data-act="startMock">New mock exam</button><button class="btn" data-act="tab" data-tab="ready">See readiness</button><button class="btn ghost" data-act="closeRun">Close</button></div></section><section><h2>Review</h2><div class="review">${rev}</div></section>`;
+      const tq=trQ(it),ta=tline(trA(it),it.a),note=trN(it);
+      return `<div class="rv"><div class="qhead"><span class="qnum">${i+1}.</span><span class="qtop"><span lang="hu">${esc(TOP[it.t].hu)}</span>${x.h?" · "+esc(t("hintTag")):""}</span><span class="got ${cls}">${got}/${x.p}${x.ov?" ✎":""}</span></div><div class="qtext" style="font-size:16px" lang="hu">${esc(it.q)}</div>${tq?`<div class="en">${esc(tq)}</div>`:""}<div class="yours">${esc(t("yourAnswer"))} <span lang="hu">${yours}</span></div><div><b lang="hu">${esc(it.a)}</b>${ta?`<br><span class="muted small">${esc(ta)}</span>`:""}</div>${note?`<div class="small muted">${esc(note)}</div>`:""}${canOv?`<div><button class="btn ghost" data-act="ov" data-i="${i}">${esc(t("countIt"))}</button></div>`:""}</div>`;}).join("");
+    return `<section>${head}<div class="row"><button class="btn primary" data-act="startMock">${esc(t("newMock"))}</button><button class="btn" data-act="tab" data-tab="ready">${esc(t("seeReadiness"))}</button><button class="btn ghost" data-act="closeRun">${esc(t("close"))}</button></div></section><section><h2>${esc(t("hReview"))}</h2><div class="review">${rev}</div></section>`;
   }
-  const chips=[1,2,3,4,5,6].map(t=>`<button class="chip" data-act="drillTopic" data-topic="${t}" aria-pressed="${S.drillTopic===t}">${esc(TOP[t].en)}</button>`).join("");
-  return `<section><h2>Full mock exam</h2><p>12 questions, two from each of the six official topics: one worth 2 points and one worth 3. Total 30 points; 16 passes. 60-minute timer.</p><p class="muted small">Questions appear in Hungarian only, as on the day. You can tap “EN” for the English, but each tap is counted as a hint and the readiness verdict needs your last two mocks with at most 2 hints. Typed answers are checked without accents, so “Kolcsey” counts for “Kölcsey”.</p><div class="row"><button class="btn primary" data-act="startMock">Start mock exam</button></div></section>
-  <section><h2>Topic drill</h2><p class="muted small">Six questions from one topic, untimed. Drill results also feed the readiness estimate.</p><div class="chips" role="group" aria-label="Topic">${chips}</div><div class="row"><button class="btn" data-act="startDrill" data-topic="${S.drillTopic}">Start drill: ${esc(TOP[S.drillTopic].en)}</button></div></section>
-  <section><h2>Results</h2>${histList(P.mocks)}</section>`;
+  const chips=[1,2,3,4,5,6].map(n=>`<button class="chip" data-act="drillTopic" data-topic="${n}" aria-pressed="${S.drillTopic===n}">${esc(topN(n))}</button>`).join("");
+  return `<section><h2>${esc(t("hFullMock"))}</h2><p>${esc(t("fullMockP1"))}</p><p class="muted small">${esc(t("fullMockP2"))}</p><div class="row"><button class="btn primary" data-act="startMock">${esc(t("startMockBtn"))}</button></div></section>
+  <section><h2>${esc(t("hDrill"))}</h2><p class="muted small">${esc(t("drillP"))}</p><div class="chips" role="group" aria-label="${esc(t("topicAria"))}">${chips}</div><div class="row"><button class="btn" data-act="startDrill" data-topic="${S.drillTopic}">${esc(t("startDrillBtn",{topic:topN(S.drillTopic)}))}</button></div></section>
+  <section><h2>${esc(t("hResults"))}</h2>${histList(P.mocks)}</section>`;
 }
 function viewFacts(){
-  return `<section><h2>The exam in brief</h2>
-  <p>The <b>magyar kulturális ismereti vizsga</b> (Hungarian cultural knowledge exam) is how you prove the “social coexistence” condition when applying for a <b>national residence card</b> or an <b>EU residence card</b>. It applies to applications submitted on or after 1 January 2025.</p>
-  <dl class="facts">
-    <dt>Format</dt><dd>Written, in Hungarian, in Budapest. 12 questions, 2 from each of 6 topics, 60 minutes.</dd>
-    <dt>Scoring</dt><dd>30 points. 16 points (50% + 1) is <i>megfelelt</i> (pass); 0–15 is <i>nem megfelelt</i> (fail).</dd>
-    <dt>Fee</dt><dd>HUF 20,000 per attempt, by bank transfer only, to BFKH's Hungarian State Treasury account <span class="sel">10023002-00299592-00000000</span>. Reference: <span class="sel">your name, magyar kulturális ismereti vizsga</span>.</dd>
-    <dt>Applying</dt><dd>Application form, a copy of your passport and proof of payment, by email to <span class="sel">kepzes.budapest@bfkh.gov.hu</span> or by post to Budapest Főváros Kormányhivatala, 1364 Budapest, Pf. 234. Only complete, paid applications receive dates.</dd>
-    <dt>Exam date</dt><dd>Assigned in order of application; written notice at least 15 working days before.</dd>
-    <dt>Place</dt><dd>1138 Budapest, Váci út 174. No parking on site.</dd>
-    <dt>On the day</dt><dd>08:30–09:00 document check · 09:00–10:00 written exam · 12:00 results and the exam record (vizsgajegyzőkönyv). Bring your valid passport.</dd>
-    <dt>Failing</dt><dd>After three failed results, a new application is refused. Not attending without official proof by the 2nd working day counts as a fail and the fee is lost.</dd>
-    <dt>Exemptions</dt><dd>Already passed in another aliens-policing procedure; under 14; under guardianship by final court judgment; national residence card issued in the national interest. No exemption for age, origin, family ties or qualifications.</dd>
-    <dt>Proof</dt><dd>The exam record you receive on the day is the proof you submit with the residence card application.</dd>
-  </dl></section>
-  <section><h2>The six official topics</h2><ol class="topics-list">${[1,2,3,4,5,6].map(t=>`<li><b>${esc(TOP[t].hu)}</b><br><span class="muted small">${esc(TOP[t].en)}</span></li>`).join("")}</ol></section>
-  <section><h2>What changed in 2026</h2><p>The January 2025 study material named Orbán Viktor as Prime Minister and Sulyok Tamás as President. The August 2026 version names <b>Magyar Péter</b> and <b>Baka András</b> (President since 19 August 2026) and lists 16 new ministries. This trainer follows the August 2026 version. Check officeholders again before your exam date.</p></section>
-  <section><h2>How to study with this trainer</h2><ul class="plain">
-    <li><b>Test yourself instead of rereading.</b> Retrieval practice produces better long-term retention than restudying (Roediger &amp; Karpicke, 2006).</li>
-    <li><b>Spread sessions over days.</b> Distributed practice beats cramming (Cepeda et al., 2006). The flashcard scheduler spaces reviews at 1, 3, 7, 16 and 35 days.</li>
-    <li>Both techniques are rated “high utility” in the review by Dunlosky et al. (2013).</li>
-    <li><b>Read the Hungarian first.</b> The exam has no English. Use the “Exam Hungarian” deck for question words such as <i>Soroljon fel</i> (list) and <i>Nevezze meg</i> (name).</li>
-  </ul></section>
-  <section><h2>Sources</h2><ul class="plain small">
-    <li><a href="https://oif.gov.hu/factsheets/hungarian-cultural-knowledge-exam" target="_blank" rel="noopener">OIF factsheet: Hungarian cultural knowledge exam</a> (last edited 24 Sep 2026)</li>
-    <li><a href="https://oif.gov.hu/storage/media/Kultur%C3%A1lis%20Ismereti%20Vizsga/magyar-kulturalis-ismereti-vizsga-tajekoztato.pdf" target="_blank" rel="noopener">BFKH information sheet on the exam (PDF, Hungarian)</a></li>
-    <li><a href="https://oif.gov.hu/storage/media/Kultur%C3%A1lis%20Ismereti%20Vizsga/kiv_segedanyag_bfkh_honlapra_aug.pdf" target="_blank" rel="noopener">Official study material, August 2026 version (PDF, Hungarian)</a></li>
-    <li><a href="https://oif.gov.hu/storage/media/Kultur%C3%A1lis%20Ismereti%20Vizsga/magyar-kulturalis-ismereti-vizsga-jelentkezesi-lap%20(1).docx" target="_blank" rel="noopener">Exam application form (DOCX)</a></li>
-    <li><a href="https://www.partylaw.leidenuniv.nl/party-law/51ef8d28-521c-4299-912a-050484e5412d.pdf" target="_blank" rel="noopener">Fundamental Law of Hungary, English translation (2011 text)</a>: Articles O, XVI, XXX, XXXI, 24, 30</li>
-    <li><a href="https://doi.org/10.1111/j.1467-9280.2006.01693.x" target="_blank" rel="noopener">Roediger &amp; Karpicke (2006), Psychological Science</a></li>
-    <li><a href="https://doi.org/10.1037/0033-2909.132.3.354" target="_blank" rel="noopener">Cepeda et al. (2006), Psychological Bulletin</a></li>
-    <li><a href="https://doi.org/10.1177/1529100612453266" target="_blank" rel="noopener">Dunlosky et al. (2013), Psychological Science in the Public Interest</a></li>
-    <li><a href="https://doi.org/10.1016/j.learninstruc.2011.08.003" target="_blank" rel="noopener">Dunlosky &amp; Rawson (2012), Learning and Instruction</a></li>
+  const sel=s=>`<span class="sel">${esc(s)}</span>`;
+  const v={acct:sel("10023002-00299592-00000000"),ref:sel(t("refText")),email:sel("kepzes.budapest@bfkh.gov.hu")};
+  const rows=[["dtFormat","ddFormat"],["dtScoring","ddScoring"],["dtFee","ddFee"],["dtApply","ddApply"],["dtDate","ddDate"],["dtPlace","ddPlace"],["dtDay","ddDay"],["dtFail","ddFail"],["dtExempt","ddExempt"],["dtProof","ddProof"]];
+  const L=(href,text,extra)=>`<li><a href="${href}" target="_blank" rel="noopener">${esc(text)}</a>${extra?" "+esc(extra):""}</li>`;
+  return `<section><h2>${esc(t("hBrief"))}</h2><p>${t("briefP")}</p>
+  <dl class="facts">${rows.map(r=>`<dt>${esc(t(r[0]))}</dt><dd>${t(r[1],v)}</dd>`).join("")}</dl></section>
+  <section><h2>${esc(t("hTopics"))}</h2><ol class="topics-list">${[1,2,3,4,5,6].map(n=>`<li><b lang="hu">${esc(TOP[n].hu)}</b><br><span class="muted small">${esc(topN(n))}</span></li>`).join("")}</ol></section>
+  <section><h2>${esc(t("hChanged"))}</h2><p>${t("changedP")}</p></section>
+  <section><h2>${esc(t("hStudy"))}</h2><ul class="plain"><li>${t("study1")}</li><li>${t("study2")}</li><li>${t("study3")}</li><li>${t("study4")}</li></ul></section>
+  <section><h2>${esc(t("hSources"))}</h2><ul class="plain small">
+    ${L("https://oif.gov.hu/factsheets/hungarian-cultural-knowledge-exam",t("src1"),t("src1b"))}
+    ${L("https://oif.gov.hu/storage/media/Kultur%C3%A1lis%20Ismereti%20Vizsga/magyar-kulturalis-ismereti-vizsga-tajekoztato.pdf",t("src2"))}
+    ${L("https://oif.gov.hu/storage/media/Kultur%C3%A1lis%20Ismereti%20Vizsga/kiv_segedanyag_bfkh_honlapra_aug.pdf",t("src3"))}
+    ${L("https://oif.gov.hu/storage/media/Kultur%C3%A1lis%20Ismereti%20Vizsga/magyar-kulturalis-ismereti-vizsga-jelentkezesi-lap%20(1).docx",t("src4"))}
+    <li><a href="https://www.partylaw.leidenuniv.nl/party-law/51ef8d28-521c-4299-912a-050484e5412d.pdf" target="_blank" rel="noopener">${esc(t("src5"))}</a>${esc(t("src5b"))}</li>
+    ${L("https://doi.org/10.1111/j.1467-9280.2006.01693.x","Roediger & Karpicke (2006), Psychological Science")}
+    ${L("https://doi.org/10.1037/0033-2909.132.3.354","Cepeda et al. (2006), Psychological Bulletin")}
+    ${L("https://doi.org/10.1177/1529100612453266","Dunlosky et al. (2013), Psychological Science in the Public Interest")}
+    ${L("https://doi.org/10.1016/j.learninstruc.2011.08.003","Dunlosky & Rawson (2012), Learning and Instruction")}
   </ul></section>`;
 }
 
-/* ---- render & run bar ---- */
+/* ---- render, static text, run bar ---- */
+function applyStatic(){
+  document.documentElement.lang=LANG;
+  document.title=t("title");
+  document.querySelectorAll("[data-i18n]").forEach(el=>{el.textContent=t(el.dataset.i18n);});
+  const sync=$("sync");if(sync)sync.textContent=t("syncDevice");
+  const bar=$("langbar");if(bar){bar.setAttribute("aria-label",t("langAria"));bar.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.lang===LANG)));}
+}
 function render(){
   document.querySelectorAll(".tab").forEach(b=>{if(b.dataset.tab===S.tab)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");});
   const v={ready:viewReady,cards:viewCards,mock:viewMock,facts:viewFacts}[S.tab]||viewReady;
@@ -793,23 +891,47 @@ function updateRunbar(){
   bar.hidden=!active;document.body.classList.toggle("running",active);
   if(!active)return;
   const n=R.ids.filter(answered).length,hints=Object.keys(R.hint).length,blanks=R.ids.length-n;
-  $("timer").textContent=R.end?fmtClock(R.end-Date.now()):"Untimed";
-  $("runmeta").textContent=`${n}/${R.ids.length} answered · ${hints} EN hint${hints===1?"":"s"}`;
-  const back=S.tab!=="mock"?`<button class="btn sm" data-act="tab" data-tab="mock">Back to exam</button>`:"";
-  $("runbtns").innerHTML=back+`<button class="btn primary sm" data-act="submit">${R.armed&&blanks?"Hand in with "+blanks+" blank?":"Hand in"}</button>`;
+  $("timer").textContent=R.end?fmtClock(R.end-Date.now()):t("untimed");
+  $("runmeta").textContent=`${t("runAnswered",{n,total:R.ids.length})} · ${plural("runHints",hints)}`;
+  const back=S.tab!=="mock"?`<button class="btn sm" data-act="tab" data-tab="mock">${esc(t("backToExam"))}</button>`:"";
+  $("runbtns").innerHTML=back+`<button class="btn primary sm" data-act="submit">${esc(R.armed&&blanks?plural("handInBlank",blanks):t("handIn"))}</button>`;
+}
+
+/* ---- languages ---- */
+function loadLang(code){
+  if(LANGS[code])return Promise.resolve(true);
+  return new Promise(res=>{const s=document.createElement("script");s.src="lang/"+code+".js?v="+LANG_VER;s.async=true;s.onload=()=>res(!!LANGS[code]);s.onerror=()=>res(false);document.head.appendChild(s);});
+}
+function setLang(code,remember){
+  if(CODES.indexOf(code)<0)code="en";
+  return loadLang(code).then(ok=>{
+    if(!ok)code="en";
+    LANG=code;
+    if(remember){try{localStorage.setItem(LSLANG,code);}catch(e){}}
+    applyStatic();render();
+  });
+}
+function initialLang(){
+  let c=null;try{c=localStorage.getItem(LSLANG);}catch(e){}
+  if(c&&CODES.indexOf(c)>=0)return c;
+  const nav=String((navigator.languages&&navigator.languages[0])||navigator.language||"en").toLowerCase();
+  if(nav.indexOf("uk")===0)return "uk";
+  if(nav.indexOf("hi")===0)return "hi";
+  return "en";
 }
 
 /* ---- actions ---- */
 const ACT={
+  lang:b=>{setLang(b.dataset.lang,true);},
   tab:b=>{S.tab=b.dataset.tab;render();window.scrollTo(0,0);},
   startMock:()=>{if(S.run&&!S.run.done){S.tab="mock";render();return;}startRun("mock",0);},
-  startDrill:b=>{if(S.run&&!S.run.done){S.tab="mock";render();return;}const t=+b.dataset.topic||S.drillTopic;S.drillTopic=t;startRun("drill",t);},
+  startDrill:b=>{if(S.run&&!S.run.done){S.tab="mock";render();return;}const n=+b.dataset.topic||S.drillTopic;S.drillTopic=n;startRun("drill",n);},
   drillTopic:b=>{S.drillTopic=+b.dataset.topic;render();},
-  hint:b=>{const R=S.run;if(!R||R.done)return;const id=b.dataset.id;R.hint[id]=true;const blk=$("b-"+id);if(blk)blk.classList.add("hinted");b.textContent="English shown (hint counted)";b.setAttribute("aria-pressed","true");saveRunSoon();updateRunbar();},
+  hint:b=>{const R=S.run;if(!R||R.done)return;const id=b.dataset.id;R.hint[id]=true;const blk=$("b-"+id);if(blk)blk.classList.add("hinted");b.textContent=t("hintShown");b.setAttribute("aria-pressed","true");saveRunSoon();updateRunbar();},
   submit:()=>{const R=S.run;if(!R||R.done)return;const blanks=R.ids.filter(id=>!answered(id)).length;if(blanks>0&&!R.armed){R.armed=true;updateRunbar();setTimeout(()=>{if(S.run===R&&!R.done){R.armed=false;updateRunbar();}},4000);return;}submitRun();},
   discard:()=>{const R=S.run;if(!R)return;if(!R.discard){R.discard=true;render();setTimeout(()=>{if(S.run===R&&!R.done&&R.discard){R.discard=false;if(S.tab==="mock")render();}},4000);return;}S.run=null;saveRun();render();},
   closeRun:()=>{S.run=null;saveRun();render();},
-  ov:b=>{const R=S.run;if(!R)return;const m=P.mocks.find(x=>x.id===R.mid);if(!m)return;const x=m.rows[+b.dataset.i];if(!x||x.f>=1)return;x.f=1;x.ov=true;m.score=r1(m.rows.reduce((s,r)=>s+r.f*r.p,0));const s=P.items[x.id];if(s&&s.qt===m.at){s.qs=1;s.u=Date.now();}m.synced=false;persist();pushMock(m);render();},
+  ov:b=>{const R=S.run;if(!R)return;const m=P.mocks.find(x=>x.id===R.mid);if(!m)return;const x=m.rows[+b.dataset.i];if(!x||x.f>=1)return;x.f=1;x.ov=true;m.score=r1(m.rows.reduce((s,r)=>s+r.f*r.p,0));const s=P.items[x.id];if(s&&s.qt===m.at){s.qs=1;s.u=Date.now();}persist();render();},
   filter:b=>{const v=b.dataset.f;S.cardFilter=v==="all"?"all":+v;S.flash=null;render();},
   startCards:()=>{S.flash=buildSession(S.cardFilter);render();},
   endCards:()=>{S.flash=null;render();},
@@ -829,17 +951,13 @@ document.addEventListener("input",onField);
 document.addEventListener("change",onField);
 setInterval(()=>{const R=S.run;if(!R||R.done||!R.end)return;const left=R.end-Date.now();if(left<=0){submitRun();return;}const el=$("timer");if(el)el.textContent=fmtClock(left);},1000);
 
-/* ---- boot ---- */
-function boot(data){
-  loadLocal();
-  if(data&&data.S){try{Object.assign(S,data.S);}catch(e){}}
-  if(S.run&&!S.run.done&&S.run.end&&S.run.end<=Date.now())submitRun();
-  if(S.run&&!S.run.done)S.tab="mock";
-  render();connect();
-}
-try{if(window.claude&&window.claude.hot&&typeof window.claude.hot.snapshot==="function")window.claude.hot.snapshot(()=>({S:{tab:S.tab,run:S.run,flash:S.flash,cardFilter:S.cardFilter,drillTopic:S.drillTopic}}));}catch(e){}
-const H=window.claude&&window.claude.hot;
-if(H&&typeof H.ready==="function")H.ready(boot);else boot((H&&H.data)||{});
+/* ---- boot: render in English at once, then switch if another language is preferred ---- */
+loadLocal();
+if(S.run&&!S.run.done&&S.run.end&&S.run.end<=Date.now())submitRun();
+if(S.run&&!S.run.done)S.tab="mock";
+applyStatic();render();
+const first=initialLang();
+if(first!=="en")setLang(first,false);
 })();
 </script>
 </body>
